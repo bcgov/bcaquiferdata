@@ -1,0 +1,23 @@
+Package: bcaquiferdata
+Title: Shiny App tool for processing BC Aquifer data
+Version: 0.0.0.9000
+Authors@R: 
+   c(person("Steffi", "LaZerte", email = "steffi@steffi.ca", role = c("aut"), 
+             comment = c(ORCID = "0000-0002-7690-8360")))
+Description: Shiny App tool for processing BC Aquifer data
+License: Apache License (>= 2)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Imports: 
+    bcdata (>= 0.2.4),
+    dplyr (>= 1.0.7),
+    httr (>= 1.4.2),
+    janitor (>= 2.1.0),
+    magrittr,
+    rappdirs (>= 0.3.3),
+    sf (>= 0.9.8),
+    stars (>= 0.5.3),
+    stringr (>= 1.4.0)
+Depends: 
+    R (>= 2.10)
