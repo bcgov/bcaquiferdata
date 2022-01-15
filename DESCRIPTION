@@ -28,3 +28,4 @@ Depends:
     R (>= 2.10)
 Suggests: 
     ggplot2 (>= 3.3.5)
+LazyData: true
