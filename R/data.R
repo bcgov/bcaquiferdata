@@ -66,8 +66,8 @@ fetch_gwells <- function() {
     httr::GET(httr::write_disk(file.path(cache_dir(), "gwells.zip"),
                                overwrite = TRUE),
               httr::progress())
-  unzip(file.path(cache_dir(), "gwells.zip"), exdir = cache_dir(),
-        files = c("well.csv", "lithology.csv"), overwrite = TRUE)
+  utils::unzip(file.path(cache_dir(), "gwells.zip"), exdir = cache_dir(),
+               files = c("well.csv", "lithology.csv"), overwrite = TRUE)
   unlink(file.path(cache_dir(), "gwells.zip"))
 }
 
@@ -77,8 +77,8 @@ clean_wells <- function(file = "well.csv") {
     janitor::clean_names() %>%
     dplyr::filter(!is.na(.data$latitude_decdeg),
                   !is.na(.data$longitude_decdeg)) %>%
-    dplyr::mutate(water_depth_m = static_water_level_ft_btoc * 0.3048,
-                  well_depth_m = finished_well_depth_ft_bgl * 0.3048)
+    dplyr::mutate(water_depth_m = .data$static_water_level_ft_btoc * 0.3048,
+                  well_depth_m = .data$finished_well_depth_ft_bgl * 0.3048)
 }
 
 clean_lithology <- function(wells, file = "lithology.csv") {
@@ -89,7 +89,7 @@ clean_lithology <- function(wells, file = "lithology.csv") {
     dplyr::mutate(
       lithology_from_m = round(.data$lithology_from_ft_bgl * 0.3048, 2),
       lithology_to_m = round(.data$lithology_to_ft_bgl * 0.3048, 2),
-      lithology_raw_data = stringr::str_to_lower(lithology_raw_data)) %>%
+      lithology_raw_data = stringr::str_to_lower(.data$lithology_raw_data)) %>%
     dplyr::select("well_tag_number", "lithology_from_m",
                   "lithology_to_m", "lithology_raw_data") %>%
     dplyr::left_join(
@@ -104,14 +104,14 @@ clean_lithology <- function(wells, file = "lithology.csv") {
                                    .data$lithology_to_m)) %>%
 
     # Fix overflow lithology (zero to zero)
-    dplyr::mutate(zerozero = lithology_from_m == 0 & lithology_to_m == 0) %>%
-    dplyr::arrange(well_tag_number, zerozero, lithology_from_m) %>%
+    dplyr::mutate(zerozero = .data$lithology_from_m == 0 & .data$lithology_to_m == 0) %>%
+    dplyr::arrange(.data$well_tag_number, .data$zerozero, .data$lithology_from_m) %>%
     dplyr::mutate(
       lithology_raw_data = dplyr::if_else(
         dplyr::lead(.data$zerozero, default = FALSE),
         paste(.data$lithology_raw_data, dplyr::lead(.data$lithology_raw_data)),
         .data$lithology_raw_data)) %>%
-    dplyr::filter(!zerozero) %>%
+    dplyr::filter(!.data$zerozero) %>%
 
     # Fix incorrect lithology_to_m
     dplyr::mutate(
@@ -161,3 +161,5 @@ cache_dir <- function() {
 cache_clean <- function() {
   unlink(cache_dir(), recursive = TRUE)
 }
+
+

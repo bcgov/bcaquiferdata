@@ -3,3 +3,7 @@
 ^misc$
 ^data-raw$
 ^DEV_TESTS.R$
+^LICENSE$
+^CODE_OF_CONDUCT.md$
+^COMPLIANCE.yaml$
+^CONTRIBUTING.md$

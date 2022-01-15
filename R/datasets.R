@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-#' @importFrom magrittr %>%
-#' @importFrom rlang .data
-NULL
+#' Tiles
+#'
+#' A dataset of LiDAR tiles available
+"tiles"

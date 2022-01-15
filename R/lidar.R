@@ -48,13 +48,13 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
   message("Checking for matching tifs")
   fetch <- sf::st_filter(tiles, region) %>%
     sf::st_drop_geometry() %>%
-    dplyr::mutate(locs = purrr::map(locs, lidar_check_urls, local_tiles, verbose)) %>%
-    tidyr::unnest(locs) %>%
-    dplyr::group_by(map_tile) %>%
-    dplyr::mutate(n_good = sum(tif_good, na.rm = TRUE)) %>%
-    dplyr::arrange(dplyr::desc(tif_good), dplyr::desc(tile), .by_group = TRUE) %>%
+    dplyr::mutate(locs = purrr::map(.data$locs, lidar_check_urls, !!local_tiles, !!verbose)) %>%
+    tidyr::unnest("locs") %>%
+    dplyr::group_by(.data$map_tile) %>%
+    dplyr::mutate(n_good = sum(.data$tif_good, na.rm = TRUE)) %>%
+    dplyr::arrange(dplyr::desc(.data$tif_good), dplyr::desc(.data$tile), .by_group = TRUE) %>%
     dplyr::slice(1) %>%
-    dplyr::mutate(out_file = file.path(out_dir, tile))
+    dplyr::mutate(out_file = file.path(!!out_dir, .data$tile))
 
   for(i in seq_len(nrow(fetch))) {
     msg <- paste0("Fetching ", fetch$tile[i])
@@ -64,7 +64,7 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
     }
     message(msg)
     resp <- httr::GET(fetch$url[i], httr::progress())
-    writeBin(content(resp, "raw"), fetch$out_file[i])
+    writeBin(httr::content(resp, "raw"), fetch$out_file[i])
   }
 
   fetch
