@@ -1,0 +1,97 @@
+---
+output: github_document
+---
+
+# bcaquiferdata
+
+This is the preliminary work on a Shiny App tool for BC Gov for working with aquifer data.
+
+
+To install:
+
+```{r, eval = FALSE}
+install.packages("bcaquiferdata", 
+                 repos = c("https://steffilazerte.r-universe.dev", 
+                           "https://cloud.r-project.org"))
+```
+
+### General Workflow
+```{r, message = FALSE}
+library(sf)
+library(ggplot2)
+library(bcaquiferdata)
+```
+
+
+Load a shape file defining the region of interest
+```{r}
+creek <- st_read("misc/data/Clinton_Creek.shp")
+```
+
+Fetch LiDAR DEM (this may take a while the first time)
+
+```{r}
+creek_lidar <- lidar_region(creek)
+```
+
+Plot to double check
+```{r}
+plot(creek_lidar)
+```
+
+Collect wells in this region with added elevation from LiDAR
+
+```{r}
+creek_wells <- wells_elev(creek, creek_lidar)
+```
+
+Plot again to double check
+```{r}
+ggplot() +
+  geom_sf(data = creek) +
+  geom_sf(data = creek_wells, size= 0.5, colour = "dark blue",
+          fill="NA", show.legend = FALSE) +
+ coord_sf(datum = st_crs(3005)) # BC Albers
+```
+
+Export data for Strater and Voxler
+```{r}
+wells_export(creek_wells, id = "clinton")
+```
+
+
+
+### Extra tools
+
+```{r, message = FALSE}
+library(dplyr)
+library(readr)
+```
+
+
+Load cleaned data (will fetch if doesn't already exist)
+
+```{r}
+wells <- data_read("wells")
+```
+
+Explore the lithology standardization performed by bcaquiferdata
+
+```{r}
+lith_std <- wells %>%
+  select(well_tag_number, well_depth_m, contains("lith")) %>%
+  arrange(!is.na(lith_category))
+lith_std
+```
+
+Save it to peruse later
+```{r}
+write_csv(lith_std, "lith_categorization.csv")
+```
+
+
+```{r, include = FALSE}
+unlink(c("lith_categorization.csv", "clinton_lith.csv", "clinton_collars.csv",
+         "clinton_wls.csv", "clinton_vox"))
+```
+
