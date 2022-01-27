@@ -428,16 +428,14 @@ fix_lithology <- function(lithology) {
   lith_combo <- dplyr::left_join(lith_desc2, lith_cats, by = "lith_clean")
 
   lith_combo %>%
-    dplyr::mutate(primary = purrr::map_chr(.data$primary, collapse_nested),
-                  secondary = purrr::map_chr(.data$secondary, collapse_nested),
-                  tertiary = purrr::map_chr(.data$tertiary, collapse_nested),
-                  extra = purrr::map_chr(.data$extra, collapse_nested)) %>%
-    dplyr::arrange(!is.na(.data$lith_category)) %>%
-    readr::write_csv("lith_categorization.csv")
-
-  # Bind to lithology data and return
-  lith_combo %>%
-    dplyr::select("lithology_raw_data", "lith_clean", "lith_category") %>%
+    dplyr::mutate(lith_primary = purrr::map_chr(.data$primary, collapse_nested),
+                  lith_secondary = purrr::map_chr(.data$secondary, collapse_nested),
+                  lith_tertiary = purrr::map_chr(.data$tertiary, collapse_nested),
+                  lith_extra = purrr::map_chr(.data$extra, collapse_nested)) %>%
+    # Bind to lithology data and return
+    dplyr::select("lithology_raw_data", "lith_clean",
+                  "lith_primary", "lith_secondary", "lith_tertiary",
+                  "lith_extra", "lith_category") %>%
     dplyr::left_join(lithology, ., by = "lithology_raw_data")
 }
 
