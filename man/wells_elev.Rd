@@ -4,7 +4,7 @@
 \alias{wells_elev}
 \title{Subset wells and add elevation}
 \usage{
-wells_elev(region, lidar)
+wells_elev(region, lidar, update = FALSE)
 }
 \arguments{
 \item{region}{sf simple features object. Shape file of the region of
