@@ -12,6 +12,36 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
+#' Download, Update, and/or load data
+#'
+#' This function downloads, updates or loads locally stored data. Currently this function returns `wells`, `wells_sf`, or `lithology` data.
+#' Note that these data are originally from GWELLS, but are cleaned and
+#' summarized for use in the bcaquiferdata package. For example `wells_sf` is a
+#' spatial version of the data, and `lithology` is a cleaned and standardized
+#' version of lithology. `wells` also contains the new standardized `lithology`
+#' data, along with the original lithology observations and intermediate
+#' classification steps to simplify error tracing.
+#'
+#' Under normal circumstances, users will not need to use this function as it is
+#' used internally by the main workflow functions. However, users may wish to
+#' overview entire datasets.
+#'
+#' Bear in mind that the lithology cleaning and
+#' standardizing, while better than the original data, will almost certainly
+#' still have errors!
+#'
+#' @param type Character. Type of data to return, one of `wells`, `wells_sf`, or
+#'   `lithology`
+#' @param update Logical. Force update of the data?
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#' wells <- data_read("wells")
+#' }
 data_read <- function(type, update = FALSE) {
   cache_check()
 
@@ -104,7 +134,8 @@ clean_lithology <- function(wells, file = "lithology.csv") {
                                    .data$lithology_to_m)) %>%
 
     # Fix overflow lithology (zero to zero)
-    dplyr::mutate(zerozero = .data$lithology_from_m == 0 & .data$lithology_to_m == 0) %>%
+    dplyr::mutate(zerozero = .data$lithology_from_m == 0 &
+                    .data$lithology_to_m == 0) %>%
     dplyr::arrange(.data$well_tag_number, .data$zerozero, .data$lithology_from_m) %>%
     dplyr::mutate(
       lithology_raw_data = dplyr::if_else(
@@ -116,7 +147,8 @@ clean_lithology <- function(wells, file = "lithology.csv") {
     # Fix incorrect lithology_to_m
     dplyr::mutate(
       lithology_to_m = dplyr::if_else(
-        # SHOULD THIS BE == TO SAME lithology_from_m? I.e. not lead? (what about the last, really + 0.01?
+        # SHOULD THIS BE == TO SAME lithology_from_m?
+        # I.e. not lead? (what about the last, really + 0.01?
         .data$lithology_to_m == 0,
         dplyr::lead(.data$lithology_from_m),
         .data$lithology_to_m)) %>%
