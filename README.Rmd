@@ -20,9 +20,10 @@ install.packages("bcaquiferdata",
 library(sf)
 library(ggplot2)
 library(bcaquiferdata)
+library(ggspatial)
 ```
 
-
+#### Clinton Creek
 Load a shape file defining the region of interest
 ```{r}
 creek <- st_read("misc/data/Clinton_Creek.shp")
@@ -59,6 +60,58 @@ Export data for Strater and Voxler
 wells_export(creek_wells, id = "clinton")
 ```
 
+#### Mill Bay Watershed
+Load a shape file defining the region of interest
+```{r}
+mill <- st_read("misc/data/MillBayWatershed.shp")
+```
+
+We'll check against some tiles
+```{r, cache = TRUE}
+g <- ggplot() +
+  annotation_map_tile(type = "osm", zoomin = -1) +
+  geom_sf(data = mill, fill = NA, linewidth = 1.5) +
+  labs(caption = "Data from OpenStreet Map")
+g
+```
+
+Fetch LiDAR DEM (this may take a while the first time)
+
+```{r}
+mill_lidar <- lidar_region(mill)
+```
+
+Add to our plot to double check
+```{r}
+temp <- stars::st_downsample(mill_lidar, n = 12) %>% # Downsample first
+  st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
+
+g <- g + geom_sf(data = temp, aes(fill = elev), colour = NA)
+g
+```
+
+Looks like we don't have elevation data for the whole region. 
+This can be confirmed by checking the online [LidarBC map](https://www.arcgis.com/apps/mapviewer/index.html?webmap=c2967cee749b4bdbac5e7c62935ca167)
+
+Collect wells in this region with added elevation from LiDAR
+
+```{r}
+mill_wells <- wells_elev(mill, mill_lidar)
+```
+
+Plot again to double check, see the points where we don't have elevation data.
+```{r}
+g +
+  geom_sf(data = mill_wells, size= 1, aes(colour = is.na(elev))) +
+  scale_colour_manual(values = c("white", "black"))
+```
+
+
+
+Export data for Strater and Voxler
+```{r}
+wells_export(mill_wells, id = "mill")
+```
 
 
 ### Extra tools
@@ -72,13 +125,13 @@ library(readr)
 Load cleaned data (will fetch if doesn't already exist)
 
 ```{r}
-wells <- data_read("wells")
+wells_lith <- data_read("wells_lith")
 ```
 
 Explore the lithology standardization performed by bcaquiferdata
 
 ```{r}
-lith_std <- wells %>%
+lith_std <- wells_lith %>%
   select(well_tag_number, well_depth_m, contains("lith")) %>%
   arrange(!is.na(lith_category))
 lith_std
@@ -91,7 +144,8 @@ write_csv(lith_std, "lith_categorization.csv")
 
 
 ```{r, include = FALSE}
-unlink(c("lith_categorization.csv", "clinton_lith.csv", "clinton_collars.csv",
-         "clinton_wls.csv", "clinton_vox"))
+unlink(c("lith_categorization.csv", 
+         "clinton_lith.csv", "clinton_collars.csv", "clinton_wls.csv", "clinton_vox",
+         "mill_lith.csv", "mill_collars.csv", "mill_wls.csv", "mill_vox"))
 ```
 
