@@ -16,9 +16,6 @@ Defaults to the cache directory.}
 \item{only_new}{Logical. Whether to download all LiDAr tiles, or only new
 tiles that don't exist locally. Defaults to TRUE.}
 }
-\value{
-
-}
 \description{
 This function takes a shape file of a region and creates a LiDAR DEM of the
 region. LiDAR data is stored locally as tiles. Tiles are only downloaded if

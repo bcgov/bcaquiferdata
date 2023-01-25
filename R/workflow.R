@@ -47,7 +47,8 @@ lidar_region <- function(region, lidar_dir = NULL, only_new = TRUE) {
     dplyr::pull(.data$out_file) %>%
     normalizePath() %>%
     stars::st_mosaic() %>%
-    stars::read_stars()
+    stars::read_stars() %>%
+    stats::setNames("elev")
 
   # Match regional crs to lidar
   region <- sf::st_transform(region, crs = sf::st_crs(lidar))
