@@ -14,13 +14,14 @@
 
 #' Download, Update, and/or load data
 #'
-#' This function downloads, updates or loads locally stored data. Currently this function returns `wells`, `wells_sf`, or `lithology` data.
-#' Note that these data are originally from GWELLS, but are cleaned and
-#' summarized for use in the bcaquiferdata package. For example `wells_sf` is a
-#' spatial version of the data, and `lithology` is a cleaned and standardized
-#' version of lithology. `wells` also contains the new standardized `lithology`
-#' data, along with the original lithology observations and intermediate
-#' classification steps to simplify error tracing.
+#' This function downloads, updates or loads locally stored data. Currently this
+#' function returns `wells`, `wells_sf`, or `lithology` data. Note that these
+#' data are originally from GWELLS, but are cleaned and summarized for use in
+#' the bcaquiferdata package. For example `wells_sf` is a spatial version of the
+#' data, and `lithology` is a cleaned and standardized version of lithology.
+#' `wells` also contains the new standardized `lithology` data, along with the
+#' original lithology observations and intermediate classification steps to
+#' simplify error tracing.
 #'
 #' Under normal circumstances, users will not need to use this function as it is
 #' used internally by the main workflow functions. However, users may wish to
@@ -47,48 +48,54 @@ data_read <- function(type, update = FALSE) {
 
   f <- file.path(cache_dir(), paste0(type, "_nice.rds"))
 
-  if(update || !file.exists(f)) {
-    data_update(type = dplyr::case_when(
-      type %in% c("wells", "wells_sf", "lithology") ~ "gwells"))
-  }
+  if(update || !file.exists(f)) data_update(type = "all")
 
   readr::read_rds(f)
 }
 
-data_update <- function(type = "gwells") {
+data_update <- function(which = c("all", "wells", "lithology", "wells_lith")) {
 
   cache_check()
 
-  if(type == "gwells") {
-
-    # Download the data
+  # Download the data
+  if(which %in% c("all", "wells", "lith")) {
     message("Downloading GWELLS data")
     fetch_gwells()
+  }
 
-    # Clean and Save wells
+  # Clean and Save wells
+  if(which %in% c("all", "wells")) {
     message("Wells - Cleaning")
     wells <- clean_wells()
-
-    # Clean and Save lithology
-    message("Lithology")
-    message("  - Cleaning")
-    lith <- clean_lithology(wells)
-    message("  - Standardizing")
-    lith <- fix_lithology(lith)      # Standardize lithology
-
-    wells <- dplyr::left_join(wells, lith,
-                              by = c("well_tag_number", "well_depth_m"))
-
     wells_sf <- sf::st_as_sf(wells,
                              coords = c("longitude_decdeg", "latitude_decdeg"),
                              crs = 4326)
 
-    # Saving files
-    message("Saving data to cache")
+    message("Wells - Saving data to cache")
     readr::write_rds(wells_sf, file.path(cache_dir(), "wells_sf_nice.rds"))
     readr::write_rds(wells, file.path(cache_dir(), "wells_nice.rds"))
-
   }
+
+  # Clean and Standardize lithology
+  if(which %in% c("all", "wells")) {
+    if(!exists("wells")) wells <- data_read("wells")
+    lith <- clean_lithology(wells)
+  }
+
+  message("Wells with Lithology - Saving data to cache")
+  if(!exists("wells")) wells <- data_read("wells")
+  if(!exists("lith")) lith <- data_read("lithology")
+
+  wells_lith <- dplyr::left_join(wells, lith,
+                                 by = c("well_tag_number", "well_depth_m"))
+
+  wells_lith_sf <- sf::st_as_sf(wells_lith,
+                                coords = c("longitude_decdeg", "latitude_decdeg"),
+                                crs = 4326)
+
+  readr::write_rds(wells_lith_sf, file.path(cache_dir(), "wells_lith_sf_nice.rds"))
+  readr::write_rds(wells_lith, file.path(cache_dir(), "wells_lith_nice.rds"))
+
 }
 
 fetch_gwells <- function() {
@@ -111,53 +118,21 @@ clean_wells <- function(file = "well.csv") {
                   well_depth_m = .data$finished_well_depth_ft_bgl * 0.3048)
 }
 
-clean_lithology <- function(wells, file = "lithology.csv") {
-  readr::read_csv(file.path(cache_dir(), file),
-                  guess_max = Inf, show_col_types = FALSE) %>%
-    janitor::clean_names() %>%
-    # Convert to metric
-    dplyr::mutate(
-      lithology_from_m = round(.data$lithology_from_ft_bgl * 0.3048, 2),
-      lithology_to_m = round(.data$lithology_to_ft_bgl * 0.3048, 2),
-      lithology_raw_data = stringr::str_to_lower(.data$lithology_raw_data)) %>%
-    dplyr::select("well_tag_number", "lithology_from_m",
-                  "lithology_to_m", "lithology_raw_data") %>%
-    dplyr::left_join(
-      dplyr::select(wells, "well_tag_number", "well_depth_m"),
-      by = "well_tag_number") %>%
-    dplyr::group_by(.data$well_tag_number) %>%
 
-    # Fix lithology where only 1 entry
-    dplyr::mutate(lithology_to_m =
-                    dplyr::if_else(dplyr::n() == 1 & .data$lithology_to_m == 0,
-                                   .data$well_depth_m,
-                                   .data$lithology_to_m)) %>%
+clean_lithology <- function(wells = NULL, file = "lithology.csv") {
 
-    # Fix overflow lithology (zero to zero)
-    dplyr::mutate(zerozero = .data$lithology_from_m == 0 &
-                    .data$lithology_to_m == 0) %>%
-    dplyr::arrange(.data$well_tag_number, .data$zerozero, .data$lithology_from_m) %>%
-    dplyr::mutate(
-      lithology_raw_data = dplyr::if_else(
-        dplyr::lead(.data$zerozero, default = FALSE),
-        paste(.data$lithology_raw_data, dplyr::lead(.data$lithology_raw_data)),
-        .data$lithology_raw_data)) %>%
-    dplyr::filter(!.data$zerozero) %>%
+  message("Lithology - Cleaning")
+  l <- lith_prep(wells, file)
 
-    # Fix incorrect lithology_to_m
-    dplyr::mutate(
-      lithology_to_m = dplyr::if_else(
-        # SHOULD THIS BE == TO SAME lithology_from_m?
-        # I.e. not lead? (what about the last, really + 0.01?
-        .data$lithology_to_m == 0,
-        dplyr::lead(.data$lithology_from_m),
-        .data$lithology_to_m)) %>%
-    dplyr::mutate(lithology_to_m = dplyr::if_else(
-      .data$lithology_to_m == max(.data$lithology_from_m),
-      .data$lithology_to_m + 0.01,
-      .data$lithology_to_m)) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-"zerozero")
+  message("Lithology - Standardizing")
+  l <- lith_fix(file)
+
+  l <- dplyr::left_join(lith_prep(wells, file), l, by = "lithology_raw_data")
+
+  message("Lithology - Saving data to cache")
+  readr::write_rds(l, file.path(cache_dir(), "lithology_nice.rds"))
+
+  l
 }
 
 cache_check <- function() {

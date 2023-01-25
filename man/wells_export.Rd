@@ -14,9 +14,6 @@ wells_export(wells_sub, id, dir = ".")
 \item{dir}{Character. Directory where files should be exported to. Defaults
 to working directory.}
 }
-\value{
-
-}
 \description{
 Export wells data for use in Strater and Voxler
 }

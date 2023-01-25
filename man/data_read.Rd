@@ -12,17 +12,15 @@ data_read(type, update = FALSE)
 
 \item{update}{Logical. Force update of the data?}
 }
-\value{
-
-}
 \description{
-This function downloads, updates or loads locally stored data. Currently this function returns \code{wells}, \code{wells_sf}, or \code{lithology} data.
-Note that these data are originally from GWELLS, but are cleaned and
-summarized for use in the bcaquiferdata package. For example \code{wells_sf} is a
-spatial version of the data, and \code{lithology} is a cleaned and standardized
-version of lithology. \code{wells} also contains the new standardized \code{lithology}
-data, along with the original lithology observations and intermediate
-classification steps to simplify error tracing.
+This function downloads, updates or loads locally stored data. Currently this
+function returns \code{wells}, \code{wells_sf}, or \code{lithology} data. Note that these
+data are originally from GWELLS, but are cleaned and summarized for use in
+the bcaquiferdata package. For example \code{wells_sf} is a spatial version of the
+data, and \code{lithology} is a cleaned and standardized version of lithology.
+\code{wells} also contains the new standardized \code{lithology} data, along with the
+original lithology observations and intermediate classification steps to
+simplify error tracing.
 }
 \details{
 Under normal circumstances, users will not need to use this function as it is
