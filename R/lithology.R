@@ -541,6 +541,50 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
                   "lith_flag", "lith_extra", "lith_category", "yield_units")
 }
 
+lith_yield <- function(lith, flatten = FALSE) {
+
+  p_units_yield <- "( )?(gpm|gph)"
+  p_units_depth_ft <- "'|ft|feet"
+  p_units_depth_m <- "m|meters|metres"
+  p_units_depth <- paste0("(( )?(", p_units_depth_ft, "|", p_units_depth_m, "))")
+
+  p_yield <- paste0("(", p_range(), "|", p_dbl(), ")", p_units_yield)
+  p_depth <- paste0("\\d+", p_units_depth)
+
+  l <- lith %>%
+    dplyr::filter(.data$yield_units != "") %>%
+    dplyr::select("lithology_raw_data") %>%
+    dplyr::mutate(
+      digits_extra = stringr::str_squish(.data$lithology_raw_data),
+      digits_extra = fix_fraction(.data$digits_extra),
+      yield_chr = stringr::str_extract_all(.data$digits_extra, .env$p_yield),
+      digits_extra = stringr::str_remove_all(.data$digits_extra, .env$p_yield),
+      yield_chr = purrr::map(.data$yield_chr,
+                             ~stringr::str_remove_all(., .env$p_units_yield)),
+      depth = stringr::str_extract_all(.data$digits_extra, .env$p_depth),
+      digits_extra = stringr::str_remove_all(.data$digits_extra, .env$p_depth),
+      digits_extra = stringr::str_extract_all(.data$digits_extra, "\\d+"),
+      digits_extra = purrr::map_chr(
+        .data$digits_extra, ~paste0(.x, collapse = ";")),
+      depth_units = purrr::map_chr(
+        .data$depth,
+        ~ stringr::str_extract_all(.x, .env$p_units_depth) %>%
+          stringr::str_replace_all(c(setNames("m", p_units_depth_m),
+                                     setNames("ft", p_units_depth_ft))) %>%
+          unique() %>%
+          paste0("")),
+      depth = purrr::map(
+        .data$depth,
+        ~stringr::str_remove_all(.x, .env$p_units_depth) %>% as.numeric()),
+      yield = purrr::map(.data$yield_chr, fix_range)) %>%
+    dplyr::select(-"yield_chr")
+
+  dplyr::left_join(lith, l, by = "lithology_raw_data") %>%
+    dplyr::relocate("yield_units", .after = "yield")
+}
+
+
+
 lith_get_terms <- function(from, not) {
   unique(from) %>%
     stringr::str_split(., pattern = "\\b") %>%
