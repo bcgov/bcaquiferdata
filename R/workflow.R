@@ -90,7 +90,7 @@ lidar_region <- function(region, lidar_dir = NULL, only_new = TRUE) {
 #'           fill="NA",show.legend=FALSE) +
 #'  coord_sf(datum = st_crs(3005)) # BC Albers
 #'
-wells_elev <- function(region, lidar, wells = "wells_lith", update = FALSE) {
+wells_elev <- function(region, lidar, type = "wells_lith", update = FALSE) {
 
   if(!"sf" %in% class(region)) {
     stop("'region' must be an sf spatial object (see examples)",
@@ -106,7 +106,7 @@ wells_elev <- function(region, lidar, wells = "wells_lith", update = FALSE) {
 
   region <- sf::st_transform(region, sf::st_crs(lidar))
 
-  wells_sub <- data_read(type = paste0(wells, "_sf"), update = update) %>%
+  wells_sub <- data_read(type = paste0(type, "_sf"), update = update) %>%
     sf::st_transform(sf::st_crs(lidar)) %>%
     sf::st_filter(region)
 

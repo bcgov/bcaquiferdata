@@ -44,27 +44,42 @@
 #' wells <- data_read("wells")
 #' }
 data_read <- function(type, update = FALSE) {
+  t <- c("lithology", "wells", "wells_sf", "wells_lith", "wells_lith_sf")
+  if(!type %in% t) {
+    stop(
+      "`type` must be one of ",
+      paste0(t, collapse = ", "), call. = FALSE)
+  }
   cache_check()
 
   f <- file.path(cache_dir(), paste0(type, "_nice.rds"))
 
-  if(update || !file.exists(f)) data_update(type = "all")
+  if(update || !file.exists(f)) data_update(which = "all")
 
   readr::read_rds(f)
 }
 
-data_update <- function(which = c("all", "wells", "lithology", "wells_lith")) {
+
+#' @export
+
+data_update <- function(type = "all", download = TRUE) {
+
+  if(!type %in% c("all", "wells", "lithology", "wells_lith")) {
+    stop("`type` must be one of ",
+         paste0(c("all", "wells", "lithology", "wells_lith"), collapse = ", "),
+         call. = FALSE)
+  }
 
   cache_check()
 
   # Download the data
-  if(which %in% c("all", "wells", "lith")) {
+  if(download && type %in% c("all", "wells", "lith")) {
     message("Downloading GWELLS data")
     fetch_gwells()
   }
 
   # Clean and Save wells
-  if(which %in% c("all", "wells")) {
+  if(type %in% c("all", "wells")) {
     message("Wells - Cleaning")
     wells <- clean_wells()
     wells_sf <- sf::st_as_sf(wells,
@@ -77,17 +92,17 @@ data_update <- function(which = c("all", "wells", "lithology", "wells_lith")) {
   }
 
   # Clean and Standardize lithology
-  if(which %in% c("all", "wells")) {
-    if(!exists("wells")) wells <- data_read("wells")
-    lith <- clean_lithology(wells)
+  if(type %in% c("all", "lithology")) {
+    lith <- clean_lithology()
   }
 
   message("Wells with Lithology - Saving data to cache")
   if(!exists("wells")) wells <- data_read("wells")
   if(!exists("lith")) lith <- data_read("lithology")
 
-  wells_lith <- dplyr::left_join(wells, lith,
-                                 by = c("well_tag_number", "well_depth_m"))
+  wells_lith <- dplyr::left_join(
+    wells, lith,
+    by = c("well_tag_number", "well_yield_unit_code"))
 
   wells_lith_sf <- sf::st_as_sf(wells_lith,
                                 coords = c("longitude_decdeg", "latitude_decdeg"),
@@ -100,34 +115,37 @@ data_update <- function(which = c("all", "wells", "lithology", "wells_lith")) {
 
 fetch_gwells <- function() {
   "https://s3.ca-central-1.amazonaws.com/gwells-export/export/v2/gwells.zip" %>%
-    httr::GET(httr::write_disk(file.path(cache_dir(), "gwells.zip"),
+    httr::GET(httr::write_disk(file.path(cache_dir(), "GWELLS", "gwells.zip"),
                                overwrite = TRUE),
               httr::progress())
-  utils::unzip(file.path(cache_dir(), "gwells.zip"), exdir = cache_dir(),
+  utils::unzip(file.path(cache_dir(), "GWELLS", "gwells.zip"), exdir = cache_dir(),
                files = c("well.csv", "lithology.csv"), overwrite = TRUE)
-  unlink(file.path(cache_dir(), "gwells.zip"))
+  unlink(file.path(cache_dir(), "GWELLS", "gwells.zip"))
 }
 
-clean_wells <- function(file = "well.csv") {
+clean_wells <- function(file = "GWELLS/well.csv") {
   readr::read_csv(file.path(cache_dir(), file),
                   guess_max = Inf, show_col_types = FALSE) %>%
     janitor::clean_names() %>%
     dplyr::filter(!is.na(.data$latitude_decdeg),
                   !is.na(.data$longitude_decdeg)) %>%
     dplyr::mutate(water_depth_m = .data$static_water_level_ft_btoc * 0.3048,
-                  well_depth_m = .data$finished_well_depth_ft_bgl * 0.3048)
+                  well_depth_m = .data$finished_well_depth_ft_bgl * 0.3048) %>%
+    dplyr::select(dplyr::all_of(fields_wells))
 }
 
 
-clean_lithology <- function(wells = NULL, file = "lithology.csv") {
+clean_lithology <- function(file = "GWELLS/lithology.csv") {
 
   message("Lithology - Cleaning")
-  l <- lith_prep(wells, file)
+  l_prep <- lith_prep(file)
 
   message("Lithology - Standardizing")
-  l <- lith_fix(file)
+  l_std <- lith_fix(file)
 
-  l <- dplyr::left_join(lith_prep(wells, file), l, by = "lithology_raw_data")
+  l_std <- lith_yield(l_std)
+
+  l <- dplyr::left_join(l_prep, l_std, by = "lithology_raw_data")
 
   message("Lithology - Saving data to cache")
   readr::write_rds(l, file.path(cache_dir(), "lithology_nice.rds"))
@@ -139,14 +157,14 @@ cache_check <- function() {
   # Ask for permission to save data
   if(!dir.exists(cache_dir())) {
     cont <- utils::askYesNo(
-      paste0("bcaquiferdata would like to store data for the reports ",
+      paste0("bcaquiferdata would like to store data ",
              "in: \n", cache_dir(), "\nIs that okay? ",
              "(You can always use cache_clean() to remove it)"))
 
     if(!cont) {
       stop("Can't store data. Stopping.", call. = FALSE)
     } else {
-      dir.create(file.path(cache_dir()), recursive = TRUE)
+      dir.create(file.path(cache_dir(), "GWELLS"), recursive = TRUE)
     }
   }
 }
