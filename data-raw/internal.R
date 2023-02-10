@@ -24,3 +24,35 @@ tiles_utm <- tiles %>%
 tiles <- dplyr::left_join(tiles, tiles_utm, by = "map_tile")
 
 usethis::use_data(lidar_url, tiles, overwrite = TRUE)
+
+fields_wells <- c(
+  "well_tag_number", "longitude_decdeg", "latitude_decdeg",
+  "utm_northing", "utm_easting",
+  "water_depth_m", "well_depth_m",
+  "total_depth_drilled_ft_bgl", "finished_well_depth_ft_bgl",
+  "bedrock_depth_ft_bgl", "ground_elevation_ft_asl",
+  "static_water_level_ft_btoc", "well_yield_usgpm", "well_yield_unit_code",
+  "artesian_flow_usgpm", "artesian_pressure_psi", "water_quality_colour",
+  "water_quality_odour", "yield_estimation_rate_usgpm",
+  "static_level_before_test_ft_btoc", "drawdown_ft_btoc", "aquifer_id",
+  "storativity", "transmissivity_m_2_s", "hydraulic_conductivity_m_s",
+  "specific_storage_1_m", "specific_yield", "aquifer_lithology_code",
+  "artesian_pressure_head_ft_agl", "artesian_conditions")
+
+fields_lith_gwells <- c(
+  "well_tag_number", "lithology_from_ft_bgl", "lithology_to_ft_bgl",
+  "lithology_raw_data", "lithology_description_code", "lithology_material_code",
+  "lithology_hardness_code", "lithology_colour_code",
+  "water_bearing_estimated_flow_usgpm", "well_yield_unit_code",
+  "lithology_observation")
+
+fields_lith_new <- c(
+  "lithology_from_m", "lithology_to_m",
+  "flag_no_end", "flag_zero_zero", "flag_missing", "lith_clean",
+  "lith_primary", "lith_secondary", "lith_tertiary", "lith_flag",
+  "lith_extra", "lith_yield", "lith_category", "digits_extra", "yield", "depth")
+
+
+usethis::use_data(fields_wells, fields_lith_gwells,
+                  overwrite = TRUE, internal = TRUE)
+
