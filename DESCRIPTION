@@ -11,7 +11,9 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports: 
     bcdata (>= 0.2.4),
+    bs4Dash (>= 2.2.1),
     dplyr (>= 1.0.7),
+    DT (>= 0.23),
     httr (>= 1.4.2),
     janitor (>= 2.1.0),
     magrittr,
@@ -20,6 +22,8 @@ Imports:
     readr (>= 2.1.1),
     rlang (>= 0.4.12),
     sf (>= 0.9.8),
+    shiny (>= 1.7.2),
+    shinyjs (>= 2.1.0),
     stars (>= 0.5.3),
     stringdist (>= 0.9.8),
     stringr (>= 1.4.0),
