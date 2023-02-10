@@ -7,14 +7,72 @@ library(readr)
 ### Extra
 
 # Load cleaned data (will fetch if doesn't already exist)
-wells <- data_read("wells")
+#wells <- data_read("wells")
+
+data_update(which = "all")
 
 # Return lithology by well
-wells %>%
-  select(well_tag_number, well_depth_m, contains("lith")) %>%
-  arrange(!is.na(lith_category)) %>%
-  write_csv("lith_categorization.csv")
+# wells %>%
+#   dplyr::select(well_tag_number, well_depth_m, contains("lith")) %>%
+#   dplyr::arrange(!is.na(lith_category)) %>%
+#   readr::write_csv("lith_categorization.csv")
 
+#l <- clean_lithology(wells)
+p <- lith_prep(wells)
+
+dplyr::filter(p, stringr::str_detect(lithology_raw_data, "'"))
+
+l <- lith_fix()
+
+# Check for immediate problems
+test_desc <- dplyr::filter(l, is.na(lith_category), lith_clean != "", lith_yield == "") %>%
+  dplyr::pull(lithology_raw_data)
+
+lith_fix(desc = test_desc) %>%
+  dplyr::as_tibble() %>%
+  dplyr::filter(
+    is.na(lith_category),
+    lith_clean != "",
+    lith_yield == "",
+    lith_clean != lith_extra,
+    stringr::str_detect(lith_clean, "(flow)|(traces)|(seepage)|(overburden)", negate = TRUE)) %>%
+  dplyr::select(lith_primary, lith_secondary, lith_tertiary) %>%
+  dplyr::distinct() %>%
+  as.data.frame()
+
+
+y <- dplyr::filter(l, stringr::str_detect(lithology_raw_data, "gpm")) %>%
+  dplyr::select(lithology_raw_data, lith_clean, lith_yield) %>%
+  lith_yield()
+
+dplyr::filter(y, lith_yield == "gpm, gph")
+
+lith_fix(desc = "low plasticity silt, silty clay ")
+
+lith_fix(desc = "very hard clay, silt came up in good")
+lith_fix(desc = "tilly silt")
+lith_fix(desc = "clay till")
+lith_fix(desc = "tilly clay")
+lith_fix(desc = "silt hardpacked bedrock")
+
+t <- lith_fix(desc = "soil'") %>%
+  lith_yield()
+
+lith_fix(desc = "soft bedrock - 6 gpm") %>%
+  lith_yield()
+
+lith_fix(desc = "soft bedrock - 8-10 gpm") %>%
+  lith_yield()
+
+
+
+#' Questions -----------------------------------
+lith_fix(desc = "hard packed gravel & boulders")
+
+
+# Checks - all NAs
+"very hard clay, silt came up in good" - Organics?
+  "silty clay (cemented)"
 
 ### Workflow
 
@@ -40,3 +98,26 @@ wells_export(creek_wells, id = "clinton")
 
 
 wells <- data_read("wells")
+
+
+# Plotting --------------------------------------
+library(sf)
+library(ggplot2)
+library(bcaquiferdata)
+library(ggspatial)
+
+creek <- st_read("misc/data/Clinton_Creek.shp")
+creek_lidar <- lidar_region(creek)
+
+g <- ggplot() +
+  geom_sf(data = creek, fill = NA, linewidth = 1.5)
+g
+
+ds <- nrow(creek_lidar) / 100
+temp <- stars::st_downsample(creek_lidar, n = ds) %>%
+  st_transform(crs = st_crs(creek))
+
+g + geom_stars(data = temp, aes(x = x, y = y))
+
+
+
