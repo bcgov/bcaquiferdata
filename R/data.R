@@ -43,14 +43,14 @@
 #' \dontrun{
 #' wells <- data_read("wells")
 #' }
-data_read <- function(type, update = FALSE) {
+data_read <- function(type, update = FALSE, permission = FALSE) {
   t <- c("lithology", "wells", "wells_sf", "wells_lith", "wells_lith_sf")
   if(!type %in% t) {
     stop(
       "`type` must be one of ",
       paste0(t, collapse = ", "), call. = FALSE)
   }
-  cache_check()
+  cache_check(permission)
 
   f <- file.path(cache_dir(), paste0(type, "_nice.rds"))
 
@@ -62,20 +62,24 @@ data_read <- function(type, update = FALSE) {
 
 #' @export
 
-data_update <- function(type = "all", download = TRUE) {
+data_update <- function(type = "all", download = TRUE, permission = FALSE) {
 
-  if(!type %in% c("all", "wells", "lithology", "wells_lith")) {
+  if(!type %in% c("all", "wells", "lithology")) {
     stop("`type` must be one of ",
-         paste0(c("all", "wells", "lithology", "wells_lith"), collapse = ", "),
+         paste0(c("all", "wells", "lithology"), collapse = ", "),
          call. = FALSE)
   }
 
-  cache_check()
+  cache_check(permission)
+
+  meta <- cache_meta()
+
 
   # Download the data
   if(download && type %in% c("all", "wells", "lith")) {
     message("Downloading GWELLS data")
     fetch_gwells()
+    meta$GWELLS_downloaded <- as.character(Sys.time())
   }
 
   # Clean and Save wells
@@ -89,27 +93,32 @@ data_update <- function(type = "all", download = TRUE) {
     message("Wells - Saving data to cache")
     readr::write_rds(wells_sf, file.path(cache_dir(), "wells_sf_nice.rds"))
     readr::write_rds(wells, file.path(cache_dir(), "wells_nice.rds"))
+    meta$wells_processed <- as.character(Sys.time())
   }
 
   # Clean and Standardize lithology
   if(type %in% c("all", "lithology")) {
     lith <- clean_lithology()
+    meta$lith_processed <- as.character(Sys.time())
   }
 
-  message("Wells with Lithology - Saving data to cache")
-  if(!exists("wells")) wells <- data_read("wells")
-  if(!exists("lith")) lith <- data_read("lithology")
+  # Save updated metadata
+  readr::write_csv(meta, file.path(cache_dir(), "meta.csv"))
 
-  wells_lith <- dplyr::left_join(
-    wells, lith,
-    by = c("well_tag_number", "well_yield_unit_code"))
-
-  wells_lith_sf <- sf::st_as_sf(wells_lith,
-                                coords = c("longitude_decdeg", "latitude_decdeg"),
-                                crs = 4326)
-
-  readr::write_rds(wells_lith_sf, file.path(cache_dir(), "wells_lith_sf_nice.rds"))
-  readr::write_rds(wells_lith, file.path(cache_dir(), "wells_lith_nice.rds"))
+  # message("Wells with Lithology - Saving data to cache")
+  # if(!exists("wells")) wells <- data_read("wells")
+  # if(!exists("lith")) lith <- data_read("lithology")
+  #
+  # wells_lith <- dplyr::left_join(
+  #   wells, lith,
+  #   by = c("well_tag_number", "well_yield_unit_code"))
+  #
+  # wells_lith_sf <- sf::st_as_sf(wells_lith,
+  #                               coords = c("longitude_decdeg", "latitude_decdeg"),
+  #                               crs = 4326)
+  #
+  # readr::write_rds(wells_lith_sf, file.path(cache_dir(), "wells_lith_sf_nice.rds"))
+  # readr::write_rds(wells_lith, file.path(cache_dir(), "wells_lith_nice.rds"))
 
 }
 
@@ -118,7 +127,8 @@ fetch_gwells <- function() {
     httr::GET(httr::write_disk(file.path(cache_dir(), "GWELLS", "gwells.zip"),
                                overwrite = TRUE),
               httr::progress())
-  utils::unzip(file.path(cache_dir(), "GWELLS", "gwells.zip"), exdir = cache_dir(),
+  utils::unzip(file.path(cache_dir(), "GWELLS", "gwells.zip"),
+               exdir = file.path(cache_dir(), "GWELLS"),
                files = c("well.csv", "lithology.csv"), overwrite = TRUE)
   unlink(file.path(cache_dir(), "GWELLS", "gwells.zip"))
 }
@@ -143,7 +153,7 @@ clean_lithology <- function(file = "GWELLS/lithology.csv") {
   message("Lithology - Standardizing")
   l_std <- lith_fix(file)
 
-  l_std <- lith_yield(l_std)
+  #l_std <- lith_yield(l_std)
 
   l <- dplyr::left_join(l_prep, l_std, by = "lithology_raw_data")
 
@@ -153,15 +163,27 @@ clean_lithology <- function(file = "GWELLS/lithology.csv") {
   l
 }
 
-cache_check <- function() {
+data_ready <- function() {
+  meta <- cache_meta()
+  m <- meta$wells_processed != "" & meta$lith_processed != ""
+  f <- file.exists(file.path(cache_dir(),
+                             c("wells_nice.rds", "lithology_nice.rds")))
+  all(m & f)
+}
+
+
+cache_check <- function(permission = FALSE) {
   # Ask for permission to save data
   if(!dir.exists(cache_dir())) {
-    cont <- utils::askYesNo(
-      paste0("bcaquiferdata would like to store data ",
-             "in: \n", cache_dir(), "\nIs that okay? ",
-             "(You can always use cache_clean() to remove it)"))
 
-    if(!cont) {
+    if(!permission) {
+      permission <- utils::askYesNo(
+        paste0("bcaquiferdata would like to store data ",
+               "in: \n", cache_dir(), "\nIs that okay? ",
+               "(You can always use cache_clean() to remove it)"))
+    }
+
+    if(!permission) {
       stop("Can't store data. Stopping.", call. = FALSE)
     } else {
       dir.create(file.path(cache_dir(), "GWELLS"), recursive = TRUE)
@@ -184,7 +206,27 @@ cache_dir <- function() {
 #' @export
 
 cache_clean <- function() {
-  unlink(cache_dir(), recursive = TRUE)
+  if(dir.exists(cache_dir())) {
+    message("Removing cache directory: ", cache_dir(), appendLF = FALSE)
+    unlink(cache_dir(), recursive = TRUE)
+    if(length(list.files(cache_dir())) == 0) {
+      message("... Successful")
+    } else message("... Unsuccessful")
+  } else {
+    message("No cache directory to remove")
+  }
 }
 
+cache_meta <- function() {
 
+  if(file.exists(f <- file.path(cache_dir(), "meta.csv"))) {
+    m <- read.csv(f)
+  } else {
+    m <- data.frame(
+      bcaquiferdata_version = as.character(packageVersion("bcaquiferdata")),
+      GWELLS_downloaded = "No",
+      wells_processed = "No",
+      lith_processed = "No")
+  }
+  m
+}
