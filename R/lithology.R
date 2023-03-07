@@ -436,16 +436,16 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
 
 
   ## Output remaining terms ---------------
-  lith_terms <- dplyr::select(lith_desc, "lith_clean") %>%
-    dplyr::distinct() %>%
-    dplyr::mutate(lith_clean = stringr::str_split(.data$lith_clean, pattern = "\\b")) %>%
-    tidyr::unnest("lith_clean") %>%
-    dplyr::filter(!.data$lith_clean %in% c(names(terms_good), terms_omit,
-                                           "", " ", " & ", "and")) %>%
-    dplyr::count(.data$lith_clean) %>%
-    dplyr::arrange(dplyr::desc(.data$n))
-
-  readr::write_csv(lith_terms, "lith_terms.csv")
+  # lith_terms <- dplyr::select(lith_desc, "lith_clean") %>%
+  #   dplyr::distinct() %>%
+  #   dplyr::mutate(lith_clean = stringr::str_split(.data$lith_clean, pattern = "\\b")) %>%
+  #   tidyr::unnest("lith_clean") %>%
+  #   dplyr::filter(!.data$lith_clean %in% c(names(terms_good), terms_omit,
+  #                                          "", " ", " & ", "and")) %>%
+  #   dplyr::count(.data$lith_clean) %>%
+  #   dplyr::arrange(dplyr::desc(.data$n))
+  #
+  # readr::write_csv(lith_terms, "lith_terms.csv")
 
   # Troubleshooting: Look for specific terms in the data
   #dplyr::filter(lith_desc, stringr::str_detect(lith_clean, "sandand"))
