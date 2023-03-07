@@ -40,10 +40,11 @@
 #'
 #' plot(creek_lidar)
 #'
-lidar_region <- function(region, lidar_dir = NULL, only_new = TRUE) {
+lidar_region <- function(region, lidar_dir = NULL, only_new = TRUE,
+                         progress = httr::progress()) {
   # Load lidar raster as combined (mosaic)
   message("Get LiDAR data")
-  lidar <- lidar_fetch(region, out_dir = lidar_dir) %>%
+  lidar <- lidar_fetch(region, out_dir = lidar_dir, progress = progress) %>%
     dplyr::pull(.data$out_file) %>%
     normalizePath() %>%
     stars::st_mosaic() %>%

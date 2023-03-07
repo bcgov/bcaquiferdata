@@ -30,7 +30,8 @@
 #' creek <- sf::st_read("misc/data/Clinton_Creek.shp")
 #' lidar_fetch(creek)
 #'
-lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE) {
+lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE,
+                        progress = httr::progress()) {
 
   if(is.null(out_dir)) {
     cache_check()
@@ -75,7 +76,8 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
       next
     }
     message(msg)
-    resp <- httr::GET(fetch$url[i], httr::progress())
+
+    resp <- httr::GET(fetch$url[i], progress)
     writeBin(httr::content(resp, "raw"), fetch$out_file[i])
   }
 
