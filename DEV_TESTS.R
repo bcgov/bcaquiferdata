@@ -41,11 +41,14 @@ lith_fix(desc = test_desc) %>%
   as.data.frame()
 
 
-y <- dplyr::filter(l, stringr::str_detect(lithology_raw_data, "gpm")) %>%
+y <- dplyr::filter(l, stringr::str_detect(lithology_raw_data, "425 feet 1 3/4 gpm")) %>%
   dplyr::select(lithology_raw_data, lith_clean, lith_yield) %>%
   lith_yield()
 
 dplyr::filter(y, lith_yield == "gpm, gph")
+
+
+lith_fix(desc = "med. to hard granite")
 
 lith_fix(desc = "low plasticity silt, silty clay ")
 
