@@ -245,7 +245,7 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
     # No sandy, no pea, no rock(s)
     lith_fix_spelling(
       terms = lith_terms,
-      omit = "(y$)|(diryt)|(\\bpea\\b)|(\\brock\\b)|(\\brocks\\b)|(\\bgood\\b)")  %>%
+      omit = "(y$)|(diryt)|(\\bpea\\b)|(\\brock\\b)|(\\brocks\\b)|(\\bgood\\b)|(\\bmed\\b)")  %>%
     # Add Clay specifically because odd ending
     merge_lists(lith_fix_spelling("clay", lith_terms, omit = "yy|ey")) %>%
     # Specific spelling fixes
@@ -305,8 +305,6 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
                          terms_good_other, terms_good_extra,
                          terms_good_yield) %>%
     lith_prep_regex()
-
-
 
   ## Missing spaces in basic terms -----
   # fix known multi-term problems (i.e. where terms should be split or combined)
@@ -510,7 +508,7 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
       tertiary = lith_tertiary(.data$lith_clean, terms_good_main_y),
 
       # Flag combinations that should be inspected
-      flag = purrr::pmap(
+      flags = purrr::pmap(
         list(.data$primary, .data$secondary, .data$tertiary), lith_flag),
 
       # Move (some) extra terms from categories to extra / yield
@@ -521,8 +519,11 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
       primary = purrr::map(.data$primary, ~.[!. %in% names(terms_good_extra)]),
 
       # Apply categorizing based on primary/secondary/tertiary
-      lith_category = purrr::pmap_chr(list(.data$primary, .data$secondary, .data$tertiary),
-                                      lith_categorize))
+      lithology_category = purrr::pmap_chr(list(.data$primary,
+                                                .data$secondary,
+                                                .data$tertiary),
+                                      lith_categorize)) %>%
+    tidyr::unnest("flags")
 
   # For comparing
   lith_combo <- dplyr::left_join(lith_desc2, lith_cats, by = "lith_clean")
@@ -532,21 +533,21 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
       lith_primary = purrr::map_chr(.data$primary, collapse_nested),
       lith_secondary = purrr::map_chr(.data$secondary, collapse_nested),
       lith_tertiary = purrr::map_chr(.data$tertiary, collapse_nested),
-      lith_extra = purrr::map_chr(.data$extra, collapse_nested),
-      yield_units = purrr::map_chr(.data$yield, collapse_nested),
-      lith_flag = purrr::map_chr(.data$flag, collapse_nested)) %>%
+      lithology_extra = purrr::map_chr(.data$extra, collapse_nested),
+      yield_units = purrr::map_chr(.data$yield, collapse_nested)) %>%
     # Bind to lithology data and return
-    dplyr::select("lithology_raw_data", "lith_clean",
+    dplyr::select("lithology_raw_data", "lithology_clean" = "lith_clean",
                   "lith_primary", "lith_secondary", "lith_tertiary",
-                  "lith_flag", "lith_extra", "lith_category", "yield_units")
+                  "lithology_extra", "lithology_category", "yield_units",
+                  dplyr::starts_with("flag_"))
 }
 
 lith_yield <- function(lith, flatten = FALSE) {
 
   p_units_yield <- "( )?(gpm|gph)"
   p_units_depth_ft <- "'|ft|feet"
-  p_units_depth_m <- "m|meters|metres"
-  p_units_depth <- paste0("(( )?(", p_units_depth_ft, "|", p_units_depth_m, "))")
+  p_units_depth_m <- "(m|meters|metres)\\b"
+  p_units_depth <- paste0("( )?(", p_units_depth_ft, "|", p_units_depth_m, ")")
 
   p_yield <- paste0("(", p_range(), "|", p_dbl(), ")", p_units_yield)
   p_depth <- paste0("\\d+", p_units_depth)
@@ -555,22 +556,27 @@ lith_yield <- function(lith, flatten = FALSE) {
     dplyr::filter(.data$yield_units != "") %>%
     dplyr::select("lithology_raw_data") %>%
     dplyr::mutate(
-      digits_extra = stringr::str_squish(.data$lithology_raw_data),
-      digits_extra = fix_fraction(.data$digits_extra),
-      yield_chr = stringr::str_extract_all(.data$digits_extra, .env$p_yield),
-      digits_extra = stringr::str_remove_all(.data$digits_extra, .env$p_yield),
+      flag_extra_digits = stringr::str_squish(.data$lithology_raw_data),
+      flag_extra_digits = fix_fraction(.data$flag_extra_digits),
+      yield_chr = stringr::str_extract_all(
+        .data$flag_extra_digits, .env$p_yield),
+      flag_extra_digits = stringr::str_remove_all(
+        .data$flag_extra_digits, .env$p_yield),
       yield_chr = purrr::map(.data$yield_chr,
                              ~stringr::str_remove_all(., .env$p_units_yield)),
-      depth = stringr::str_extract_all(.data$digits_extra, .env$p_depth),
-      digits_extra = stringr::str_remove_all(.data$digits_extra, .env$p_depth),
-      digits_extra = stringr::str_extract_all(.data$digits_extra, "\\d+"),
-      digits_extra = purrr::map_chr(
-        .data$digits_extra, ~paste0(.x, collapse = ";")),
+      depth = stringr::str_extract_all(.data$flag_extra_digits, .env$p_depth),
+      flag_extra_digits = stringr::str_remove_all(
+        .data$flag_extra_digits, .env$p_depth),
+      flag_extra_digits = stringr::str_extract_all(
+        .data$flag_extra_digits, "\\d+"),
+      flag_extra_digits = purrr::map_chr(
+        .data$flag_extra_digits, ~paste0(.x, collapse = ";")),
       depth_units = purrr::map_chr(
         .data$depth,
         ~ stringr::str_extract_all(.x, .env$p_units_depth) %>%
           stringr::str_replace_all(c(setNames("m", p_units_depth_m),
                                      setNames("ft", p_units_depth_ft))) %>%
+          stringr::str_trim() %>%
           unique() %>%
           paste0("")),
       depth = purrr::map(
@@ -792,16 +798,13 @@ lith_categorize <- function(p, s, t) {
 # Flag combinations that the user should look at
 lith_flag <- function(p, s, t) {
 
-  flag <- vector()
-
   bedrock <- c("bedrock", "faulted", "fractured", "weathered")
 
-  if(any(bedrock %in% p) & length(p) > 1)  flag <- c(flag, "bedrock")
-  if("boulders" %in% p & length(p) > 1)  flag <- c(flag, "boulders")
-  if(all(is.na(c(p, s, t)))) flag <- c(flag, "missing_cats")
-
-  flag
-
+  dplyr::tibble(
+    flag_bedrock = any(bedrock %in% p) & length(p) > 1 & !all(bedrock %in% p),
+    flag_boulders = "boulders" %in% p & length(p) > 1,
+    flag_missing_cats = all(is.na(c(p, s, t)))
+  )
 }
 
 collapse_nested <- function(x) {
