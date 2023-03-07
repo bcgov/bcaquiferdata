@@ -24,8 +24,7 @@ ui_lithology <- function(id) {
       box(
         width = 12,
         title = "Table",
-        div(style = "overflow-x:scroll",
-            DT::dataTableOutput(ns("lith_table"))),
+        DT::dataTableOutput(ns("lith_table")),
       )
     )
   )
@@ -42,16 +41,20 @@ server_lithology <- function(id, wells) {
 
       if("min" %in% show) cols <- c(cols,
                                     "lithology_from_m", "lithology_to_m",
-                                    "lith_clean", "lith_category")
-      if("extra" %in% show) cols <- c(cols, "lith_extra")
+                                    "lithology_raw_data",
+                                    "lithology_clean", "lithology_category")
+      if("extra" %in% show) cols <- c(cols, "lithology_extra")
       if("cats" %in% show) cols <- c(cols, "lith_primary", "lith_secondary",
                                      "lith_tertiary")
-      if("flags" %in% show) cols <- c(cols, "lith_flag")
+      if("flags" %in% show) cols <- c(cols, stringr::str_subset(names(wells()), "flag_"))
       if("gwells" %in% show) cols <- c(cols, fields_lith_gwells)
+
+
 
       wells() %>%
         dplyr::select(dplyr::all_of(cols)) %>%
-        sf::st_drop_geometry()
+        sf::st_drop_geometry() %>%
+        aq_dt()
     })
 
   })

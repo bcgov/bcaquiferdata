@@ -8,6 +8,7 @@ ui_wells <- function(id) {
       box(
         width = 12,
         title = "Process data",
+        uiOutput(ns("data_warning")),
         fileInput(ns("spatial_file"),
                   label = "Choose spatial file defining watershed area",
                   buttonLabel = "Upload Spatial Data", multiple = TRUE),
@@ -17,9 +18,12 @@ ui_wells <- function(id) {
         title = "Options",
         checkboxInput(ns("toggle_lidar_plot"), "Plot Lidar")
       ),
-      box("Messages", width = 12, height = 350,
+      box(title = "Messages", width = 12, height = 350,
           div(style = "overflow-y:scroll;max-height:330px",
-              verbatimTextOutput(ns("messages"), placeholder = TRUE))
+              verbatimTextOutput(ns("messages"), placeholder = TRUE)),
+          shinyWidgets::progressBar(
+            title = "Current Lidar tile:",
+            id = ns("lidar_progress"), value = 0, display_pct = TRUE)
       )
     ),
 
@@ -30,14 +34,13 @@ ui_wells <- function(id) {
         id = "output",
         tabPanel("Maps", plotOutput(ns("map_plot"), height = "650px")),
         tabPanel("Wells Data",
-                 div(style = "overflow-x:scroll",
-                     DT::dataTableOutput(ns("wells_table"))))
+                 DT::dataTableOutput(ns("wells_table")))
       )
     )
   )
 }
 
-server_wells <- function(id) {
+server_wells <- function(id, have_data) {
 
   moduleServer(id, function(input, output, session) {
 
@@ -46,6 +49,19 @@ server_wells <- function(id) {
       id <- showNotification(msg, duration = NULL, closeButton = FALSE)
       on.exit(removeNotification(id), add = TRUE)
     }
+
+    output$data_warning <- renderUI({
+      if(have_data()) {
+        w <- tagList(icon("check", style = "color:lightgreen;"),
+                     "Data Available", p())
+      } else {
+        w <- tagList(icon("x", style = "color:red;"),
+                     "Data Not Available (see Download Data tab)",
+                     p())
+      }
+      w
+    })
+
 
     watershed <- reactive({
       req(input$spatial_file)
@@ -75,7 +91,9 @@ server_wells <- function(id) {
                              duration = NULL, closeButton = FALSE)
 
       g <- ggplot2::ggplot() +
-        ggplot2::geom_sf(data = watershed(), linewidth = 2)
+        ggthemes::theme_map() +
+        ggplot2::theme(legend.position = "right") +
+        ggplot2::geom_sf(data = watershed(), linewidth = 2, fill = "white")
 
       if(isTRUE(input$toggle_lidar_plot)) {
 
@@ -88,17 +106,19 @@ server_wells <- function(id) {
         g <- g +
           ggplot2::geom_sf(data = temp, ggplot2::aes(fill = elev),
                            colour = NA, alpha = 0.8) +
-          ggplot2::scale_fill_viridis_c()
+          ggplot2::scale_fill_viridis_c(name = "Elevation (m)")
 
       }
 
       removeNotification(id)
 
       g +
-        ggplot2::geom_sf(data = wells(), size= 1,
+        ggplot2::geom_sf(data = wells(), size = 1,
                          ggplot2::aes(colour = is.na(.data$elev))) +
-        ggplot2::scale_colour_manual(values = c("TRUE" = "#CD4071FF",
-                                                "FALSE" = "#180F3EFF"))
+        ggplot2::scale_colour_manual(
+          name = "",
+          labels = c("Elevation Missing", "Elevation Present"),
+          values = c("TRUE" = "#CD4071FF", "FALSE" = "#180F3EFF"))
     }, res = 100) %>%
       bindCache(input$spatial_file, input$toggle_lidar_plot)
 
@@ -109,9 +129,12 @@ server_wells <- function(id) {
 
       withCallingHandlers({
         message("Lidar - Start")
+
+        p <- shinyhttr::progress(session, id = "lidar_progress")
+
         # Catch errors if have download issues and try again
-        l <- try(lidar_region(watershed()), silent = TRUE)
-        if(inherits(t, "try-error")) l <- lidar_region(watershed())
+        l <- try(lidar_region(watershed(), progress = p), silent = TRUE)
+        if(inherits(t, "try-error")) l <- lidar_region(watershed(), progress = p)
         message("Lidar - Done")
       },
       message = function(m) {
@@ -131,7 +154,8 @@ server_wells <- function(id) {
 
       withCallingHandlers({
         message("Wells - Start")
-        w <- wells_elev(watershed(), lidar())
+        w <- wells_subset(watershed()) %>%
+          wells_elev(lidar())
         message("Wells - Done")
       },
       message = function(m) {
@@ -145,7 +169,8 @@ server_wells <- function(id) {
 
     output$wells_table <- DT::renderDataTable({
       wells() %>%
-        sf::st_drop_geometry()
+        sf::st_drop_geometry() %>%
+        aq_dt()
     })
 
     # Outputs

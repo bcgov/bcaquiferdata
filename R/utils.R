@@ -40,7 +40,7 @@ fix_fraction <- function(x) {
           purrr::map(\(x) purrr::map_vec(x, \(x) eval(parse(text = x)))) %>%
           purrr::map_dbl(~sum(.x)) %>%
           as.character()) %>%
-      setNames(paste0("^", f, "$"))
+      setNames(paste0("(?<!\\d( )?)", f, "(?!( )?\\d)"))
 
     x <-stringr::str_replace_all(x, n)
   }
@@ -50,4 +50,20 @@ fix_fraction <- function(x) {
 fix_range <- function(x) {
   stringr::str_replace(x, p_range(), "mean(c(\\2,\\7))") %>%
     purrr::map_vec(\(x) eval(parse(text = x)))
+}
+
+
+
+aq_dt <- function(data, pageLength = 18, buttons = TRUE) {
+  if(!buttons) {
+    data %>%
+      DT::datatable(options = list(pageLength = pageLength, scrollX = TRUE))
+  } else {
+    data %>%
+      DT::datatable(extensions = c("Buttons"),
+                    options = list(pageLength = pageLength,
+                                   scrollX = TRUE,
+                                   dom = 'Bfrtip',
+                                   buttons = c('csv', 'excel', I('colvis'))))
+  }
 }

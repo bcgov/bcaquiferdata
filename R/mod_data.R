@@ -11,8 +11,12 @@ ui_data <- function(id) {
         valueBoxOutput(ns("data_status"), width = 6),
         strong("Note:"),
         "A cache directory will be created if it doesn't already exist", p(),
-        actionButton(ns("data_download"), "Fetch GWELLS data"),
-        actionButton(ns("data_cache"), "Clear GWELLS data cache")
+        actionButton(ns("data_download"), "Fetch/Update GWELLS data",
+                     style = "color:white;",
+                     class = "btn-success"), p(),
+        actionButton(ns("data_cache"), "Clear GWELLS data cache",
+                     style = "color:white;",
+                     class = "btn-warning")
       ),
       box(title = "Data Status", width = 6, tableOutput(ns("data_meta"))),
 
@@ -34,15 +38,11 @@ server_data <- function(id) {
     data_check <- reactiveVal(TRUE)
 
     # Check data status
-    meta <- reactive({
-      browser()
-      cache_meta()
-    }) %>% bindEvent(data_check())
-    #have_data <- reactive(data_ready()) %>% bindEvent(data_check())
+    meta <- reactive(cache_meta()) %>% bindEvent(data_check())
+    have_data <- reactive(data_ready()) %>% bindEvent(data_check())
 
     # Output metadata
     output$data_meta <- renderTable({
-      browser()
       meta() %>%
         tidyr::pivot_longer(cols = dplyr::everything(),
                             names_to = "Step", values_to = "Status")
@@ -50,16 +50,14 @@ server_data <- function(id) {
 
     # Output data status
     output$data_status <- renderValueBox({
-      browser()
 
-      h <- meta()$wells_processed != "" & meta()$lith_processed != ""
-      if(!h) {
-        v <- valueBox(value = "Missing Data",
+      if(!have_data()) {
+        v <- valueBox(value = "Data Missing",
                       subtitle = "Please download GWELLS data",
                       color = "red")
       } else {
         v <- valueBox(
-          value = "Found Data",
+          value = "Data Found",
           subtitle = paste0("Last downloaded: ", meta()$GWELLS_downloaded),
           color = "green")
       }
@@ -68,7 +66,6 @@ server_data <- function(id) {
     }) %>% bindEvent(data_check())
 
     observe({
-      browser()
 
       msg_id <- showNotification("Downloading GWELLS data...",
                              duration = NULL, closeButton = FALSE)
@@ -113,6 +110,6 @@ server_data <- function(id) {
     }) %>% bindEvent(input$data_cache_confirm)
 
     # Outputs
-    #have_data
+    have_data
   })
 }
