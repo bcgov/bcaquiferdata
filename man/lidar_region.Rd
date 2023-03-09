@@ -4,7 +4,12 @@
 \alias{lidar_region}
 \title{Create LiDAR DEM of a region}
 \usage{
-lidar_region(region, lidar_dir = NULL, only_new = TRUE)
+lidar_region(
+  region,
+  lidar_dir = NULL,
+  only_new = TRUE,
+  progress = httr::progress()
+)
 }
 \arguments{
 \item{region}{sf simple features object. Shape file of the region of

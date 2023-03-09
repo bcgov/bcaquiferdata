@@ -4,7 +4,7 @@
 \alias{data_read}
 \title{Download, Update, and/or load data}
 \usage{
-data_read(type, update = FALSE)
+data_read(type, update = FALSE, permission = FALSE)
 }
 \arguments{
 \item{type}{Character. Type of data to return, one of \code{wells}, \code{wells_sf}, or

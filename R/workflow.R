@@ -100,11 +100,14 @@ wells_subset <- function(region, update = FALSE) {
 #' # Load a shape file defining the region of interest
 #' creek <- st_read("misc/data/Clinton_Creek.shp")
 #'
+#' # Get wells within this region
+#' creek_wells <- wells_subset(creek)
+#'
 #' # Fetch LiDAR DEM
 #' creek_lidar <- lidar_region(creek)
 #'
 #' # Collect wells in this region with added elevation from LiDAR
-#' creek_wells <- wells_elev(creek, creek_lidar)
+#' creek_wells <- wells_elev(creek_wells, creek_lidar)
 #'
 #' library(ggplot2)
 #' ggplot() +
@@ -115,10 +118,17 @@ wells_subset <- function(region, update = FALSE) {
 #'
 wells_elev <- function(wells_sub, lidar, update = FALSE) {
 
+  # Checks
   if(!"sf" %in% class(wells_sub)) {
-    stop("'wells_sub' must be an sf spatial object (see examples)",
+    stop("'wells_sub' must be an sf spatial object output by `wells_subset()`",
          call. = FALSE)
   }
+
+  if(!"well_tag_number" %in% names(wells_sub)) {
+    stop("`well_tag_number` is not a column in `wells_sub`. ",
+         "`wells_sub` should be the output of `wells_subset()`", call. = FALSE)
+  }
+
   if(!"stars" %in% class(lidar)) {
     stop("'lidar' must be a stars object output from `lidar_region()`",
          call. = FALSE)

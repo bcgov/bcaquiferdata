@@ -4,7 +4,13 @@
 \alias{lidar_fetch}
 \title{Fetch LiDAR tiles corresponding to a sf object}
 \usage{
-lidar_fetch(region, out_dir = NULL, only_new = TRUE, verbose = FALSE)
+lidar_fetch(
+  region,
+  out_dir = NULL,
+  only_new = TRUE,
+  verbose = FALSE,
+  progress = httr::progress()
+)
 }
 \arguments{
 \item{region}{sf object}

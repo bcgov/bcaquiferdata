@@ -2,6 +2,7 @@
 
 export(cache_clean)
 export(data_read)
+export(data_update)
 export(lidar_fetch)
 export(lidar_region)
 export(lith_fix)

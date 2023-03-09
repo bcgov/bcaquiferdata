@@ -8,7 +8,7 @@ Description: Shiny App tool for processing BC Aquifer data.
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Imports: 
     bcdata (>= 0.2.4),
     bs4Dash (>= 2.2.1),
@@ -24,10 +24,12 @@ Imports:
     sf (>= 0.9.8),
     shiny (>= 1.7.2),
     shinyjs (>= 2.1.0),
+    shinyFiles (>= 0.9.3),
     stars (>= 0.5.3),
     stringdist (>= 0.9.8),
     stringr (>= 1.4.0),
-    tidyr (>= 1.1.4)
+    tidyr (>= 1.1.4),
+    fs (>= 1.6.1)
 Depends: 
     R (>= 2.10)
 Suggests: 

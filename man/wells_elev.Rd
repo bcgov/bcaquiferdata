@@ -4,13 +4,13 @@
 \alias{wells_elev}
 \title{Subset wells and add elevation}
 \usage{
-wells_elev(region, lidar, wells = "wells_lith", update = FALSE)
+wells_elev(wells_sub, lidar, update = FALSE)
 }
 \arguments{
+\item{lidar}{stars simple features object. Output of \code{lidar_region()}.}
+
 \item{region}{sf simple features object. Shape file of the region of
 interest.}
-
-\item{lidar}{stars simple features object. Output of \code{lidar_region()}.}
 }
 \description{
 This function takes a region shape file and LiDAR object of a region (output
@@ -25,11 +25,14 @@ library(sf)
 # Load a shape file defining the region of interest
 creek <- st_read("misc/data/Clinton_Creek.shp")
 
+# Get wells within this region
+creek_wells <- wells_subset(creek)
+
 # Fetch LiDAR DEM
 creek_lidar <- lidar_region(creek)
 
 # Collect wells in this region with added elevation from LiDAR
-creek_wells <- wells_elev(creek, creek_lidar)
+creek_wells <- wells_elev(creek_wells, creek_lidar)
 
 library(ggplot2)
 ggplot() +
