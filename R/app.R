@@ -1,6 +1,7 @@
 
 #' @import shiny
 #' @import shinydashboard
+#' @import shinyFiles
 
 aq_app <- function() {
 
