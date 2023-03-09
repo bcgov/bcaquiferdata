@@ -4,8 +4,15 @@
 #' @param id Character. Id to prepend to all output files e.g., "id_lith.csv"
 #' @param dir Character. Directory where files should be exported to. Defaults
 #'   to working directory.
+#' @param type Character. Format in which to export. One of "strater", "voxler",
+#'   "archydro" (case-insensitive).
+#' @param preview Logical. Whether to preview the exports (`TRUE`, return a list
+#'   of data frames) or to actually export the data (`FALSE`, write the
+#'   necessary files to the `dir` folder.
 #'
-#' @return
+#' @return If `preview = FALSE`, a vector of file names, if `preview = TRUE`,
+#'   a list of data frames.
+#'
 #' @export
 #'
 #' @examplesIf interactive()
@@ -15,39 +22,80 @@
 #' # Load a shape file defining the region of interest
 #' creek <- st_read("misc/data/Clinton_Creek.shp")
 #'
+#' # Get wells within this region
+#' creek_wells <- wells_subset(creek)
+#'
 #' # Fetch LiDAR DEM
 #' creek_lidar <- lidar_region(creek)
 #'
 #' # Collect wells in this region with added elevation from LiDAR
-#' creek_wells <- wells_elev(creek, creek_lidar)
+#' creek_wells <- wells_elev(creek_wells, creek_lidar)
 #'
-#' # Export data for Strater and Voxler
-#' wells_export(creek_wells, id = "clinton")
+#' # Preview data for Strater
+#' p <- wells_export(creek_wells, id = "clinton", type = "strater", preview = TRUE)
+#' names(p)
+#' p[["strater_lith"]]
+#' p[["strater_collars"]]
+#' p[["strater_wells"]]
+#'
+#' # Export data for Strater
+#' wells_export(creek_wells, id = "clinton", type = "strater")
+#'
+#' # Export Arc Hydro
+#' wells_export(creek_wells, id = "clinton", type = "archydro")
 
-wells_export <- function(wells_sub, id, type, dir = ".") {
+
+wells_export <- function(wells_sub, id, type, dir = ".", preview = FALSE) {
+
+  # TODO: Checks
+  # Check for elev and well tag number etc.
+  if(!dir.exists(dir)) {
+    stop("`dir` (", dir,
+         " doesn't not exist relative to current working directory\n(",
+         getwd(), ")", call. = FALSE)
+  }
+
+  type <- tolower(type)
+
+  if(!preview && missing(id)) {
+    stop("Must provide `id` in order to export data", call. = FALSE)
+  }
+
+  if(missing(type) || !type %in% c("strater", "voxler", "archydro")) {
+    stop("`type` must be one of 'strater', 'voxler', or 'archydro'",
+         call. = FALSE)
+  }
+
+  if(!missing(id)) id <- stringr::str_replace_all(tolower(id), " ", "_")
 
   wells_sub <- wells_sub %>%
     dplyr::bind_cols(as.data.frame(sf::st_coordinates(.))) %>%
     sf::st_drop_geometry()
 
-  if(type == "strater") export_strater(wells_sub, id, dir)
-  if(type == "voxler") export_voxler(wells_sub, id, dir)
-  if(type == "archydro") export_archydro(wells_sub, id, dir)
+  if(type == "strater") r <- export_strater(wells_sub, id, dir, preview)
+  if(type == "voxler") r <- export_voxler(wells_sub, id, dir, preview)
+  if(type == "archydro") r <- export_archydro(wells_sub, id, dir, preview)
+
+  r
 }
 
-export_strater <- function(wells_sub, id, dir) {
+export_strater <- function(wells_sub, id, dir, preview) {
+
+  if(!preview) {
+    f <- file.path(dir, paste0(id, c("_lith.csv", "_collars.csv", "_wls.csv")))
+  }
 
   # Strater Lithology
-  wells_sub %>%
+  f1 <- wells_sub %>%
     dplyr::select("Hole_ID" = "well_tag_number",
                   "From" = "lithology_from_m",
                   "To" = "lithology_to_m",
                   "Lithology_Keyword" = "lithology_category",
-                  "Lithology_Description" = "lithology_raw_data") %>%
-    readr::write_csv(file.path(dir, paste0(id, "_lith.csv")))
+                  "Lithology_Description" = "lithology_raw_data")
+  if(!preview) readr::write_csv(f1, f[1])
 
   # Strater Collars
-  wells_sub %>%
+  f2 <- wells_sub %>%
     dplyr::group_by(.data$well_tag_number, .data$X, .data$Y, .data$elev) %>%
     dplyr::summarize(Starting_Depth = min(.data$lithology_from_m),
                      Ending_Depth = max(.data$lithology_to_m),
@@ -56,15 +104,29 @@ export_strater <- function(wells_sub, id, dir) {
                   "Easting_Albers" = "X",
                   "Northing_Albers" = "Y",
                   "Starting_Depth", "Ending_Depth",
-                  "Elevation" = "elev") %>%
-    readr::write_csv(file.path(dir, paste0(id, "_collars.csv")))
+                  "Elevation" = "elev")
+  if(!preview) readr::write_csv(f2, f[2])
 
-  wells_sub %>%
-    dplyr::select("well_tag_number", "water_depth_m") %>%
-    readr::write_csv(file.path(dir, paste0(id, "_wls.csv")))
+  f3 <- wells_sub %>%
+    dplyr::select("well_tag_number", "water_depth_m")
+
+  if(!preview) readr::write_csv(f3, f[3])
+
+  if(preview) {
+    r <- list("strater_lith" = f1,
+              "strater_collars" = f2,
+              "strater_wells" = f3)
+  } else {
+    message("Writing Strater files ", paste0(f, collapse = ", "))
+    r <- f
+  }
+
+  r
 }
 
-export_voxler <- function(wells_sub, id, dir) {
+export_voxler <- function(wells_sub, id, dir, preview) {
+
+  if(!preview) f <- file.path(dir, paste0(id, "_vox"))
 
   voxler <- wells_sub %>%
     dplyr::mutate(Water_Elevation = .data$elev - .data$water_depth_m,
@@ -76,59 +138,78 @@ export_voxler <- function(wells_sub, id, dir) {
     dplyr::distinct()
 
 
-  voxler %>%
+  f1 <- voxler %>%
     dplyr::mutate(Component = 2, Water_Elevation = .data$Water_Elevation + 1) %>%
-    dplyr::bind_rows(voxler) %>%
-    readr::write_csv(file.path(dir, paste0(id, "_vox")))
+    dplyr::bind_rows(voxler)
 
+  if(!preview) readr::write_csv(f1, f)
 
+  if(preview) {
+    r <- list("voxler" = f1)
+  } else r <- f
+  r
 }
 
 
-export_archydro <- function(wells_sub, id, dir) {
+export_archydro <- function(wells_sub, id, dir, preview) {
+
+  if(!preview) {
+    f <- file.path(
+      dir,
+      paste0(id, c("_arc_well.csv", "_arc_hguid.csv", "_arc_bh.csv")))
+  }
 
   w <- wells_sub %>%
     dplyr::mutate(
-      WellID = well_tag_number,
-      WellCode = paste0("w", well_tag_number),
-      HydroID = well_tag_number,
-      HydroCode = paste0("w", well_tag_number),
-      RefElev = elev,
-      LandElev = elev,
-      X = utm_easting,
-      Y = utm_northing,
-      FromDepth = lithology_from_ft_bgl,
-      ToDepth = lithology_to_ft_bgl,
-      TopElev = RefElev - FromDepth,
-      BottomElev = RefElev - ToDepth,
-      Description = lithology_category,
-      HGUName = lithology_category,
-      OriginalLithology = lithology_clean)
+      HydroID = .data$well_tag_number,
+      HydroCode = paste0("w", .data$well_tag_number),
+      LandElev = .data$elev,
+      X = .data$utm_easting,
+      Y = .data$utm_northing,
+      WellDepth = .data$finished_well_depth_ft_bgl,
+      FromDepth = .data$lithology_from_ft_bgl,
+      ToDepth = .data$lithology_to_ft_bgl,
+      TopElev = .data$LandElev - .data$FromDepth,
+      BottomElev = .data$LandElev - .data$ToDepth,
+      Description = .data$lithology_category,
+      HGUName = .data$lithology_category,
+      OriginalLithology = .data$lithology_clean)
 
-  arc_well <- dplyr::select(w,
-                            "HydroID", "HydoCode",
-                            "X", "Y",
-                            "LandElev", "WellDepth")
+  f1 <- dplyr::select(w,
+                      "HydroID", "HydroCode",
+                      "X", "Y",
+                      "LandElev", "WellDepth")
 
-  readr::write_csv(arc_well, file.path(dir, paste0(id, "_arc_well.csv")))
+  if(!preview) readr::write_csv(f1, f[1])
 
-  arc_hguid <- w %>%
+  f2 <- w %>%
     dplyr::select("Description", "HGUName") %>%
     dplyr::distinct() %>%
     dplyr::mutate(HGUID = 1:dplyr::n(),
-                  HGUCode = .data$HydroID) %>%
-    dplyr::relocate(HGUID, HGUCode, .before = "Description")
+                  HGUCode = .data$HGUID) %>%
+    dplyr::relocate("HGUID", "HGUCode", .before = "Description")
 
-  readr::write_csv(arc_hguid, file.path(dir, paste0(id, "_arc_hguid.csv")))
+  if(!preview) readr::write_csv(f2, f[2])
 
+  f3 <- w %>%
+    dplyr::left_join(dplyr::select(f2, "HGUName", "HGUID"), by = "HGUName") %>%
+    dplyr::select("WellID" = "HydroID",
+                  "WellCode" = "HydroCode",
+                  "Material" = "HGUName",
+                  "HGUID",
+                  "RefElev" = "LandElev",
+                  "FromDepth", "ToDepth",
+                  "TopElev", "BottomElev", "OriginalLithology")
 
-  arc_bh <- w %>%
-    dplyr::select("WellID", "WellCode", "HGUName", "RefElev", "FromDepth", "ToDepth",
-                  "TopElev", "BottomElev", "OriginalLithology") %>%
-    dplyr::left_join(dplyr::select(arc_hguid, "HGUName", "HGUID"), by = "HGUName") %>%
-    dplyr::rename("Material" = "HGUName")
+  if(!preview) readr::write_csv(f3, f[3])
 
-  readr::write_csv(arc_bh, file.path(dir, paste0(id, "_arc_bh.csv")))
+  if(preview) {
+    r <- list("archydro_well" = f1,
+              "archydro_hguid" = f2,
+              "archydro_bh" = f3)
+  } else r <- f
+
+  r
 }
 
 
