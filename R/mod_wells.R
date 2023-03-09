@@ -44,12 +44,6 @@ server_wells <- function(id, have_data) {
 
   moduleServer(id, function(input, output, session) {
 
-    # Notifications
-    notify <- function(msg) {
-      id <- showNotification(msg, duration = NULL, closeButton = FALSE)
-      on.exit(removeNotification(id), add = TRUE)
-    }
-
     output$data_warning <- renderUI({
       if(have_data()) {
         w <- tagList(icon("check", style = "color:lightgreen;"),

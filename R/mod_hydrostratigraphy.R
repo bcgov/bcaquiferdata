@@ -6,7 +6,7 @@ ui_hydrostratigraphy <- function(id) {
 
   fluidRow(
     column(
-      width = 3,
+      width = 2,
       box(
         width = 12,
         title = "Explore Hydrostratigraphy",
@@ -20,7 +20,7 @@ ui_hydrostratigraphy <- function(id) {
       )
     ),
     column(
-      width = 9,
+      width = 10,
       box(
         width = 12,
         title = "Table",
