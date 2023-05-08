@@ -192,7 +192,6 @@ wells_elev <- function(wells_sub, lidar, update = FALSE) {
 
 wells_yield <- function(wells_sub) {
   wells_sub %>%
-    sf::st_drop_geometry() %>%
     dplyr::mutate(
       fractured =
         .data$lithology_category == "Weathered, Fractured or Faulted Bedrock") %>%

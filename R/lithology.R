@@ -558,6 +558,7 @@ lith_yield <- function(lith, flatten = FALSE) {
   p_depth <- paste0("\\d+", p_units_depth)
 
   l <- lith %>%
+    sf::st_drop_geometry() %>%
     dplyr::filter(.data$yield_units != "") %>%
     dplyr::select("lithology_raw_data") %>%
     dplyr::mutate(
