@@ -116,7 +116,7 @@ mill_lidar <- lidar_region(mill_sf)
 
 Add to our plot to double check
 ```{r}
-temp <- stars::st_downsample(mill_lidar, n = 12) %>% # Downsample first
+temp <- stars::st_downsample(mill_lidar, n = 12) |> # Downsample first
   st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
 
 g <- g + geom_sf(data = temp, aes(fill = elev), colour = NA)
@@ -124,7 +124,7 @@ g
 ```
 
 Looks like we don't have elevation data for the whole region. 
-This can be confirmed by checking the online [LidarBC map](https://www.arcgis.com/apps/mapviewer/index.html?webmap=c2967cee749b4bdbac5e7c62935ca167)
+This can be confirmed by checking the online [LidarBC map](https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03)
 
 Collect wells in this region with added elevation from LiDAR
 

@@ -491,7 +491,7 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
 
   # Terms that might be lith but we want to catch them
   terms_extra_flags <- list("shells", "boulders", "organics") %>%
-    setNames(., .)
+    stats::setNames(., .)
 
   lith_cats <- lith_desc2 %>%
     dplyr::select("lith_clean") %>%
@@ -579,8 +579,8 @@ lith_yield <- function(lith, flatten = FALSE) {
       depth_units = purrr::map_chr(
         .data$depth,
         ~ stringr::str_extract_all(.x, .env$p_units_depth) %>%
-          stringr::str_replace_all(c(setNames("m", p_units_depth_m),
-                                     setNames("ft", p_units_depth_ft))) %>%
+          stringr::str_replace_all(c(stats::setNames("m", p_units_depth_m),
+                                     stats::setNames("ft", p_units_depth_ft))) %>%
           stringr::str_trim() %>%
           unique() %>%
           paste0("")),

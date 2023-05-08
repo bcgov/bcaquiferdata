@@ -69,8 +69,8 @@ server_wells <- function(id, have_data) {
                     file.path(tempdir(), input$spatial_file$name))
         f <- file.path(tempdir(), input$spatial_file$name)[type == "shp"]
       } else if(nrow(input$spatial_file) == 1 && type == "zip"){
-        f <- unzip(input$spatial_file$datapath, list = TRUE)
-        unzip(input$spatial_file$datapath, exdir = tempdir())
+        f <- utils::unzip(input$spatial_file$datapath, list = TRUE)
+        utils::unzip(input$spatial_file$datapath, exdir = tempdir())
         f <- stringr::str_subset(f$Name, "shp$") %>%
           file.path(tempdir(), .)
       }
@@ -98,7 +98,7 @@ server_wells <- function(id, have_data) {
           sf::st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
 
         g <- g +
-          ggplot2::geom_sf(data = temp, ggplot2::aes(fill = elev),
+          ggplot2::geom_sf(data = temp, ggplot2::aes(fill = .data$elev),
                            colour = NA, alpha = 0.8) +
           ggplot2::scale_fill_viridis_c(name = "Elevation (m)")
 

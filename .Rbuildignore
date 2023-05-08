@@ -7,3 +7,10 @@
 ^CODE_OF_CONDUCT.md$
 ^COMPLIANCE.yaml$
 ^CONTRIBUTING.md$
+^WORKFLOW AND DESIGN.md$
+^CODE_DESIGN.md$
+^README.Rmd$
+^README_cache$
+^README_files$
+^RELEASE.R$
+^rosm.cache$

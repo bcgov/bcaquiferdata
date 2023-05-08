@@ -194,7 +194,8 @@ wells_yield <- function(wells_sub) {
   wells_sub %>%
     sf::st_drop_geometry() %>%
     dplyr::mutate(
-      fractured = lithology_category == "Weathered, Fractured or Faulted Bedrock") %>%
+      fractured =
+        .data$lithology_category == "Weathered, Fractured or Faulted Bedrock") %>%
     dplyr::select(
       "well_tag_number", dplyr::any_of("elev"), "well_depth_m",
       "lithology_from_m", "lithology_to_m",
@@ -203,6 +204,6 @@ wells_yield <- function(wells_sub) {
       "lithology_raw_data", dplyr::starts_with("flag")) %>%
     lith_yield() %>%
     tidyr::unnest(cols = c("yield", "depth"), keep_empty = TRUE) %>%
-    dplyr::filter(!is.na(yield) | !is.na(well_yield_usgpm))
+    dplyr::filter(!is.na(.data$yield) | !is.na(.data$well_yield_usgpm))
 }
 

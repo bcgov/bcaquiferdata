@@ -45,11 +45,12 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
   # Check for tifs on each call, checking all tiles takes too long
   message("Checking for matching tifs")
 
-  fetch <- sf::st_filter(tiles, region) %>%
+  fetch <- sf::st_filter(bcaquiferdata::tiles, region) %>%
     sf::st_drop_geometry() %>%
     create_url() %>%
     tidyr::nest(tiles = -"map_tile") %>%
-    dplyr::mutate(tiles = purrr::map(tiles, lidar_check_urls, local_tiles, verbose)) %>%
+    dplyr::mutate(tiles = purrr::map(
+      .data$tiles, ~lidar_check_urls(.x, local_tiles, verbose))) %>%
     tidyr::unnest("tiles") %>%
     dplyr::group_by(.data$map_tile) %>%
     dplyr::mutate(n_good = sum(.data$tif_good, na.rm = TRUE)) %>%
@@ -63,7 +64,7 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
     problems <- paste0(fetch$map_tile[!fetch$tif_good], collapse = "\n  - ")
     warning("Could not find a lidar image for map tile(s):\n  - ", problems,
             call. = FALSE)
-    fetch <- dplyr::filter(fetch, tif_good) # Only get the ones that exist
+    fetch <- dplyr::filter(fetch, .data$tif_good) # Only get the ones that exist
   }
 
   for(i in seq_len(nrow(fetch))) {
@@ -83,22 +84,23 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
 
 create_url <- function(tiles) {
   t <- tiles %>%
-    dplyr::mutate(n = stringr::str_extract(map_tile, "^[0-9]{3}"),
-                  l = stringr::str_extract(map_tile, "[[:alpha:]]"),
+    dplyr::mutate(n = stringr::str_extract(.data$map_tile, "^[0-9]{3}"),
+                  l = stringr::str_extract(.data$map_tile, "[[:alpha:]]"),
                   year = list(seq(lubridate::year(Sys.Date()), by = -1,
                                   length.out = 10))) %>%
-    tidyr::unnest(year) %>%
-    dplyr::mutate(tile = paste0("bc_", map_tile, "_xli1m_utm", utm,
-                                "_", year, ".tif"),
-                  url = file.path(lidar_url, n, paste0(n, l), year, "dem",
-                                  tile)) %>%
+    tidyr::unnest("year") %>%
+    dplyr::mutate(
+      tile = paste0("bc_", .data$map_tile, "_xli1m_utm", .data$utm,
+                    "_", .data$year, ".tif"),
+      url = file.path(.env$lidar_url, .data$n, paste0(.data$n, .data$l),
+                      .data$year, "dem", .data$tile)) %>%
     dplyr::select(-"utm", -"n", -"l", -"year")
 
   t %>%
-    dplyr::mutate(url = stringr::str_replace(url, "xli1m", "xl1m"),
-                  tile = stringr::str_replace(tile, "xli1m", "xl1m")) %>%
+    dplyr::mutate(url = stringr::str_replace(.data$url, "xli1m", "xl1m"),
+                  tile = stringr::str_replace(.data$tile, "xli1m", "xl1m")) %>%
     dplyr::bind_rows(t) %>%
-    dplyr::arrange(dplyr::desc(url))
+    dplyr::arrange(dplyr::desc(.data$url))
 }
 
 

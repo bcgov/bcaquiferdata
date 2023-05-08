@@ -229,10 +229,10 @@ cache_clean <- function() {
 cache_meta <- function() {
 
   if(file.exists(f <- file.path(cache_dir(), "meta.csv"))) {
-    m <- read.csv(f)
+    m <- readr::read_csv(f, show_col_types = FALSE)
   } else {
     m <- data.frame(
-      bcaquiferdata_version = as.character(packageVersion("bcaquiferdata")),
+      bcaquiferdata_version = as.character(utils::packageVersion("bcaquiferdata")),
       GWELLS_downloaded = "No",
       wells_processed = "No",
       lith_processed = "No")

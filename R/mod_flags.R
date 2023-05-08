@@ -36,7 +36,7 @@ server_flags <- function(id, wells) {
         DT::formatStyle(cols, backgroundColor = DT::styleEqual(TRUE, "#f8d7da"))
     })
 
-    output$flags_glossary <- renderTable(flags)
+    output$flags_glossary <- renderTable(bcaquiferdata::flags)
 
 
   })

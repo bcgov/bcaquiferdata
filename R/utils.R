@@ -40,7 +40,7 @@ fix_fraction <- function(x) {
           purrr::map(\(x) purrr::map_vec(x, \(x) eval(parse(text = x)))) %>%
           purrr::map_dbl(~sum(.x)) %>%
           as.character()) %>%
-      setNames(paste0("(?<!\\d( )?)", f, "(?!( )?\\d)"))
+      stats::setNames(paste0("(?<!\\d( )?)", f, "(?!( )?\\d)"))
 
     x <-stringr::str_replace_all(x, n)
   }

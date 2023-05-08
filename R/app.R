@@ -13,6 +13,11 @@
 #'
 aq_app <- function() {
 
+  # Check for suggested packages
+  rlang::check_installed(
+    c("DT", "ggplot2", "ggthemes",
+      "shinyWidgets", "shinyjs", "shinyhttr"))
+
   ui <- dashboardPage(
     header = dashboardHeader(title = "BC Aquifer Data"),
     sidebar = dashboardSidebar(aq_sidebar()),
