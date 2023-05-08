@@ -33,16 +33,15 @@
 #'
 #' @param type Character. Type of data to return, one of `wells`, `wells_sf`, or
 #'   `lithology`
-#' @param update Logical. Force update of the data?
 #'
-#' @return
+#' @inheritParams common_docs
+#'
+#' @return Data frame or spatial features object of the requested data.
 #' @export
 #'
-#' @examples
-#'
-#' \dontrun{
+#' @examplesIf interactive()
 #' wells <- data_read("wells")
-#' }
+
 data_read <- function(type, update = FALSE, permission = FALSE) {
   t <- c("lithology", "wells", "wells_sf")
   if(!type %in% t) {
@@ -59,7 +58,17 @@ data_read <- function(type, update = FALSE, permission = FALSE) {
   readr::read_rds(f)
 }
 
-
+#' Update cached data
+#'
+#' Update the GWELLs data stored locally.
+#'
+#' @param type Character. Type of data to update. One of "all", "wells",
+#'   "lithology"
+#' @param download Logical. Whether to re-download and process the data
+#'   (`TRUE`), or just re-process it (`FALSE`).
+#'
+#' @inheritParams common_docs
+#'
 #' @export
 
 data_update <- function(type = "all", download = TRUE, permission = FALSE) {

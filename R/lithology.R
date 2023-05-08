@@ -55,12 +55,16 @@ lith_prep <- function(file = "GWELLS/lithology.csv") {
 #' Fix lithology descriptions
 #'
 #' Clean and categorize lithology descriptions into primary, secondary, tertiary
-#' and final lithology categories.
+#' and final lithology categories. Generally this function is used internally
+#' when loading and cleaning GWELLS lithology.
+#'
+#' However statements can be tested directly with this function to see how it
+#' works and for troubleshooting.
 #'
 #' @param file Character. Lithology file name stored in cache
 #' @param desc Character. Text string to convert (overrides `file`).
 #'
-#' @return
+#' @return Data frame of lithology categorizations
 #' @export
 #'
 #' @examples

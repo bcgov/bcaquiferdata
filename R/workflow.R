@@ -18,14 +18,25 @@
 #' region. LiDAR data is stored locally as tiles. Tiles are only downloaded if
 #' they don't already exist unless `only_new = FALSE`.
 #'
-#' @param region sf simple features object. Shape file of the region of
-#'   interest.
 #' @param lidar_dir Character. File path of where LiDAR tiles should be stored.
 #'   Defaults to the cache directory.
 #' @param only_new Logical. Whether to download all LiDAr tiles, or only new
 #'   tiles that don't exist locally. Defaults to TRUE.
+#' @param progress Function. Progress bar to use. Generally leave as is.
 #'
-#' @return
+#' @inheritParams common_docs
+#'
+#' @section Data Source:
+#'
+#' LiDAR data is obtained programatically from the BC government portal
+#' `r lidar_url` based on overlap between map tiles and the provided shapefile (`region`).
+#' These LiDAR tiles can be browsed and downloaded manually via the
+#' [LiDarBC Open LiDAR Data Portal](https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03)
+#'
+#' The grid of map tiles is obtained from the BC Data Catalogue,
+#' [BCGS 1:20,000 Grid](https://catalogue.data.gov.bc.ca/dataset/a61976ac-d8e8-4862-851e-d105227b6525)
+#'
+#' @return stars spatiotemporal array object
 #' @export
 #'
 #' @examplesIf interactive()
@@ -33,10 +44,10 @@
 #' library(sf)
 #'
 #' # Load a shape file defining the region of interest
-#' creek <- st_read("misc/data/Clinton_Creek.shp")
+#' creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 #'
 #' # Fetch LiDAR DEM
-#' creek_lidar <- lidar_region(creek)
+#' creek_lidar <- lidar_region(creek_sf)
 #'
 #' plot(creek_lidar)
 #'
@@ -58,8 +69,21 @@ lidar_region <- function(region, lidar_dir = NULL, only_new = TRUE,
   sf::st_crop(lidar, region)
 }
 
-#' Subset wells
+#' Subset wells to region
 #'
+#' Filter the GWELLS data returning only wells within the provided shapefile.
+#'
+#' @inheritParams common_docs
+#'
+#' @examplesIf interactive()
+#'
+#' library(sf)
+#'
+#' # Load a shape file defining the region of interest
+#' creek_sf <- st_read("misc/data/Clinton_Creek.shp")
+#'
+#' # Get wells within this region
+#' creek_wells <- wells_subset(creek_sf)
 #'
 #' @export
 wells_subset <- function(region, update = FALSE) {
@@ -86,12 +110,11 @@ wells_subset <- function(region, update = FALSE) {
 #' of `lidar_region()`), subsets the wells data (from GWELLS) to this region and
 #' adds LiDAR elevation data.
 #'
-#' @param wells_sub sf simple features object. Subset of wells data output by
-#'   `wells_subset()`
 #' @param lidar stars simple features object. Output of `lidar_region()`.
-#' @param update Logical. Force update of the data?
 #'
-#' @return
+#' @inheritParams common_docs
+#'
+#' @return sf spatial data frame
 #' @export
 #'
 #' @examplesIf interactive()
@@ -145,12 +168,27 @@ wells_elev <- function(wells_sub, lidar, update = FALSE) {
 
 #' Add yield lithology data to wells subset
 #'
-#' @param wells_sub
+#' Yield records are extracted from lithology observations and added to the
+#' wells data.
 #'
-#' @return
+#' @inheritParams common_docs
+#'
+#' @return Data frame or sf spatial data frame with wells data and added yield
+#'   from lithology.
 #' @export
 #'
-#' @examples
+#' @examplesIf interactive()
+#'
+#' library(sf)
+#'
+#' # Load a shape file defining the region of interest
+#' creek_sf <- st_read("misc/data/Clinton_Creek.shp")
+#'
+#' # Get wells within this region
+#' creek_wells <- wells_subset(creek_sf)
+#'
+#' # Get yield data for these wells
+#' creek_yield <- wells_yield(creek_wells)
 
 wells_yield <- function(wells_sub) {
   wells_sub %>%

@@ -11,6 +11,12 @@ data_read(type, update = FALSE, permission = FALSE)
 \code{lithology}}
 
 \item{update}{Logical. Force update of the data?}
+
+\item{permission}{Logical. Permission to create the cache folder. If \code{FALSE},
+user is asked for permission, if \code{TRUE}, permission is implied.}
+}
+\value{
+Data frame or spatial features object of the requested data.
 }
 \description{
 This function downloads, updates or loads locally stored data. Currently this
@@ -32,8 +38,7 @@ standardizing, while better than the original data, will almost certainly
 still have errors!
 }
 \examples{
-
-\dontrun{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 wells <- data_read("wells")
-}
+\dontshow{\}) # examplesIf}
 }

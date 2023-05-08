@@ -20,22 +20,39 @@ Defaults to the cache directory.}
 
 \item{only_new}{Logical. Whether to download all LiDAr tiles, or only new
 tiles that don't exist locally. Defaults to TRUE.}
+
+\item{progress}{Function. Progress bar to use. Generally leave as is.}
+}
+\value{
+stars spatiotemporal array object
 }
 \description{
 This function takes a shape file of a region and creates a LiDAR DEM of the
 region. LiDAR data is stored locally as tiles. Tiles are only downloaded if
 they don't already exist unless \code{only_new = FALSE}.
 }
+\section{Data Source}{
+
+
+LiDAR data is obtained programatically from the BC government portal
+https://nrs.objectstore.gov.bc.ca/gdwuts based on overlap between map tiles and the provided shapefile (\code{region}).
+These LiDAR tiles can be browsed and downloaded manually via the
+\href{https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03}{LiDarBC Open LiDAR Data Portal}
+
+The grid of map tiles is obtained from the BC Data Catalogue,
+\href{https://catalogue.data.gov.bc.ca/dataset/a61976ac-d8e8-4862-851e-d105227b6525}{BCGS 1:20,000 Grid}
+}
+
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 library(sf)
 
 # Load a shape file defining the region of interest
-creek <- st_read("misc/data/Clinton_Creek.shp")
+creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 
 # Fetch LiDAR DEM
-creek_lidar <- lidar_region(creek)
+creek_lidar <- lidar_region(creek_sf)
 
 plot(creek_lidar)
 \dontshow{\}) # examplesIf}

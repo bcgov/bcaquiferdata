@@ -7,12 +7,15 @@
 wells_elev(wells_sub, lidar, update = FALSE)
 }
 \arguments{
-\item{wells_sub}{sf simple features object. Subset of wells data output by
+\item{wells_sub}{sf spatial data frame. Subset of wells data output by
 \code{wells_subset()}}
 
 \item{lidar}{stars simple features object. Output of \code{lidar_region()}.}
 
 \item{update}{Logical. Force update of the data?}
+}
+\value{
+sf spatial data frame
 }
 \description{
 This function takes a region shape file and LiDAR object of a region (output

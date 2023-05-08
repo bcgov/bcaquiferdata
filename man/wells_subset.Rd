@@ -2,10 +2,28 @@
 % Please edit documentation in R/workflow.R
 \name{wells_subset}
 \alias{wells_subset}
-\title{Subset wells}
+\title{Subset wells to region}
 \usage{
 wells_subset(region, update = FALSE)
 }
+\arguments{
+\item{region}{sf simple features object. Shape file of the region of
+interest.}
+
+\item{update}{Logical. Force update of the data?}
+}
 \description{
-Subset wells
+Filter the GWELLS data returning only wells within the provided shapefile.
+}
+\examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+
+library(sf)
+
+# Load a shape file defining the region of interest
+creek_sf <- st_read("misc/data/Clinton_Creek.shp")
+
+# Get wells within this region
+creek_wells <- wells_subset(creek_sf)
+\dontshow{\}) # examplesIf}
 }

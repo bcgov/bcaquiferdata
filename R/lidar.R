@@ -13,23 +13,20 @@
 # the License.
 
 
-#' Fetch LiDAR tiles corresponding to a sf object
+#' Fetch LiDAR tiles corresponding to a region
 #'
-#' @param region sf object
+#' @param region Sf object of region
 #' @param out_dir Character. Output folder, defaults to working directory
 #' @param only_new Logical. Only download new, missing LiDAR tiles, default to
 #'   TRUE
 #' @param verbose Logical. Show extra output. Can be useful to check on
 #'   progress.
+#' @param progress Function. Type of progress bar to use. Only change to use
+#'   Shiny bar in Apps
 #'
 #' @return Data frame describing tiles and location on disk
-#' @export
-#'
-#' @examplesIf interactive()
-#'
-#' creek <- sf::st_read("misc/data/Clinton_Creek.shp")
-#' lidar_fetch(creek)
-#'
+#' @noRd
+
 lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE,
                         progress = httr::progress()) {
 

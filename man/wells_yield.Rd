@@ -7,8 +7,29 @@
 wells_yield(wells_sub)
 }
 \arguments{
-\item{wells_sub}{}
+\item{wells_sub}{sf spatial data frame. Subset of wells data output by
+\code{wells_subset()}}
+}
+\value{
+Data frame or sf spatial data frame with wells data and added yield
+from lithology.
 }
 \description{
-Add yield lithology data to wells subset
+Yield records are extracted from lithology observations and added to the
+wells data.
+}
+\examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+
+library(sf)
+
+# Load a shape file defining the region of interest
+creek_sf <- st_read("misc/data/Clinton_Creek.shp")
+
+# Get wells within this region
+creek_wells <- wells_subset(creek_sf)
+
+# Get yield data for these wells
+creek_yield <- wells_yield(creek_wells)
+\dontshow{\}) # examplesIf}
 }
