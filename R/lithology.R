@@ -47,7 +47,8 @@ lith_prep <- function(file = "GWELLS/lithology.csv") {
 
       # Flag missing lithology
       flag_missing = is.na(.data$lithology_raw_data) |
-        .data$lithology_raw_data == "")
+        .data$lithology_raw_data == "") |>
+    dplyr::ungroup()
 }
 
 

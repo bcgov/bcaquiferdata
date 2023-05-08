@@ -44,7 +44,7 @@
 #' wells <- data_read("wells")
 #' }
 data_read <- function(type, update = FALSE, permission = FALSE) {
-  t <- c("lithology", "wells", "wells_sf", "wells_lith", "wells_lith_sf")
+  t <- c("lithology", "wells", "wells_sf")
   if(!type %in% t) {
     stop(
       "`type` must be one of ",
@@ -54,7 +54,7 @@ data_read <- function(type, update = FALSE, permission = FALSE) {
 
   f <- file.path(cache_dir(), paste0(type, "_nice.rds"))
 
-  if(update || !file.exists(f)) data_update(which = "all")
+  if(update || !file.exists(f)) data_update(type = "all")
 
   readr::read_rds(f)
 }
