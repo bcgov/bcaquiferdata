@@ -38,6 +38,7 @@ server_data <- function(id) {
     data_check <- reactiveVal(TRUE)
 
     # Check data status
+
     meta <- reactive(cache_meta()) %>% bindEvent(data_check())
     have_data <- reactive(data_ready()) %>% bindEvent(data_check())
 
@@ -45,6 +46,7 @@ server_data <- function(id) {
     output$data_meta <- renderTable({
       meta() %>%
         tidyr::pivot_longer(cols = dplyr::everything(),
+                            values_transform = as.character,
                             names_to = "Step", values_to = "Status")
     })
 

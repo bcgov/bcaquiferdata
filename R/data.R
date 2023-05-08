@@ -83,7 +83,6 @@ data_update <- function(type = "all", download = TRUE, permission = FALSE) {
 
   meta <- cache_meta()
 
-
   # Download the data
   if(download && type %in% c("all", "wells", "lith")) {
     message("Downloading GWELLS data")
@@ -174,7 +173,8 @@ clean_lithology <- function(file = "GWELLS/lithology.csv") {
 
 data_ready <- function() {
   meta <- cache_meta()
-  m <- meta$wells_processed != "" & meta$lith_processed != ""
+  m <- as.character(meta$wells_processed) != "" &
+    as.character(meta$lith_processed) != ""
   f <- file.exists(file.path(cache_dir(),
                              c("wells_nice.rds", "lithology_nice.rds")))
   all(m & f)
@@ -195,6 +195,7 @@ cache_check <- function(permission = FALSE) {
     if(!permission) {
       stop("Can't store data. Stopping.", call. = FALSE)
     } else {
+      message("Creating cache directory: ", cache_dir())
       dir.create(file.path(cache_dir(), "GWELLS"), recursive = TRUE)
     }
   }

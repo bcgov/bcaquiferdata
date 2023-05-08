@@ -9,9 +9,10 @@ ui_wells <- function(id) {
         width = 12,
         title = "Process data",
         uiOutput(ns("data_warning")),
-        fileInput(ns("spatial_file"),
-                  label = "Choose spatial file defining watershed area",
-                  buttonLabel = "Upload Spatial Data", multiple = TRUE),
+        fileInput(
+          ns("spatial_file"),
+          label = "Choose shape file(s) defining a watershed area (select all files or use zip)",
+          buttonLabel = "Upload Spatial Data", multiple = TRUE)
       ),
       box(
         width = 12,
