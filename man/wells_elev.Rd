@@ -7,10 +7,12 @@
 wells_elev(wells_sub, lidar, update = FALSE)
 }
 \arguments{
+\item{wells_sub}{sf simple features object. Subset of wells data output by
+\code{wells_subset()}}
+
 \item{lidar}{stars simple features object. Output of \code{lidar_region()}.}
 
-\item{region}{sf simple features object. Shape file of the region of
-interest.}
+\item{update}{Logical. Force update of the data?}
 }
 \description{
 This function takes a region shape file and LiDAR object of a region (output
@@ -23,13 +25,13 @@ adds LiDAR elevation data.
 library(sf)
 
 # Load a shape file defining the region of interest
-creek <- st_read("misc/data/Clinton_Creek.shp")
+creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 
 # Get wells within this region
-creek_wells <- wells_subset(creek)
+creek_wells <- wells_subset(creek_sf)
 
 # Fetch LiDAR DEM
-creek_lidar <- lidar_region(creek)
+creek_lidar <- lidar_region(creek_sf)
 
 # Collect wells in this region with added elevation from LiDAR
 creek_wells <- wells_elev(creek_wells, creek_lidar)

@@ -61,7 +61,7 @@ lidar_region <- function(region, lidar_dir = NULL, only_new = TRUE,
 #' Subset wells
 #'
 #'
-#'
+#' @export
 wells_subset <- function(region, update = FALSE) {
 
   if(!"sf" %in% class(region)) {
@@ -86,9 +86,10 @@ wells_subset <- function(region, update = FALSE) {
 #' of `lidar_region()`), subsets the wells data (from GWELLS) to this region and
 #' adds LiDAR elevation data.
 #'
-#' @param region sf simple features object. Shape file of the region of
-#'   interest.
+#' @param wells_sub sf simple features object. Subset of wells data output by
+#'   `wells_subset()`
 #' @param lidar stars simple features object. Output of `lidar_region()`.
+#' @param update Logical. Force update of the data?
 #'
 #' @return
 #' @export
@@ -98,13 +99,13 @@ wells_subset <- function(region, update = FALSE) {
 #' library(sf)
 #'
 #' # Load a shape file defining the region of interest
-#' creek <- st_read("misc/data/Clinton_Creek.shp")
+#' creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 #'
 #' # Get wells within this region
-#' creek_wells <- wells_subset(creek)
+#' creek_wells <- wells_subset(creek_sf)
 #'
 #' # Fetch LiDAR DEM
-#' creek_lidar <- lidar_region(creek)
+#' creek_lidar <- lidar_region(creek_sf)
 #'
 #' # Collect wells in this region with added elevation from LiDAR
 #' creek_wells <- wells_elev(creek_wells, creek_lidar)
@@ -141,8 +142,17 @@ wells_elev <- function(wells_sub, lidar, update = FALSE) {
     sf::st_transform(crs = 3005) # Transform to BC albers
 }
 
-wells_yield <- function(wells_sub) {
 
+#' Add yield lithology data to wells subset
+#'
+#' @param wells_sub
+#'
+#' @return
+#' @export
+#'
+#' @examples
+
+wells_yield <- function(wells_sub) {
   wells_sub %>%
     sf::st_drop_geometry() %>%
     dplyr::mutate(
