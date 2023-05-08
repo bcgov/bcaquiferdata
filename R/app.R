@@ -1,8 +1,16 @@
-
+#' Launch Aquifer Data Shiny App
+#'
+#' This app allows you to load a shapefile and filter aquifer/well data
+#' according to region, explore data, and export cleaned files.
+#'
 #' @import shiny
 #' @import shinydashboard
 #' @import shinyFiles
-
+#' @export
+#'
+#' @examplesIf interactive()
+#' aq_app()
+#'
 aq_app <- function() {
 
   ui <- dashboardPage(
