@@ -62,7 +62,7 @@ Here is a summary with links to the relevant sections
     - https://catalogue.data.gov.bc.ca/dataset/digital-elevation-model-for-british-columbia-cded-1-250-000
   
 **Steps**
-- Using area of interest, download relevant Lidar data to the cache, 
+- Using area of interest, download relevant DEM data to the cache, 
   load it, and trim it to the area of interest.
 - [Code] User passes area of interest to `dem_region()` function
 - [App] Automatically happens once area of interest is selected
