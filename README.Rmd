@@ -87,10 +87,11 @@ ggplot() +
  coord_sf(datum = st_crs(3005)) # BC Albers
 ```
 
-Export data for Strater and Voxler
+Export data for Strater, Voxler, and ArcHydro
 ```{r}
 wells_export(creek_wells, id = "clinton", type = "strater")
 wells_export(creek_wells, id = "clinton", type = "voxler")
+wells_export(creek_wells, id = "clinton", type = "archydro")
 ```
 
 #### Mill Bay Watershed
@@ -156,11 +157,11 @@ g +
 ```
 
 
-
-Export data for Strater and Voxler
+Export data for Strater, Voxler, and ArcHydro
 ```{r}
 wells_export(mill_wells, id = "mill", type = "strater")
 wells_export(mill_wells, id = "mill", type = "voxler")
+wells_export(mill_wells, id = "mill", type = "archydro")
 ```
 
 
