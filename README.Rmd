@@ -174,7 +174,7 @@ library(readr)
 Load cleaned data (will fetch if doesn't already exist)
 
 ```{r}
-wells_lith <- data_read("lithology", update = TRUE)
+wells_lith <- data_read("lithology")
 ```
 
 Explore the lithology standardization performed by bcaquiferdata
