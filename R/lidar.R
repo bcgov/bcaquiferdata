@@ -45,6 +45,8 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
   # Check for tifs on each call, checking all tiles takes too long
   message("Checking for matching tifs")
 
+  region <- sf::st_transform(region, sf::st_crs(bcaquiferdata::tiles))
+
   fetch <- sf::st_filter(bcaquiferdata::tiles, region) %>%
     sf::st_drop_geometry() %>%
     create_url() %>%
