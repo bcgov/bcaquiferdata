@@ -8,14 +8,14 @@ This is an R package for processing BC Gov GWELLS data into formats more suitabl
 other analyses (e.g., Strater, Voxler, ArcHydro).
 
 The functions provided here allow users to filter GWELLS data by region (shapefile),
-calculate and add elevation data from Lidar, and clean and categorize GWELLS
+calculate and add elevation data from Lidar or TRIM, and clean and categorize GWELLS
 lithology and yield data. 
 
 The Shiny app (a graphical user interface), provides a tool for data exploration
 and exporting.
 
 
-This is work is still in the preliminary stages. 
+This is work is still in the preliminary stages, but is testable.
 
 
 To install:
@@ -82,9 +82,7 @@ Plot again to double check
 ```{r}
 ggplot() +
   geom_sf(data = creek_sf) +
-  geom_sf(data = creek_wells, size= 0.5, colour = "dark blue",
-          fill="NA", show.legend = FALSE) +
- coord_sf(datum = st_crs(3005)) # BC Albers
+  geom_sf(data = creek_wells, size= 1, aes(colour = elev))
 ```
 
 Export data for Strater, Voxler, and ArcHydro
@@ -152,8 +150,8 @@ mill_wells <- mill_sf |>
 Plot again to double check, see that we now elevation data for all wells.
 ```{r}
 g +
-  geom_sf(data = mill_wells, size = 1, aes(colour = is.na(elev))) +
-  scale_colour_manual(values = c(`TRUE` = "red", `FALSE` = "black"))
+  geom_sf(data = mill_wells, size = 1, aes(colour = elev)) +
+  scale_color_viridis_c(na.value = "red")
 ```
 
 
@@ -197,6 +195,8 @@ write_csv(lith_std, "lith_categorization.csv")
 ```{r, include = FALSE}
 unlink(c("lith_categorization.csv", 
          "clinton_lith.csv", "clinton_collars.csv", "clinton_wls.csv", "clinton_vox",
-         "mill_lith.csv", "mill_collars.csv", "mill_wls.csv", "mill_vox"))
+         "clinton_arc_bh.csv", "clinton_arc_hguid.csv", "clinton_arc_well.csv",
+         "mill_lith.csv", "mill_collars.csv", "mill_wls.csv", "mill_vox",
+         "mill_arc_bh.csv", "mill_arc_hguid.csv", "mill_arc_well.csv"))
 ```
 
