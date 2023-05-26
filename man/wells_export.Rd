@@ -39,10 +39,10 @@ creek <- st_read("misc/data/Clinton_Creek.shp")
 # Get wells within this region
 creek_wells <- wells_subset(creek)
 
-# Fetch LiDAR DEM
-creek_lidar <- lidar_region(creek)
+# Fetch Lidar DEM
+creek_lidar <- dem_region(creek)
 
-# Collect wells in this region with added elevation from LiDAR
+# Collect wells in this region with added elevation from Lidar
 creek_wells <- wells_elev(creek_wells, creek_lidar)
 
 # Preview data for Strater

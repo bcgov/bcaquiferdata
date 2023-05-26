@@ -14,5 +14,5 @@
 
 #' Tiles
 #'
-#' A dataset of LiDAR tiles available
+#' A dataset of Lidar tiles available
 "tiles"

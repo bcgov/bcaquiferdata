@@ -1,4 +1,4 @@
-
+# Lidar Tiles -----------------------------------------------------------------
 lidar_url <- "https://nrs.objectstore.gov.bc.ca/gdwuts"
 
 #bcdata::bcdc_get_record("bcgs-1-20-000-grid")
@@ -20,11 +20,11 @@ tiles_utm <- tiles %>%
   sf::st_drop_geometry() %>%
   dplyr::select(map_tile, utm)
 
-
 tiles <- dplyr::left_join(tiles, tiles_utm, by = "map_tile")
 
 usethis::use_data(lidar_url, tiles, overwrite = TRUE)
 
+# Fields to keep --------------------------------------------------------------
 fields_wells <- c(
   "well_tag_number", "longitude_decdeg", "latitude_decdeg",
   "utm_northing", "utm_easting",

@@ -13,11 +13,11 @@
 # the License.
 
 
-#' Fetch LiDAR tiles corresponding to a region
+#' Fetch Lidar tiles corresponding to a region
 #'
 #' @param region Sf object of region
 #' @param out_dir Character. Output folder, defaults to working directory
-#' @param only_new Logical. Only download new, missing LiDAR tiles, default to
+#' @param only_new Logical. Only download new, missing Lidar tiles, default to
 #'   TRUE
 #' @param verbose Logical. Show extra output. Can be useful to check on
 #'   progress.

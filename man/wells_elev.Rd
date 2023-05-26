@@ -4,13 +4,13 @@
 \alias{wells_elev}
 \title{Subset wells and add elevation}
 \usage{
-wells_elev(wells_sub, lidar, update = FALSE)
+wells_elev(wells_sub, dem, update = FALSE)
 }
 \arguments{
 \item{wells_sub}{sf spatial data frame. Subset of wells data output by
 \code{wells_subset()}}
 
-\item{lidar}{stars simple features object. Output of \code{lidar_region()}.}
+\item{dem}{stars simple features object. Output of \code{dem_region()}.}
 
 \item{update}{Logical. Force update of the data?}
 }
@@ -18,14 +18,15 @@ wells_elev(wells_sub, lidar, update = FALSE)
 sf spatial data frame
 }
 \description{
-This function takes a region shape file and LiDAR object of a region (output
-of \code{lidar_region()}), subsets the wells data (from GWELLS) to this region and
-adds LiDAR elevation data.
+This function takes a region shape file and the DEM of a region (output of
+\code{dem_region()}), subsets the wells data (from GWELLS) to this region and adds
+the elevation data.
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 library(sf)
+library(ggplot2)
 
 # Load a shape file defining the region of interest
 creek_sf <- st_read("misc/data/Clinton_Creek.shp")
@@ -33,17 +34,28 @@ creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 # Get wells within this region
 creek_wells <- wells_subset(creek_sf)
 
-# Fetch LiDAR DEM
-creek_lidar <- lidar_region(creek_sf)
+# Fetch Lidar DEM
+creek_lidar <- dem_region(creek_sf)
 
-# Collect wells in this region with added elevation from LiDAR
+# Collect wells in this region with added elevation from Lidar
 creek_wells <- wells_elev(creek_wells, creek_lidar)
 
-library(ggplot2)
 ggplot() +
-  geom_sf(data = creek) +
-  geom_sf(data = creek_wells, size=0.5, colour = "dark blue",
-          fill="NA",show.legend=FALSE) +
+  geom_sf(data = creek_sf) +
+  geom_sf(data = creek_wells, aes(colour = elev), size = 0.5,
+          fill = "NA", show.legend = FALSE) +
+ coord_sf(datum = st_crs(3005)) # BC Albers
+
+# OR Fetch TRIM DEM
+creek_trim <- dem_region(creek_sf, type = "trim")
+
+# Collect wells in this region with added elevation from Lidar
+creek_wells <- wells_elev(creek_wells, creek_trim)
+
+ggplot() +
+  geom_sf(data = creek_sf) +
+  geom_sf(data = creek_wells, aes(colour = elev), size = 0.5,
+          fill = "NA", show.legend = FALSE) +
  coord_sf(datum = st_crs(3005)) # BC Albers
 \dontshow{\}) # examplesIf}
 }

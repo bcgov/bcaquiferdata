@@ -8,16 +8,16 @@ ui_wells <- function(id) {
       box(
         width = 12,
         title = "Process data",
+        "Filter GWELLs to watershed area and use Lidar or TRIM digital ",
+        "elevation models to calculate well elevation",
+        p(),
         uiOutput(ns("data_warning")),
         fileInput(
           ns("spatial_file"),
           label = "Choose shape file(s) defining a watershed area (select all files or use zip)",
-          buttonLabel = "Upload Spatial Data", multiple = TRUE)
-      ),
-      box(
-        width = 12,
-        title = "Options",
-        checkboxInput(ns("toggle_lidar_plot"), "Plot Lidar")
+          buttonLabel = "Upload Spatial Data", multiple = TRUE),
+        radioButtons(ns("dem_type"), "DEM source",
+                     choices = c("Lidar" = "lidar", "TRIM" = "trim"))
       ),
       box(title = "Messages", width = 12, height = 350,
           div(style = "overflow-y:scroll;max-height:330px",
@@ -33,7 +33,8 @@ ui_wells <- function(id) {
       tabBox(
         width = 12,
         id = "output",
-        tabPanel("Maps", plotOutput(ns("map_plot"), height = "650px")),
+        tabPanel("Maps",
+                 plotOutput(ns("map_plot"), height = "650px")),
         tabPanel("Wells Data",
                  DT::dataTableOutput(ns("wells_table")))
       )
@@ -57,7 +58,7 @@ server_wells <- function(id, have_data) {
       w
     })
 
-
+    # watershed -----------------------------
     watershed <- reactive({
       req(input$spatial_file)
 
@@ -79,70 +80,51 @@ server_wells <- function(id, have_data) {
       sf::st_read(f)
     })
 
+    # map -----------------------------
     output$map_plot <- renderPlot({
-      req(watershed(), wells())
+      req(watershed(), wells(), dem())
 
       id <- showNotification("Plotting data...",
                              duration = NULL, closeButton = FALSE)
 
+      # Down sample
+      ds <- nrow(dem()) / 150
+      temp <- stars::st_downsample(dem(), n = ds) %>%
+        sf::st_as_sf(as_points = FALSE, merge = TRUE)
+
       g <- ggplot2::ggplot() +
         ggthemes::theme_map() +
         ggplot2::theme(legend.position = "right") +
-        ggplot2::geom_sf(data = watershed(), linewidth = 2, fill = "white")
-
-      if(isTRUE(input$toggle_lidar_plot)) {
-
-        showNotification("Plotting Lidar data...", id = id,
-                         duration = NULL, closeButton = FALSE)
-        ds <- nrow(lidar()) / 100
-        temp <- stars::st_downsample(lidar(), n = ds) %>% # Downsample first
-          sf::st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
-
-        g <- g +
-          ggplot2::geom_sf(data = temp, ggplot2::aes(fill = .data$elev),
-                           colour = NA, alpha = 0.8) +
-          ggplot2::scale_fill_viridis_c(name = "Elevation (m)")
-
-      }
-
-      removeNotification(id)
-
-      g +
+        ggplot2::geom_sf(data = temp, ggplot2::aes(fill = .data$elev),
+                         colour = NA) +
+        ggplot2::geom_sf(data = watershed(), linewidth = 2, fill = NA) +
         ggplot2::geom_sf(data = wells(), size = 1,
                          ggplot2::aes(colour = is.na(.data$elev))) +
+        ggplot2::scale_fill_viridis_c(name = "Elevation (m)") +
+        ggplot2::labs(caption = "Note: DEM downsampled for plotting") +
         ggplot2::scale_colour_manual(
           name = "",
-          labels = c("Elevation Missing", "Elevation Present"),
+          labels = c("TRUE" = "Elevation Missing", "FALSE" = "Elevation Present"),
           values = c("TRUE" = "#CD4071FF", "FALSE" = "#180F3EFF"))
-    }, res = 100) %>%
-      bindCache(input$spatial_file, input$toggle_lidar_plot)
-
-    lidar <- reactive({
-      req(watershed())
-      id <- showNotification("Fetching lidar data...",
-                             duration = NULL, closeButton = FALSE)
-
-      withCallingHandlers({
-        message("Lidar - Start")
-
-        p <- shinyhttr::progress(session, id = "lidar_progress")
-
-        # Catch errors if have download issues and try again
-        l <- try(lidar_region(watershed(), progress = p), silent = TRUE)
-        if(inherits(t, "try-error")) l <- lidar_region(watershed(), progress = p)
-        message("Lidar - Done")
-      },
-      message = function(m) {
-        shinyjs::html(id = "messages", html = m$message, add = TRUE)
-      })
 
       removeNotification(id)
-      l
+
+      g
+    }, res = 100) %>%
+      bindCache(input$spatial_file, input$dem_type)
+
+    dem <- reactive({
+      req(watershed(), input$dem_type)
+      dem_region_shiny(input$dem_type, watershed())
     })
 
 
+    # wells ----------------------------------
     wells <- reactive({
-      req(watershed(), lidar())
+      req(watershed(), dem())
+
+      input$dem_type
+
       id <- showNotification("Filtering well data...",
                              type = "message",
                              duration = NULL, closeButton = FALSE)
@@ -150,7 +132,7 @@ server_wells <- function(id, have_data) {
       withCallingHandlers({
         message("Wells - Start")
         w <- wells_subset(watershed()) %>%
-          wells_elev(lidar())
+          wells_elev(dem())
         message("Wells - Done")
       },
       message = function(m) {
@@ -159,9 +141,10 @@ server_wells <- function(id, have_data) {
 
       removeNotification(id)
       w
-    })
+    }) %>%
+      bindCache(input$spatial_file, input$dem_type)
 
-
+    # wells table -------------------------------
     output$wells_table <- DT::renderDataTable({
       wells() %>%
         sf::st_drop_geometry() %>%
@@ -173,14 +156,25 @@ server_wells <- function(id, have_data) {
   })
 }
 
+dem_region_shiny <- function(type, watershed) {
 
-ui_exports <- function(id) {
+  id <- showNotification(paste0("Fetching ", type, " data..."),
+                         duration = NULL, closeButton = FALSE)
 
-  fluidRow(
-    column(
-      width = 12,
-      box(
-        width = 12)
-    )
-  )
+  withCallingHandlers({
+    message(stringr::str_to_title(type), " - Start")
+
+    p <- shinyhttr::progress(session, id = "dem_progress")
+
+    # Catch errors if have download issues and try again
+    l <- try(dem_region(watershed, progress = p, type = type), silent = TRUE)
+    if(inherits(t, "try-error")) l <- dem_region(watershed, progress = p)
+    message(stringr::str_to_title(type), " - Done")
+  },
+  message = function(m) {
+    shinyjs::html(id = "messages", html = m$message, add = TRUE)
+  })
+
+  removeNotification(id)
+  l
 }

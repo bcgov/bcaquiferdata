@@ -2,7 +2,7 @@
 data_update(download = FALSE)
 
 mill <- sf::st_read("misc/data/MillBayWatershed.shp")
-mill_lidar <- lidar_region(mill)
+mill_lidar <- dem_region(mill)
 
 mill_wells <- wells_subset(mill)
 mill_wells <- wells_elev(mill_wells, mill_lidar)
@@ -22,7 +22,7 @@ y <- wells_yield(mill_wells)
 
 # Small set of wells with lithology
 mill <- sf::st_read("misc/data/MillBayWatershed.shp")
-mill_lidar <- lidar_region(mill)
+mill_lidar <- dem_region(mill)
 mill_wells <- wells_subset(mill)
 #mill_yield <- wells_yield(mill_elev) # For getting tag numbers
 

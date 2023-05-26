@@ -82,12 +82,12 @@ lith_fix(desc = "hard packed gravel & boulders")
 # Load a shape file defining the region of interest
 creek <- st_read("misc/data/Clinton_Creek.shp")
 
-# Fetch LiDAR DEM
-creek_lidar <- lidar_region(creek)
+# Fetch Lidar DEM
+creek_lidar <- dem_region(creek)
 
 plot(creek_lidar)
 
-# Collect wells in this region with added elevation from LiDAR
+# Collect wells in this region with added elevation from Lidar
 creek_wells <- wells_elev(creek, creek_lidar)
 
 ggplot() +
@@ -110,7 +110,7 @@ library(bcaquiferdata)
 library(ggspatial)
 
 creek <- st_read("misc/data/Clinton_Creek.shp")
-creek_lidar <- lidar_region(creek)
+creek_lidar <- dem_region(creek)
 
 g <- ggplot() +
   geom_sf(data = creek, fill = NA, linewidth = 1.5)

@@ -11,6 +11,6 @@ An object of class \code{sf} (inherits from \code{bcdc_sf}, \code{tbl_df}, \code
 tiles
 }
 \description{
-A dataset of LiDAR tiles available
+A dataset of Lidar tiles available
 }
 \keyword{datasets}

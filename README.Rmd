@@ -47,9 +47,9 @@ data.
 Let's work through a couple of examples. 
 
 ```{r, message = FALSE}
+library(bcaquiferdata)
 library(sf)
 library(ggplot2)
-library(bcaquiferdata)
 library(ggspatial)
 ```
 
@@ -59,10 +59,10 @@ Load a shape file defining the region of interest
 creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 ```
 
-Fetch LiDAR DEM (this may take a while the first time)
+Fetch Lidar DEM (this may take a while the first time)
 
 ```{r}
-creek_lidar <- lidar_region(creek_sf)
+creek_lidar <- dem_region(creek_sf)
 ```
 
 Plot to double check
@@ -70,7 +70,7 @@ Plot to double check
 plot(creek_lidar)
 ```
 
-Collect wells in this region with added elevation from LiDAR
+Collect wells in this region with added elevation from Lidar
 
 ```{r}
 creek_wells <- creek_sf |>
@@ -108,37 +108,51 @@ g <- ggplot() +
 g
 ```
 
-Fetch LiDAR DEM (this may take a while the first time)
+Fetch Lidar DEM (this may take a while the first time)
 
 ```{r}
-mill_lidar <- lidar_region(mill_sf)
+mill_lidar <- dem_region(mill_sf)
 ```
 
 Add to our plot to double check
 ```{r}
-temp <- stars::st_downsample(mill_lidar, n = 12) |> # Downsample first
+mill_lidar_sf <- stars::st_downsample(mill_lidar, n = 12) |> # Downsample first
   st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
 
-g <- g + geom_sf(data = temp, aes(fill = elev), colour = NA)
-g
+g + geom_sf(data = mill_lidar_sf, aes(fill = elev), colour = NA)
 ```
 
 Looks like we don't have elevation data for the whole region. 
 This can be confirmed by checking the online [LidarBC map](https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03)
 
-Collect wells in this region with added elevation from LiDAR
+Let's take a look our our options using TRIM data.
+```{r}
+mill_trim <- dem_region(mill_sf, type = "trim")
+```
+
+Add to our plot to double check
+```{r}
+mill_trim_sf <- mill_trim |>
+  st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
+
+g + geom_sf(data = mill_trim_sf, aes(fill = elev), colour = NA)
+```
+
+TRIM is at a coarser resolution, but covers our entire area. Let's use it instead.
+
+Collect wells in this region with added elevation from TRIM.
 
 ```{r}
 mill_wells <- mill_sf |>
   wells_subset() |>
-  wells_elev(mill_lidar)
+  wells_elev(mill_trim)
 ```
 
-Plot again to double check, see the points where we don't have elevation data.
+Plot again to double check, see that we now elevation data for all wells.
 ```{r}
 g +
-  geom_sf(data = mill_wells, size= 1, aes(colour = is.na(elev))) +
-  scale_colour_manual(values = c("white", "black"))
+  geom_sf(data = mill_wells, size = 1, aes(colour = is.na(elev))) +
+  scale_colour_manual(values = c(`TRUE` = "red", `FALSE` = "black"))
 ```
 
 

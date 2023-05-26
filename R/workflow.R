@@ -12,30 +12,45 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-#' Create LiDAR DEM of a region
+#' Fetch and trim DEM of a region
 #'
-#' This function takes a shape file of a region and creates a LiDAR DEM of the
-#' region. LiDAR data is stored locally as tiles. Tiles are only downloaded if
-#' they don't already exist unless `only_new = FALSE`.
+#' This function takes a shape file of a region and creates a DEM of the region.
+#' Lidar data is stored locally as tiles. Tiles are only downloaded if they
+#' don't already exist unless `only_new = FALSE`. TRIM data is obtained via the
+#' `bcmaps` package and stored locally as tiles. **Note:** TRIM elevation is
+#' coarser than Lidar Use Lidar unless it is missing for your region of
+#' interest.
 #'
-#' @param lidar_dir Character. File path of where LiDAR tiles should be stored.
-#'   Defaults to the cache directory.
-#' @param only_new Logical. Whether to download all LiDAr tiles, or only new
-#'   tiles that don't exist locally. Defaults to TRUE.
+#' @param type Character. Type of DEM to download, either "lidar" or "trim". Use
+#'  Lidar unless unavailable.
+#' @param buffer Numeric. Percent buffer to apply to the `region` spatial file
+#'   before cropping the DEM data to match. Increase this value if you find
+#'   that wells on the edge of your area aren't been matched to elevations when
+#'   using `wells_elev()`.
+#' @param lidar_dir Character. File path of where Lidar tiles should be stored.
+#'   Defaults to the cache directory. Only applies when `type = "lidar"`.
+#' @param only_new Logical. Whether to download all Lidar tiles, or only new
+#'   tiles that don't exist locally. Defaults to TRUE. Only apples when `type =
+#'   "lidar"`.
+
 #' @param progress Function. Progress bar to use. Generally leave as is.
 #'
 #' @inheritParams common_docs
 #'
 #' @section Data Source:
 #'
-#' LiDAR data is obtained programatically from the BC government portal
+#' Lidar data is obtained programatically from the BC government portal
 #' `r lidar_url` based on overlap between map tiles and the provided shapefile (`region`).
-#' These LiDAR tiles can be browsed and downloaded manually via the
-#' [LiDarBC Open LiDAR Data Portal](https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03)
+#' These Lidar tiles can be browsed and downloaded manually via the
+#' [LidarBC Open LiDAR Data Portal](https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03)
 #'
 #' The grid of map tiles is obtained from the BC Data Catalogue,
 #' [BCGS 1:20,000 Grid](https://catalogue.data.gov.bc.ca/dataset/a61976ac-d8e8-4862-851e-d105227b6525)
 #'
+#' TRIM data is obtained via the `bcmaps` package from the BC government portal
+#' https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d
+#' based on overlap between map tiles and the provided shapefile (`region`).
+
 #' @return stars spatiotemporal array object
 #' @export
 #'
@@ -46,27 +61,53 @@
 #' # Load a shape file defining the region of interest
 #' creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 #'
-#' # Fetch LiDAR DEM
-#' creek_lidar <- lidar_region(creek_sf)
+#' # Fetch Lidar DEM
+#' creek_lidar <- dem_region(creek_sf)
 #'
 #' plot(creek_lidar)
 #'
-lidar_region <- function(region, lidar_dir = NULL, only_new = TRUE,
-                         progress = httr::progress()) {
-  # Load lidar raster as combined (mosaic)
-  message("Get LiDAR data")
-  lidar <- lidar_fetch(region, out_dir = lidar_dir, progress = progress) %>%
-    dplyr::pull(.data$out_file) %>%
+#' # Fetch TRIM DEM
+#' creek_trim <- dem_region(creek_sf, type = "trim")
+#'
+#' plot(creek_trim)
+#'
+#'
+dem_region <- function(region, type = "lidar", buffer = 1,
+                       lidar_dir = NULL, only_new = TRUE,
+                       progress = httr::progress()) {
+
+  type <- tolower(type)
+  if(!type %in% c("lidar", "trim")) {
+    stop("`type` must be one of 'lidar' or 'trim'", call. = FALSE)
+  }
+
+  # Add Buffer
+  region <- sf::st_buffer(region, sqrt(sf::st_area(region)) * buffer/100)
+
+  # Load DEM raster as combined (mosaic)
+  if(type == "lidar") {
+    message("Get Lidar data")
+    dem  <- lidar_fetch(region, out_dir = lidar_dir, progress = progress) %>%
+      dplyr::pull(.data$out_file)
+
+  } else if(type == "trim") {
+    message("Get TRIM data")
+    dem <- bcmaps::cded(region)
+  }
+
+  dem <- dem %>%
     normalizePath() %>%
     stars::st_mosaic() %>%
-    stars::read_stars() %>%
+    stars::read_stars(proxy = TRUE) %>%
     stats::setNames("elev")
 
-  # Match regional crs to lidar
-  region <- sf::st_transform(region, crs = sf::st_crs(lidar))
+  message("Cropping DEM to region")
 
-  # Clip lidar to region
-  sf::st_crop(lidar, region)
+  # Match regional crs to dem
+  region <- sf::st_transform(region, crs = sf::st_crs(dem))
+
+  # Clip dem to region
+  sf::st_crop(dem, region)
 }
 
 #' Subset wells to region
@@ -106,11 +147,11 @@ wells_subset <- function(region, update = FALSE) {
 
 #' Subset wells and add elevation
 #'
-#' This function takes a region shape file and LiDAR object of a region (output
-#' of `lidar_region()`), subsets the wells data (from GWELLS) to this region and
-#' adds LiDAR elevation data.
+#' This function takes a region shape file and the DEM of a region (output of
+#' `dem_region()`), subsets the wells data (from GWELLS) to this region and adds
+#' the elevation data.
 #'
-#' @param lidar stars simple features object. Output of `lidar_region()`.
+#' @param dem stars simple features object. Output of `dem_region()`.
 #'
 #' @inheritParams common_docs
 #'
@@ -120,6 +161,7 @@ wells_subset <- function(region, update = FALSE) {
 #' @examplesIf interactive()
 #'
 #' library(sf)
+#' library(ggplot2)
 #'
 #' # Load a shape file defining the region of interest
 #' creek_sf <- st_read("misc/data/Clinton_Creek.shp")
@@ -127,20 +169,31 @@ wells_subset <- function(region, update = FALSE) {
 #' # Get wells within this region
 #' creek_wells <- wells_subset(creek_sf)
 #'
-#' # Fetch LiDAR DEM
-#' creek_lidar <- lidar_region(creek_sf)
+#' # Fetch Lidar DEM
+#' creek_lidar <- dem_region(creek_sf)
 #'
-#' # Collect wells in this region with added elevation from LiDAR
+#' # Collect wells in this region with added elevation from Lidar
 #' creek_wells <- wells_elev(creek_wells, creek_lidar)
 #'
-#' library(ggplot2)
 #' ggplot() +
-#'   geom_sf(data = creek) +
-#'   geom_sf(data = creek_wells, size=0.5, colour = "dark blue",
-#'           fill="NA",show.legend=FALSE) +
+#'   geom_sf(data = creek_sf) +
+#'   geom_sf(data = creek_wells, aes(colour = elev), size = 0.5,
+#'           fill = "NA", show.legend = FALSE) +
 #'  coord_sf(datum = st_crs(3005)) # BC Albers
 #'
-wells_elev <- function(wells_sub, lidar, update = FALSE) {
+#' # OR Fetch TRIM DEM
+#' creek_trim <- dem_region(creek_sf, type = "trim")
+#'
+#' # Collect wells in this region with added elevation from Lidar
+#' creek_wells <- wells_elev(creek_wells, creek_trim)
+#'
+#' ggplot() +
+#'   geom_sf(data = creek_sf) +
+#'   geom_sf(data = creek_wells, aes(colour = elev), size = 0.5,
+#'           fill = "NA", show.legend = FALSE) +
+#'  coord_sf(datum = st_crs(3005)) # BC Albers
+#'
+wells_elev <- function(wells_sub, dem, update = FALSE) {
 
   # Checks
   if(!"sf" %in% class(wells_sub)) {
@@ -153,15 +206,15 @@ wells_elev <- function(wells_sub, lidar, update = FALSE) {
          "`wells_sub` should be the output of `wells_subset()`", call. = FALSE)
   }
 
-  if(!"stars" %in% class(lidar)) {
-    stop("'lidar' must be a stars object output from `lidar_region()`",
+  if(!"stars" %in% class(dem)) {
+    stop("'dem' must be a stars object output from `dem_region()`",
          call. = FALSE)
   }
 
-  message("Add Lidar")
+  message("Add elevation")
   wells_sub <- wells_sub %>%
-    sf::st_transform(sf::st_crs(lidar)) %>%
-    dplyr::mutate(elev = stars::st_extract(lidar, .)[[1]]) %>%
+    sf::st_transform(sf::st_crs(dem)) %>%
+    dplyr::mutate(elev = stars::st_extract(dem, .)[[1]]) %>%
     sf::st_transform(crs = 3005) # Transform to BC albers
 }
 

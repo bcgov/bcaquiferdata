@@ -57,21 +57,21 @@ Here is a summary with links to the relevant sections
 
 **Sources**
 - Lidar -  https://catalogue.data.gov.bc.ca/dataset/lidarbc-open-lidar-data-portal
-- TRIM DEM - https://catalogue.data.gov.bc.ca/dataset/1-20-000-georeferenced-topographic-base-maps-by-mapsheet
+- TRIM DEM 
+    - ~~https://catalogue.data.gov.bc.ca/dataset/1-20-000-georeferenced-topographic-base-maps-by-mapsheet~~
+    - https://catalogue.data.gov.bc.ca/dataset/digital-elevation-model-for-british-columbia-cded-1-250-000
   
-> **TRIM DEM is not yet implemented**
-
 **Steps**
 - Using area of interest, download relevant Lidar data to the cache, 
   load it, and trim it to the area of interest.
-- [Code] User passes area of interest to `lidar_region()` function
+- [Code] User passes area of interest to `dem_region()` function
 - [App] Automatically happens once area of interest is selected
 
 > **Status** - Partially complete
 >
 > **TODO**
 > 
-> - Add alternative methods (e.g, TRIM DEM data)
+> - ~~Add alternative methods (e.g, TRIM DEM data)~~
 > - Add option for user to supply their own spatial elevation data
 
 ### Adding elevation data
