@@ -180,9 +180,19 @@ dem_region_shiny <- function(type, watershed, session) {
 
     p <- shinyhttr::progress(session, id = "dem_progress")
 
-    # Catch errors if have download issues and try again
+    # Catch errors if have issues and try again
     l <- try(dem_region(watershed, progress = p, type = type), silent = TRUE)
-    if(inherits(t, "try-error")) l <- dem_region(watershed, progress = p)
+    #l <- try(stop("testing"), silent = TRUE)
+    if(inherits(l, "try-error")) {
+      message("  Problem with ", type, " tiles, trying again...")
+      l <- tryCatch(
+        dem_region(watershed, progress = p, type = type),
+        #stop("testing2"),
+        error = function(cond) {
+          message("  Problem fetching ", type, " tiles\n",
+                  "  Error message: ", cond$message)
+        })
+    }
     message(stringr::str_to_title(type), " - Done")
   },
   message = function(m) {
