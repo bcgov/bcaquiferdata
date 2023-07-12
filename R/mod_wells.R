@@ -129,7 +129,7 @@ server_wells <- function(id, have_data) {
 
     dem <- reactive({
       req(watershed(), input$dem_type)
-      dem_region_shiny(input$dem_type, watershed())
+      dem_region_shiny(input$dem_type, watershed(), session)
     })
 
 
@@ -170,7 +170,7 @@ server_wells <- function(id, have_data) {
   })
 }
 
-dem_region_shiny <- function(type, watershed) {
+dem_region_shiny <- function(type, watershed, session) {
 
   id <- showNotification(paste0("Fetching ", type, " data..."),
                          duration = NULL, closeButton = FALSE)
