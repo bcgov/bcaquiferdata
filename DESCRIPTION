@@ -10,6 +10,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports: 
+    bcmaps (>= 1.2.0),
     dplyr (>= 1.0.7),
     httr (>= 1.4.2),
     janitor (>= 2.1.0),
