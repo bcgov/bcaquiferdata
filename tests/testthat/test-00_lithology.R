@@ -22,6 +22,7 @@ test_that("lith_categorize()", {
 })
 
 
+# To add tests, modify inst/extdata/test_lithology_cleaning.csv
 test_that("lith_fix()", {
 
   t <- system.file("extdata", "test_lithology_cleaning.csv",
@@ -32,6 +33,10 @@ test_that("lith_fix()", {
   for(i in seq(nrow(t))) {
     expect_equal(lith_fix(desc = !!t$desc[i])[["lithology_category"]], !!t$cat[i])
   }
+
+  # Check that removes erroneous "Aquifer Data:" prefaces
+  expect_equal(lith_fix(desc = "aquifer data: glacial till")$lithology_extra,
+               "")
 
 })
 

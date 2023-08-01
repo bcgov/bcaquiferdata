@@ -89,7 +89,9 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
   lith_desc <- lith_desc %>%
     # Convert to metric
     dplyr::mutate(
-      lithology_raw_data = stringr::str_to_lower(.data$lithology_raw_data)) %>%
+      lithology_raw_data = stringr::str_to_lower(.data$lithology_raw_data),
+      lithology_raw_data = stringr::str_remove(.data$lithology_raw_data,
+                                               "^aquifer data(:)*")) %>%
     dplyr::select("lithology_raw_data") %>%
     dplyr::distinct() %>%
     dplyr::mutate(
