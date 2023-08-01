@@ -22,8 +22,8 @@ To install:
 
 ```{r, eval = FALSE}
 install.packages("bcaquiferdata", 
-                 repos = c("https://steffilazerte.r-universe.dev", 
-                           "https://cloud.r-project.org"))
+                 repos = c(bcaquiferdata = "https://steffilazerte.r-universe.dev", 
+                           getOption("repos")))
 ```
 
 ## General Workflow
@@ -31,6 +31,7 @@ install.packages("bcaquiferdata",
 ### Shiny App
 To run the Shiny app
 ```{r, eval = FALSE}
+library(bcaquiferdata)
 aq_app()
 ```
 

@@ -17,8 +17,8 @@ To install:
 
 ``` r
 install.packages("bcaquiferdata", 
-                 repos = c("https://steffilazerte.r-universe.dev", 
-                           "https://cloud.r-project.org"))
+                 repos = c(bcaquiferdata = "https://steffilazerte.r-universe.dev", 
+                           getOption("repos")))
 ```
 
 ## General Workflow
@@ -28,6 +28,7 @@ install.packages("bcaquiferdata",
 To run the Shiny app
 
 ``` r
+library(bcaquiferdata)
 aq_app()
 ```
 
@@ -209,6 +210,11 @@ mill_lidar_sf <- stars::st_downsample(mill_lidar, n = 12) |> # Downsample first
 ``` r
 g + geom_sf(data = mill_lidar_sf, aes(fill = elev), colour = NA)
 ```
+
+    ## The legacy packages maptools, rgdal, and rgeos, underpinning this package
+    ## will retire shortly. Please refer to R-spatial evolution reports on
+    ## https://r-spatial.org/r/2023/05/15/evolution4.html for details.
+    ## This package is now running under evolution status 0
 
     ## Zoom: 13
 
