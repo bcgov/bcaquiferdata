@@ -59,6 +59,7 @@ server_hydrostratigraphy <- function(id, wells) {
       if("flags" %in% show) cols <- c(cols, "flag_extra_digits")
 
       wells() %>%
+        sf::st_drop_geometry() %>%
         wells_yield() %>%
         dplyr::select(dplyr::all_of(cols)) %>%
         aq_dt()
