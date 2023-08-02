@@ -16,19 +16,16 @@ ui_flags <- function(id) {
 
   ns <- NS(id)
 
-  fluidRow(
-    column(
-      width = 12,
-      box(
-        title = "Check Flags",
-        width = 12,
-        # Data table with flags,
-        DT::dataTableOutput(ns("flags_table"))
-      ),
-      box(title = "Glossary",
-          tableOutput(ns("flags_glossary"))
+  nav_panel(
+    title = "Check Flags",
+    card(
+      title = "Check Flags",
+      # Data table with flags,
+      DT::dataTableOutput(ns("flags_table"))
+    ),
+    card(title = "Glossary",
+         tableOutput(ns("flags_glossary"))
 
-      )
     )
   )
 }

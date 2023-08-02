@@ -16,30 +16,27 @@ ui_lithology <- function(id) {
 
   ns <- NS(id)
 
-  fluidRow(
-    column(
-      width = 2,
-      box(
-        title = "Explore Lithology",
-        width = 12,
-        checkboxGroupInput(
-          ns("lith_columns"), label = "Show columns",
-          choices = list("Basic" = "min",
-                         "Extra" = "extra",
-                         "All from GWELLS" = "gwells",
-                         "Lithology categorization" = "cats",
-                         "Flags" = "flags"),
-          selected = "min"
-          )
-      )
-    ),
-    column(
-      width = 10,
-      box(
-        width = 12,
-        title = "Table",
-        DT::dataTableOutput(ns("lith_table")),
-      )
+  nav_panel(
+    title = "Explore Lithology",
+    navset_card_pill(
+      nav_panel(title = "Table",
+                layout_sidebar(
+                  sidebar = sidebar(
+                    checkboxGroupInput(
+                      ns("lith_columns"), label = h4("Columns"),
+                      choices = list("Basic" = "min",
+                                     "Extra" = "extra",
+                                     "All from GWELLS" = "gwells",
+                                     "Lithology categorization" = "cats",
+                                     "Flags" = "flags"),
+                      selected = "min"
+                    )),
+                  DT::dataTableOutput(ns("lith_table"))
+                )
+      ),
+      nav_panel(title = "Info",
+                "Description of lithology")
+
     )
   )
 }

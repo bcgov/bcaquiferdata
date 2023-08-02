@@ -16,56 +16,60 @@ ui_export_data <- function(id) {
 
   ns <- NS(id)
 
-  fluidRow(
-    column(
-      width = 2,
-
-      box(
-        width = 12,
-        title = "Export formats",
-        textInput(ns("export_id"), "ID for export files", value = "xxx"),
-        strong("Output folder"), p(),
+  nav_panel(
+    title = "Exports",
+    navset_card_pill(
+      sidebar = sidebar(
+        textInput(ns("export_id"), h4("ID for export files"), value = "xxx"),
+        p(),
+        h4("Output folder"),
         textOutput(ns("export_dir")),
         p(),
         shinyDirButton(ns("choose_export_dir"),
                        "Choose output folder",
                        "Choose where to save files")
-      )
-    ),
-    column(
-      width = 10,
-      tabBox(width = 12,
-             tabPanel(title = "Strater",
-                      actionButton(ns("export_strater"), "Export"),
-                      textOutput(ns("feedback_strater")),
-                      h3("Lithology (", textOutput(ns("strater_f1"), container = code), ")"),
-                      DT::dataTableOutput(ns("table_strater_f1")),
+      ),
+      nav_panel(
+        title = "Strater",
+        actionButton(ns("export_strater"), "Export", width = 150),
+        textOutput(ns("feedback_strater")),
+        navset_card_tab(
+          nav_panel(
+            title = h5("Lithology (", textOutput(ns("strater_f1"), container = code), ")"),
+            DT::dataTableOutput(ns("table_strater_f1"))),
 
-                      h3("Collars (", textOutput(ns("strater_f2"), container = code), ")"),
-                      DT::dataTableOutput(ns("table_strater_f2")),
+          nav_panel(
+            title = h5("Collars (", textOutput(ns("strater_f2"), container = code), ")"),
+            DT::dataTableOutput(ns("table_strater_f2"))),
 
-                      h3("Wells (", textOutput(ns("strater_f3"), container = code), ")"),
-                      DT::dataTableOutput(ns("table_strater_f3"))),
+          nav_panel(
+            title = h5("Wells (", textOutput(ns("strater_f3"), container = code), ")"),
+            DT::dataTableOutput(ns("table_strater_f3"))))
+      ),
+      nav_panel(title = "Voxler",
+                actionButton(ns("export_voxler"), "Export", width = 150),
+                textOutput(ns("feedback_voxler")),
 
-             tabPanel(title = "Voxler",
-                      actionButton(ns("export_voxler"), "Export"),
-                      textOutput(ns("feedback_voxler")),
+                h3("Voxler file (", textOutput(ns("voxler_f1"), container = code), ")"),
+                DT::dataTableOutput(ns("table_voxler_f1"))),
 
-                      h3("Voxler file (", textOutput(ns("voxler_f1"), container = code), ")"),
-                      DT::dataTableOutput(ns("table_voxler_f1"))),
+      nav_panel(
+        title = "ArcHydro",
+        actionButton(ns("export_archydro"), "Export", width = 150),
+        textOutput(ns("feedback_archydro")),
+        navset_card_tab(
+          nav_panel(
+            title = h5("Wells (", textOutput(ns("archydro_f1"), container = code), ")"),
+            DT::dataTableOutput(ns("table_archydro_f1"))),
 
-             tabPanel(title = "ArcHydro",
-                      actionButton(ns("export_archydro"), "Export"),
-                      textOutput(ns("feedback_archydro")),
+          nav_panel(
+            title = h5("HGU ID (lithology ", textOutput(ns("archydro_f2"), container = code), ")"),
+            DT::dataTableOutput(ns("table_archydro_f2"))),
 
-                      h3("Wells (", textOutput(ns("archydro_f1"), container = code), ")"),
-                      DT::dataTableOutput(ns("table_archydro_f1")),
-
-                      h3("HGU ID (lithology ", textOutput(ns("archydro_f2"), container = code), ")"),
-                      DT::dataTableOutput(ns("table_archydro_f2")),
-
-                      h3("BH (lithology index ", textOutput(ns("archydro_f3"), container = code), ")"),
-                      DT::dataTableOutput(ns("table_archydro_f3")))
+          nav_panel(
+            title = h5("BH (lithology index ", textOutput(ns("archydro_f3"), container = code), ")"),
+            DT::dataTableOutput(ns("table_archydro_f3")))
+        )
       )
     )
   )
@@ -142,15 +146,15 @@ server_export_data <- function(id, wells) {
     exp_archydro <- reactive(wells_export(wells(), type = "archydro", preview = TRUE))
 
     output$table_strater_f1 <- DT::renderDataTable({
-      aq_dt(exp_strater()[[1]], 12, buttons = FALSE)})
-    output$table_strater_f2 <- DT::renderDataTable(aq_dt(exp_strater()[[2]], 12, buttons = FALSE))
-    output$table_strater_f3 <- DT::renderDataTable(aq_dt(exp_strater()[[3]], 12, buttons = FALSE))
+      aq_dt(exp_strater()[[1]], minimal = TRUE)})
+    output$table_strater_f2 <- DT::renderDataTable(aq_dt(exp_strater()[[2]], minimal = TRUE))
+    output$table_strater_f3 <- DT::renderDataTable(aq_dt(exp_strater()[[3]], minimal = TRUE))
 
-    output$table_voxler_f1 <- DT::renderDataTable(aq_dt(exp_voxler()[[1]], 12, buttons = FALSE))
+    output$table_voxler_f1 <- DT::renderDataTable(aq_dt(exp_voxler()[[1]], minimal = TRUE))
 
-    output$table_archydro_f1 <- DT::renderDataTable(aq_dt(exp_archydro()[[1]], 12, buttons = FALSE))
-    output$table_archydro_f2 <- DT::renderDataTable(aq_dt(exp_archydro()[[2]], 12, buttons = FALSE))
-    output$table_archydro_f3 <- DT::renderDataTable(aq_dt(exp_archydro()[[3]], 12, buttons = FALSE))
+    output$table_archydro_f1 <- DT::renderDataTable(aq_dt(exp_archydro()[[1]], minimal = TRUE))
+    output$table_archydro_f2 <- DT::renderDataTable(aq_dt(exp_archydro()[[2]], minimal = TRUE))
+    output$table_archydro_f3 <- DT::renderDataTable(aq_dt(exp_archydro()[[3]], minimal = TRUE))
 
     # Export files
     output$feedback_strater <- feedback_output("strater")

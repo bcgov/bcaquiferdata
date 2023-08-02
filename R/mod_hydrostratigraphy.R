@@ -16,27 +16,25 @@ ui_hydrostratigraphy <- function(id) {
 
   ns <- NS(id)
 
-  fluidRow(
-    column(
-      width = 2,
-      box(
-        width = 12,
-        title = "Explore Hydrostratigraphy",
-        checkboxGroupInput(
-          ns("hydrostratigraphy_columns"), label = "Show columns",
-          choices = list("Basic" = "min",
-                         "Raw lithology" = "lith_raw",
-                         "Flags" = "flags"),
-          selected = "min"
-        )
-      )
-    ),
-    column(
-      width = 10,
-      box(
-        width = 12,
+  nav_panel(
+    title = "Explore Hydrostratigraphy",
+    navset_card_pill(
+      nav_panel(
         title = "Table",
-        DT::dataTableOutput(ns("hydrostratigraphy_table"))
+        layout_sidebar(
+          sidebar = sidebar(
+            checkboxGroupInput(
+              ns("hydrostratigraphy_columns"), label = h4("Columns"),
+              choices = list("Basic" = "min",
+                             "Raw lithology" = "lith_raw",
+                             "Flags" = "flags"),
+              selected = "min"
+            )),
+          DT::dataTableOutput(ns("hydrostratigraphy_table"))
+        )
+      ),
+      nav_panel(title = "Info",
+                "Description of lithology"
       )
     )
   )

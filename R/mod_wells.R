@@ -16,41 +16,31 @@ ui_wells <- function(id) {
 
   ns <- NS(id)
 
-  fluidRow(
-    column(
-      width = 4,
-      box(
-        width = 12,
-        title = "Process data",
-        "Filter GWELLs to watershed area and use Lidar or TRIM digital ",
-        "elevation models to calculate well elevation",
-        p(),
+  nav_panel(
+    title = "Prepare Data",
+    navset_card_pill(
+      sidebar = sidebar(width = "20%",
+        h4("Prepare data"),
+        p("Filter GWELLs to watershed area and use Lidar or TRIM digital ",
+        "elevation models to calculate well elevation"),
+
         uiOutput(ns("data_warning")),
         fileInput(
           ns("spatial_file"),
           label = "Choose shape file(s) defining a watershed area (select all files or use zip)",
           buttonLabel = "Upload Spatial Data", multiple = TRUE),
-        radioButtons(ns("dem_type"), "DEM source",
-                     choices = c("Lidar" = "lidar", "TRIM" = "trim"))
+        radioButtons(ns("dem_type"), strong("DEM source"), inline = TRUE,
+                     choices = c("Lidar" = "lidar", "TRIM" = "trim")),
+        h4("Messages"),
+        verbatimTextOutput(ns("messages"), placeholder = TRUE),
+        shinyWidgets::progressBar(
+          title = "Current Lidar tile:",
+          id = ns("lidar_progress"), value = 0, display_pct = TRUE)
       ),
-      box(title = "Messages", width = 12, height = 350,
-          div(style = "overflow-y:scroll;max-height:330px",
-              verbatimTextOutput(ns("messages"), placeholder = TRUE)),
-          shinyWidgets::progressBar(
-            title = "Current Lidar tile:",
-            id = ns("lidar_progress"), value = 0, display_pct = TRUE)
-      )
-    ),
-
-    column(
-      width = 8,
-      tabBox(
-        width = 12,
-        id = "output",
-        tabPanel("Maps",
-                 plotOutput(ns("map_plot"), height = "650px")),
-        tabPanel("Wells Data",
-                 DT::dataTableOutput(ns("wells_table")))
+      nav_panel("Maps",
+                plotOutput(ns("map_plot"), height = "650px")),
+      nav_panel("Wells Data",
+                DT::dataTableOutput(ns("wells_table"))
       )
     )
   )
@@ -150,7 +140,7 @@ server_wells <- function(id, have_data) {
         message("Wells - Done")
       },
       message = function(m) {
-        shinyjs::html(id = "messages", html = m$message, add = TRUE)
+        shinyjs::html(id = NS(id, "messages"), html = m$message, add = TRUE)
       })
 
       removeNotification(id)

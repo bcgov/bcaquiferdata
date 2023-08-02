@@ -67,16 +67,21 @@ fix_range <- function(x) {
 
 
 
-aq_dt <- function(data, pageLength = 18, buttons = TRUE) {
-  if(!buttons) {
-    data %>%
-      DT::datatable(options = list(pageLength = pageLength, scrollX = TRUE))
+aq_dt <- function(data, minimal = FALSE) {
+  if(minimal) {
+    opts <- list(dom = "t")
+    ext <- list()
   } else {
-    data %>%
-      DT::datatable(extensions = c("Buttons"),
-                    options = list(pageLength = pageLength,
-                                   scrollX = TRUE,
-                                   dom = 'Bfrtip',
-                                   buttons = c('csv', 'excel', I('colvis'))))
+    opts <- list(dom = 'Bfrtip',
+                 buttons = c('csv', 'excel', I('colvis')))
+    ext <- "Buttons"
   }
+
+  data %>%
+    DT::datatable(
+      fillContainer = TRUE,
+      options = append(
+        list(pageLength = 14, scrollX = TRUE),
+        opts),
+      extensions = ext)
 }

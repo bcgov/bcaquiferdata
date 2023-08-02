@@ -16,30 +16,36 @@ ui_data <- function(id) {
 
   ns <- NS(id)
 
-  fluidRow(
-    column(
-      width = 12,
-
-      box(
-        title = "Update data", width = 6,
-        valueBoxOutput(ns("data_status"), width = 6),
-        strong("Note:"),
-        "A cache directory will be created if it doesn't already exist", p(),
-        actionButton(ns("data_download"), "Fetch/Update GWELLS data",
-                     style = "color:white;",
-                     class = "btn-success"), p(),
-        actionButton(ns("data_cache"), "Clear GWELLS data cache",
-                     style = "color:white;",
-                     class = "btn-warning")
+  nav_panel(
+    title = "Data Status",
+    layout_columns(
+      col_widths = c(6, 6, 12),
+      row_heights = c(8, 17),
+      card(
+        card_header(h4("Data Status")),
+        card_body(
+          layout_column_wrap(
+            width = 1/2,
+            fill = FALSE,
+            card_body(fillable = FALSE, uiOutput(ns("data_status"))),
+            card_body(
+              fillable = FALSE,
+              strong("Note:"), br(),
+              uiOutput(ns("cache_status")),
+              actionButton(ns("data_download"), "Fetch/Update data",
+                           class = "btn-success m-2"),
+              actionButton(ns("data_cache"), "Clear cache",
+                           class = "btn-warning m-2")
+            )
+          )
+        )
       ),
-      box(title = "Data Status", width = 6, tableOutput(ns("data_meta"))),
+      card(card_header(h4("Details")), tableOutput(ns("data_meta"))),
 
-      box(title = "Messages", width = 12, height = 350,
-          div(style = "overflow-y:scroll;max-height:330px",
-              verbatimTextOutput(ns("messages"), placeholder = TRUE))
-      ),
-
-
+      card(card_header("Messages"),
+           div(style = "overflow-y:scroll;max-height:330px",
+               verbatimTextOutput(ns("messages"), placeholder = TRUE))
+      )
     )
   )
 }
@@ -51,8 +57,17 @@ server_data <- function(id) {
 
     data_check <- reactiveVal(TRUE)
 
-    # Check data status
+    # Cache status
+    output$cache_status <- renderUI({
+      if(dir.exists(cache_dir())) {
+        t <- tagList("Using existing cache directory:", br(), code(cache_dir()))
+      } else {
+        t <- tagList("Will create new cache dir at:", br(), code(cache_dir()))
+      }
+      t
+    })
 
+    # Check data status
     meta <- reactive(cache_meta()) %>% bindEvent(data_check())
     have_data <- reactive(data_ready()) %>% bindEvent(data_check())
 
@@ -65,17 +80,20 @@ server_data <- function(id) {
     })
 
     # Output data status
-    output$data_status <- renderValueBox({
+    output$data_status <- renderUI({
 
       if(!have_data()) {
-        v <- valueBox(value = "Data Missing",
-                      subtitle = "Please download GWELLS data",
-                      color = "red")
+        v <- value_box(
+          title = "Status",
+          value = "Data Missing",
+          theme_color = "danger", class = "nopad p-0",
+          p("Please download GWELLS data"))
       } else {
-        v <- valueBox(
+        v <- value_box(
+          title = "Status",
           value = "Data Found",
-          subtitle = paste0("Last downloaded: ", meta()$GWELLS_downloaded),
-          color = "green")
+          theme_color = "success", class = "nopad p-0",
+          p("Last downloaded: ", as.character(meta()$GWELLS_downloaded)))
       }
       data_check(FALSE)
       v

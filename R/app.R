@@ -18,7 +18,7 @@
 #' according to region, explore data, and export cleaned files.
 #'
 #' @import shiny
-#' @import shinydashboard
+#' @import bslib
 #' @import shinyFiles
 #' @export
 #'
@@ -32,27 +32,24 @@ aq_app <- function() {
     c("DT", "ggplot2", "ggthemes",
       "shinyWidgets", "shinyjs", "shinyhttr"))
 
-  ui <- dashboardPage(
-    header = dashboardHeader(title = "BC Aquifer Data"),
-    sidebar = dashboardSidebar(aq_sidebar()),
-
-    body = dashboardBody(
-      shinyjs::useShinyjs(),
-      tabItems(
-        tabItem(tabName = "data", ui_data("data")),
-        tabItem(tabName = "wells", ui_wells("wells")),
-        tabItem(tabName = "lithology", ui_lithology("lithology")),
-        tabItem(tabName = "hydrostratigraphy", ui_hydrostratigraphy("hydrostratigraphy")),
-        tabItem(tabName = "flags", ui_flags("flags")),
-        tabItem(tabName = "export_data", ui_export_data("export_data"))
-      )
-    )
+  ui <- tagList(
+    page_navbar(
+      title = "BC Aquifer Data",
+      theme = aq_theme(),
+      ui_data("data"),
+      ui_wells("wells"),
+      ui_lithology("lithology"),
+      ui_hydrostratigraphy("hydrostratigraphy"),
+      ui_flags("flags"),
+      ui_export_data("export_data")
+    ),
+    shinyjs::useShinyjs()  # Set up shinyjs
   )
 
   server <- function(input, output, session) {
     have_data <- server_data("data")
     wells <- server_wells("wells", have_data)
-    #wells <- reactive(readr::read_rds("mills.rds"))
+    #wells <- reactive(readr::read_rds("misc/mills.rds"))
     server_lithology("lithology", wells)
     server_hydrostratigraphy("hydrostratigraphy", wells)
     server_flags("flags", wells)
@@ -62,14 +59,48 @@ aq_app <- function() {
   shinyApp(ui, server)
 }
 
-
-aq_sidebar <- function() {
-  sidebarMenu(
-    menuItem("Download Data", tabName = "data"),
-    menuItem("Prepare Data", tabName = "wells"),
-    menuItem("Explore Lithology", tabName = "lithology"),
-    menuItem("Explore Hydrostratigraphy", tabName = "hydrostratigraphy"),
-    menuItem("Check Flags", tabName = "flags"),
-    menuItem("Exports", tabName = "export_data")
-  )
+aq_theme <- function() {
+  bs_theme(
+    fg = "#003366", # BC Gov blue
+    bg = "#fff",
+    primary = "#385a8a", # BC Gov light blue
+    #"#fcba19", # BC Gov yellow
+    secondary = "#AAB1B8",
+    font_scale = 0.9,
+    "nav-link-font-size" = "110%",
+    ) %>%
+    bs_add_variables(
+      "nav-tabs-link-border-color" = "$primary", .where = "declarations"
+    ) %>%
+    bs_add_rules(
+      list(
+        "div.nopad .value-box-area { padding: 0; }",
+        ".nav-pills .nav-link { background: #00336630; margin-left: 2px; margin-right: 2px;};"
+        ))
 }
+
+
+mod_test <- function(which) {
+  ui <- tagList(
+    page_navbar(
+      title = "BC Aquifer Data",
+      theme = aq_theme(),
+      get(paste0("ui_", which))(which)
+    ),
+    shinyjs::useShinyjs()  # Set up shinyjs
+  )
+
+  server <- function(input, output, session) {
+    if(which == "data") {
+      server_data("data")
+    } else if(which == "wells") {
+      server_wells("wells", reactive(TRUE))
+    } else {
+      wells <- reactive(readr::read_rds("misc/mills.rds"))
+      get(paste0("server_", which))(which, wells)
+    }
+  }
+
+  shinyApp(ui, server)
+}
+
