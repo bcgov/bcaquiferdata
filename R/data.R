@@ -231,7 +231,9 @@ cache_clean <- function() {
 cache_meta <- function() {
 
   if(file.exists(f <- file.path(cache_dir(), "meta.csv"))) {
-    m <- readr::read_csv(f, show_col_types = FALSE)
+    m <- readr::read_csv(f, show_col_types = FALSE) %>%
+      dplyr::mutate(dplyr::across(dplyr::where(lubridate::is.POSIXct),
+                                  ~round(.x, units = "secs")))
   } else {
     m <- data.frame(
       bcaquiferdata_version = as.character(utils::packageVersion("bcaquiferdata")),
