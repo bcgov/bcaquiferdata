@@ -147,8 +147,9 @@ clean_wells <- function(file = "GWELLS/well.csv") {
     janitor::clean_names() %>%
     dplyr::filter(!is.na(.data$latitude_decdeg),
                   !is.na(.data$longitude_decdeg)) %>%
-    dplyr::mutate(water_depth_m = .data$static_water_level_ft_btoc * 0.3048,
-                  well_depth_m = .data$finished_well_depth_ft_bgl * 0.3048) %>%
+    dplyr::mutate(
+      water_depth_m = round(.data$static_water_level_ft_btoc * 0.3048, 1),
+      well_depth_m = round(.data$finished_well_depth_ft_bgl * 0.3048, 1)) %>%
     dplyr::select(dplyr::all_of(fields_wells))
 }
 

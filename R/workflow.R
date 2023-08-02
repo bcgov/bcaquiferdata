@@ -214,7 +214,7 @@ wells_elev <- function(wells_sub, dem, update = FALSE) {
   message("Add elevation")
   wells_sub <- wells_sub %>%
     sf::st_transform(sf::st_crs(dem)) %>%
-    dplyr::mutate(elev = stars::st_extract(dem, .)[[1]]) %>%
+    dplyr::mutate(elev = round(stars::st_extract(dem, .)[[1]], 2)) %>%
     sf::st_transform(crs = 3005) # Transform to BC albers
 }
 
