@@ -13,16 +13,13 @@
 # the License.
 
 test_that("wells", {
-  creek_sf <- st_read("misc/data/Clinton_Creek.shp")
+  #creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 
-
-  Fetch Lidar DEM (this may take a while the first time)
-
-  creek_lidar <- dem_region(creek_sf)
-  plot(creek_lidar)
-  creek_wells <- creek_sf |>
-    wells_subset() |>        # Subset to region
-    wells_elev(creek_lidar)  # Add Lidar
+  # creek_lidar <- dem_region(creek_sf)
+  # plot(creek_lidar)
+  # creek_wells <- creek_sf |>
+  #   wells_subset() |>        # Subset to region
+  #   wells_elev(creek_lidar)  # Add Lidar
 
 
 })

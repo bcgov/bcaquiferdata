@@ -21,7 +21,7 @@ mill_lidar <- dem_region(mill)
 mill_wells <- wells_subset(mill)
 mill_wells <- wells_elev(mill_wells, mill_lidar)
 
-readr::write_rds(mill_wells, "mills.rds")
+readr::write_rds(mill_wells, "misc/mills.rds")
 
 
 y <- wells_yield(mill_wells)
