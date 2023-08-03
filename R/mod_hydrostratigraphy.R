@@ -33,8 +33,9 @@ ui_hydrostratigraphy <- function(id) {
           DT::dataTableOutput(ns("hydrostratigraphy_table"))
         )
       ),
-      nav_panel(title = "Info",
-                "Description of lithology"
+      nav_panel(title = "Info", includeMarkdown(
+        system.file("extra_docs", "hydrostratigraphy_desc.md",
+                    package = "bcaquiferdata"))
       )
     )
   )

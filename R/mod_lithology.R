@@ -27,15 +27,19 @@ ui_lithology <- function(id) {
                       choices = list("Basic" = "min",
                                      "Extra" = "extra",
                                      "All from GWELLS" = "gwells",
-                                     "Lithology categorization" = "cats",
+                                     "Intermediate categories" = "cats",
                                      "Flags" = "flags"),
                       selected = "min"
-                    )),
+                    ),
+                    p("See 'Info' for specific details regarding these columns")),
                   DT::dataTableOutput(ns("lith_table"))
                 )
       ),
       nav_panel(title = "Info",
-                "Description of lithology")
+                includeMarkdown(
+                  system.file("extra_docs", "lithology_desc.md",
+                              package = "bcaquiferdata"))
+      )
 
     )
   )
