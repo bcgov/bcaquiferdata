@@ -255,7 +255,6 @@ wells_yield <- function(wells_sub) {
       "fractured", "yield_units",
       "lithology_raw_data", dplyr::starts_with("flag")) %>%
     lith_yield() %>%
-    tidyr::unnest(cols = c("yield", "depth"), keep_empty = TRUE) %>%
-    dplyr::filter(!is.na(.data$yield) | !is.na(.data$well_yield_usgpm))
+    tidyr::unnest(cols = c("yield", "depth"), keep_empty = TRUE)
 }
 
