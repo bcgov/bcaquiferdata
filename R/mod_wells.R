@@ -27,7 +27,8 @@ ui_wells <- function(id) {
         uiOutput(ns("data_warning")),
         fileInput(
           ns("spatial_file"),
-          label = "Choose shape file(s) defining a watershed area (select all files or use zip)",
+          label = paste0("Choose shape file(s) defining a watershed area ",
+                         "(select multiple files using Ctrl, or use zip)"),
           buttonLabel = "Upload Spatial Data", multiple = TRUE),
         radioButtons(ns("dem_type"), strong("DEM source"), inline = TRUE,
                      choices = c("Lidar" = "lidar", "TRIM" = "trim")),
@@ -70,7 +71,7 @@ server_wells <- function(id, have_data) {
                              duration = NULL, closeButton = FALSE)
       type <- ext(input$spatial_file$datapath)
 
-      if(any(type == "shp")) {
+      if(all(c("shp", "shx", "dbf", "prj") %in% type)) {
         file.rename(input$spatial_file$datapath,
                     file.path(tempdir(), input$spatial_file$name))
         f <- file.path(tempdir(), input$spatial_file$name)[type == "shp"]
@@ -79,7 +80,13 @@ server_wells <- function(id, have_data) {
         utils::unzip(input$spatial_file$datapath, exdir = tempdir())
         f <- stringr::str_subset(f$Name, "shp$") %>%
           file.path(tempdir(), .)
+      } else {
+        validate(need(
+        FALSE,
+        paste0("Cannot detect file type. Must be a shapefile including a ",
+               "shp, shx, prj, and dbf file (can be zipped or multiple selected)")))
       }
+
       removeNotification(id)
       sf::st_read(f)
     })
