@@ -63,8 +63,14 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
 
   # Warn if cannot find a tile
   if(any(!fetch$tif_good)) {
-    problems <- paste0(fetch$map_tile[!fetch$tif_good], collapse = "\n  - ")
-    warning("Could not find a lidar image for map tile(s):\n  - ", problems,
+    problems <- stringr::str_remove(fetch$map_tile[!fetch$tif_good], "^0") %>%
+      stringr::str_replace("(.*)(\\d{3})", "\\1.\\2") %>%
+      paste0("\n- ", fetch$map_tile[!fetch$tif_good], " (", ., ")")
+    warning("Could not find a lidar image for map tile(s):", problems,
+            "\nConfirm lidar for tile is missing by seaching 'LidarBC Discovery and Download' ",
+            "by name(s) in brackets:",
+            "\nhttps://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03",
+            "\nIf not missing, report as a package error.",
             call. = FALSE)
     fetch <- dplyr::filter(fetch, .data$tif_good) # Only get the ones that exist
   }
@@ -84,6 +90,15 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
   fetch
 }
 
+
+#' Create url for tiles
+#'
+#' Based on the interal `tiles` data frame, create all the possible year/id
+#' combinations and then return the most recent which can be found.
+#'
+#' `tiles` are created in data-raw/internal.R based
+#'
+#' @noRd
 create_url <- function(tiles) {
   t <- tiles %>%
     dplyr::mutate(n = stringr::str_extract(.data$map_tile, "^[0-9]{3}"),
