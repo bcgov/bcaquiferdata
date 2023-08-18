@@ -501,16 +501,16 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
     dplyr::mutate(
       # Get primary/secondary/tertiary terms
       primary = lith_primary(
-        .data$lith_clean, terms_good = c(terms_good_main, terms_good_bedrock,
-                                         terms_good_bedrock_desc,
-                                         terms_good_org, terms_good_other,
-                                         terms_good_extra, terms_good_sgtill)),
+        .data$lith_clean, terms_to_use = c(terms_good_main, terms_good_bedrock,
+                                           terms_good_bedrock_desc,
+                                           terms_good_org, terms_good_other,
+                                           terms_good_extra, terms_good_sgtill)),
 
       secondary = lith_secondary(
-        .data$lith_clean, terms_good = c(terms_good_main, terms_good_bedrock,
-                                         terms_good_bedrock_desc,
-                                         terms_good_org, terms_good_other,
-                                         terms_good_extra, terms_good_sgtill)),
+        .data$lith_clean, terms_to_use = c(terms_good_main, terms_good_bedrock,
+                                           terms_good_bedrock_desc,
+                                           terms_good_org, terms_good_other,
+                                           terms_good_extra, terms_good_sgtill)),
 
       tertiary = lith_tertiary(.data$lith_clean, terms_good_main_y),
 
@@ -521,8 +521,8 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
       # Move (some) extra terms from categories to extra / yield
       extra = lith_cat_terms(
         .data$lith_clean,
-        terms_good = append(terms_good_extra, terms_extra_flags)),
-      yield = lith_cat_terms(.data$lith_clean, terms_good = terms_good_yield),
+        terms_to_use = append(terms_good_extra, terms_extra_flags)),
+      yield = lith_cat_terms(.data$lith_clean, terms_to_use = terms_good_yield),
       primary = purrr::map(.data$primary, ~.[!. %in% names(terms_good_extra)]),
 
       # Apply categorizing based on primary/secondary/tertiary
@@ -649,17 +649,16 @@ lith_combo <- function(x, terms) {
 }
 
 lith_replace <- function(terms, pattern, replacement) {
-
   if(!is.null(pattern)) {
     terms <- stringr::str_replace_all(terms, pattern, replacement)
   }
   terms
 }
 
-lith_primary <- function(terms, terms_good) {
+lith_primary <- function(terms, terms_to_use) {
 
   # Get all primary terms (i.e. good terms, not 'y' and do not have a 'with' before
-  names(terms_good) %>%
+  names(terms_to_use) %>%           # Good terms
     paste0("(?<!with )", .) %>%   # Cannot have a 'with ' right before the term
     lith_prep_regex(noname = TRUE) %>%
     stringr::str_extract_all(terms, pattern = .)
@@ -684,11 +683,11 @@ lith_primary <- function(terms, terms_good) {
   #p
 }
 
-lith_secondary <- function(terms, terms_good) {
+lith_secondary <- function(terms, terms_to_use) {
   # Get all secondary terms
   # i.e. good terms, no "y", but "with " before
   #      OR for bedrock, a descriptive term like fractured
-  with <- names(terms_good) %>%
+  with <- names(terms_to_use) %>%
     paste0("(?<=with )", .) %>%   # Must have a 'with ' right before the term
     lith_prep_regex(noname = TRUE)
 #
@@ -704,9 +703,9 @@ lith_secondary <- function(terms, terms_good) {
   stringr::str_extract_all(terms, pattern = paste0("(", with, ")"))
 }
 
-lith_tertiary <- function(terms, terms_good) {
+lith_tertiary <- function(terms, terms_to_use) {
   # Get all tertiary terms (i.e. good terms ending in "y"
-  names(terms_good) %>%
+  names(terms_to_use) %>%
     lith_prep_regex(noname = TRUE) %>%
     stringr::str_extract_all(terms, pattern = .) %>%
     # Remove y ends
@@ -718,8 +717,8 @@ lith_tertiary <- function(terms, terms_good) {
                                   "bouldery" = "boulders")))
 }
 
-lith_cat_terms <- function(terms, terms_good) {
-  names(terms_good) %>%
+lith_cat_terms <- function(terms, terms_to_use) {
+  names(terms_to_use) %>%
     lith_prep_regex(noname = TRUE) %>%
     stringr::str_extract_all(terms, pattern = .)
 }
