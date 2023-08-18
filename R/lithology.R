@@ -492,7 +492,7 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
   # Categorizing lithology ----------------------------------------------
 
   # Terms that might be lith but we want to catch them
-  terms_extra_flags <- list("shells", "boulders", "organics") %>%
+  terms_extra_flags <- list("shells", "shelly", "boulders", "bouldery", "organic") %>%
     stats::setNames(., .)
 
   lith_cats <- lith_desc2 %>%
@@ -785,11 +785,11 @@ lith_categorize <- function(p, s, t) {
   } else if("organic" %in% p) {
     cat <- "Organics"
 
-    # If one primary, becomes category (or if primary with shells)
+    # If one primary, becomes category (or if primary with shells/overburden)
   } else if(length(p) == 1){
     cat <- stringr::str_to_title(p)
-  } else if(length(p[!p %in% c("shells")]) == 1) {
-    cat <- stringr::str_to_title(p[!p %in% c("shells")])
+  } else if(length(p[!p %in% c("shells", "overburden")]) == 1) {
+    cat <- stringr::str_to_title(p[!p %in% c("shells", "overburden")])
 
     # If only one of mains left, apply as category
   } else if(length(unique(c(p, s, t))) == 1 &
