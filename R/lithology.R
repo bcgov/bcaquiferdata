@@ -809,8 +809,8 @@ lith_flag <- function(p, s, t) {
   bedrock <- c("bedrock", "faulted", "fractured", "weathered")
 
   dplyr::tibble(
-    flag_bedrock = any(bedrock %in% p) & length(p) > 1 & !all(bedrock %in% p),
-    flag_boulders = "boulders" %in% p & length(p) > 1,
+    flag_bedrock = any(bedrock %in% c(p, s)) & !all(p %in% bedrock),
+    flag_boulders = "boulders" %in% c(p, s) & !all(p == "boulders"),
     flag_missing_cats = all(is.na(c(p, s, t)))
   )
 }
