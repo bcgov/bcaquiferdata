@@ -99,8 +99,8 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
       # omit numbers and quotes
       lith_clean = stringr::str_remove_all(.data$lith_clean, "\\d"),
       # clean punctuation
-      lith_clean = lith_replace(.data$lith_clean, "[^\\W]&[^\\W]", " & "),
-      lith_clean = lith_replace(.data$lith_clean, "\\W", " "),
+      lith_clean = lith_replace(.data$lith_clean, "[^\\W]&[^\\W]", " & "), # Add missing spaces for &
+      lith_clean = lith_replace(.data$lith_clean, "\\W|-", " "), # Convert all punctuation (including -) to space
       # clean extra spaces
       lith_clean = stringr::str_squish(.data$lith_clean))
 
@@ -192,21 +192,23 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
                            "hard earth" = "hard earth")
 
   # Relevant terms related to Aquifers, but not for lithology
-  terms_good_extra <- list("aquifer" = "aquifer",
-                           "water-bearing" = c("waterbearing", "wb", "w\\.b\\."),
-                           "flow" = c("flowing", "stream of water", "water"),
-                           "trickle" = "trickle",
-                           "seepage" = "seepage",
-                           "wet" = "wet",
-                           "saturated" = "saturated",
-                           "artesian" = "artesian",
-                           "reservoir" = "reservoir")
+  terms_good_extra <- list(
+    "aquifer" = "aquifer",
+    "waterbearing" = c("wb", "w\\.b\\."), # 'water bearing' dealt with `terms_multi` below
+    "flow" = c("flowing", "stream of water", "water"),
+    "trickle" = "trickle",
+    "seepage" = "seepage",
+    "wet" = "wet",
+    "saturated" = "saturated",
+    "artesian" = "artesian",
+    "reservoir" = "reservoir")
 
 
   terms_good_yield <- list("gpm" = c("usgpm", "us gmp", "i gpm"),
                            "gph" = c("usgph", "us gph"))
 
 
+  # These become Primary category
   terms_good <- c(
     # Joins
     terms_good_joins,  #'&' included again (below) because symbol, not a word
@@ -295,7 +297,6 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
     lith_fix_spelling(lith_terms, omit = "shelfs|(\\brock\\b)|(\\brocks\\b)") %>%
     lith_prep_regex()
 
-
   ## Spelling in extra terms ------------------
   terms_sp_extra <- terms_good_extra %>%
     all_terms() %>%
@@ -341,13 +342,12 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
          "gravel brown" = "gravelbrown",
          "bouldery fill" = "boulderyfill", "shaley mica" = "shaleymica",
          "shaley sandstone" = "shaleysandstone",
-         "water-bearing" = "water bearing", "wb" = "w b") %>%
+         "waterbearing" = "water bearing", "wb" = "w b") %>%
     .[-1] %>%
     lith_prep_regex()
 
   ## BASIC TERMS - Apply fix ----
   # Note that order is order of priority
-
   lith_desc <- lith_desc %>%
     dplyr::mutate(
 
