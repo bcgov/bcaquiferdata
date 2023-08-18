@@ -745,11 +745,12 @@ lith_categorize <- function(p, s, t) {
     cat <- "Boulders"
 
     # Sand, Gravel and fines
-  } else if(all(c("sand", "gravel") %in% p) & dirty) {             # Sand and Gravels
+  } else if((all(c("sand", "gravel") %in% p) & dirty) |
+            all(c("sand", "gravel", "silt") %in% p)) {      # Sand and Gravels
     cat <- "Sand and Gravel (Dirty)"
 
   } else if((any(p %in% "sand") & dirty) |
-            all(c("sand", "silt") %in% p)) {                   # Sand and Fines
+            all(c("sand", "silt") %in% p)) {                # Sand and Fines
     cat <- "Sand and Fines"
 
   } else if(("sand" %in% p & any_gravel) |
@@ -810,7 +811,7 @@ lith_flag <- function(p, s, t) {
 
   dplyr::tibble(
     flag_bedrock = any(bedrock %in% c(p, s)) & !all(p %in% bedrock),
-    flag_boulders = "boulders" %in% c(p, s) & !all(p == "boulders"),
+    flag_boulders = "boulders" %in% c(p, s, t) & !all(p == "boulders"),
     flag_missing_cats = all(is.na(c(p, s, t)))
   )
 }
