@@ -209,7 +209,6 @@ lith_fix(desc = c("fractured bedrock",
 
 
 ```{r}
-#TODO: Figure out 'rocks'/'rock'/'rocky' terms
 lith_fix(desc = c("bedrock",
                   "sand with bedrock",  # Flag
                   "sandy bedrock",      # No flag
@@ -229,13 +228,16 @@ lith_fix(desc = c("boulders",            # No flag
                   "sandy boulders",      # No flag
                   "sand & boulders",     # Flag
                   "bouldery",            # No flag
-                  "bouldery sand"))  |>  # Flag
-  lith_tbl()|>
+                  "bouldery sand",       # Flag
+                  "hardpan, gravel, boulders"))  |>  # Flag
+  lith_tbl() |>
   cols_unhide(contains("flag")) |>
   tab_source_note(
     md(paste0(
       "**Flags**: Flagged if present with any other **primary** categories<br>",
-      "**Extra**: Noted in 'Extra' column (`lithology_extra`) if present in any category")))
+      "**Extra**: Noted in 'Extra' column (`lithology_extra`) if present in any category"))) |>
+  tab_footnote(footnote = "Example of similar terms but different category",
+               locations = cells_body(columns = 1, rows = last_col()))
 ```
 
 ## Organics
@@ -255,11 +257,10 @@ lith_fix(desc = c("organic",
 ## Gravel, Sand, Clay, or Silt
 
 > **Primary** is `gravel`, `sand`, `clay`, *or* `silt`  
-> **No Secondary/Tertiary** (exception: `clay` can have Tertiary `silt`)
+> **No Secondary/Tertiary** 
 
 ```{r}
-lith_fix(desc = c("gravel", "sand", "clay", "silt", 
-                  "silty clay")) |>  # TODO: CHECK
+lith_fix(desc = c("gravel", "sand", "clay", "silt")) |>
   lith_tbl()
 ```
 
@@ -279,12 +280,13 @@ lith_fix(desc = c("silt with sand",
 
 ## Sand and Gravel (Clean)
 
-> **Primary** is **both** `sand` and `gravel`  
-> **No Secondary/Tertiary**
+> **Both (and only)** `sand` and `gravel` are both present in **any** category
 
 ```{r}
 lith_fix(desc = c("sand & gravel", "gravel & sand", "sand, gravel", 
-                  "sand & gravel & silt")) |>
+                  "sandy with gravel",
+                  "sand & gravel & silt"
+                  )) |>
   lith_tbl() |>
   tab_footnote(footnote = "Example of similar terms but different category",
                locations = cells_body(columns = 1, rows = last_col()))
@@ -299,17 +301,10 @@ lith_fix(desc = c("sand & gravel", "gravel & sand", "sand, gravel",
 ```{r}
 lith_fix(desc = c("gravel & sand with silt", "gravel & sand with clay", 
                   "silty gravel & sand ", "clayey gravel & sand ", 
-                  "gravel & sand & silt", 
-                  "gravel & sand & clay"))  |>   # something else
-  lith_tbl() |>
-  tab_footnote(footnote = "Example of similar terms but different category",
-               locations = cells_body(columns = 1, rows = last_col()))
-
-# TODO: 
-# - SHOULD GRAVEL SAND CLAY BE SAND AND GRAVEL CLEAN OR some sort of diamiction?
-# - What should `sandy gravel with silt` be? or `silty gravel with sand`?
-# - `till with gravel and sand seam`
-# - Catch term 'dirty' gravel? "dirty gravel with some sandy seams"
+                  "gravel & sand & silt"))  |>
+  lith_tbl() #|>
+ # tab_footnote(footnote = "Example of similar terms but different category",
+ #             locations = cells_body(columns = 1, rows = last_col()))
 ```
 
 ## Sand and Fines
@@ -321,6 +316,7 @@ lith_fix(desc = c("gravel & sand with silt", "gravel & sand with clay",
 ```{r}
 lith_fix(desc = c("sand with silt", "sand with clay", "silty sand", 
                   "clayey sand", "sand & silt", 
+                  "gravelly sand with silt",
                   "sand & clay"))  |>   # something else
   lith_tbl() |>
   tab_footnote(footnote = "Example of similar terms but different category",
@@ -360,7 +356,7 @@ lith_fix(desc = c("sgtill",
                   "tilly gravel",
                   "compact sand", "compact gravel",
                   "compact with sand",
-                  "gravel & clay", "sand & clay"))  |> # TODO: Are these correct? IF SO, add to description
+                  "clay & gravel", "clay & sand"))  |>
   lith_tbl()
 ```
 
@@ -381,12 +377,11 @@ lith_fix(desc = c("sgtill",
 ```{r}
 lith_fix(desc = c("till", "hard pan", "hard earth",
                   "tilly silt", 
-                  "silt with till",                         # TODO: CHECK AND FIX
                   "clay & till", "tilly clay", 
-                  "clay with till",                         # TODO: CHECK AND FIX
                   "compact silt", "compact clay", 
-                  "compact with silt", "compact with clay", # TODO: CHECK AND FIX
-                  "silt & clay", "clayey silt", "silty clay", "clay with silt", "silt with clay")) |>
+                  "compact with silt", "compact with clay", 
+                  "silt & clay", "clayey silt", "silty clay", 
+                  "clay with silt", "silt with clay")) |>
   lith_tbl()
 ```
 
@@ -430,3 +425,11 @@ lith_fix(desc = c("overburden", "overburden & sand")) |>
   - `waterbearing` (water-bearing, wb, w.b. etc.)
   - `aquifer`, `reservoir`, `artesian`
 
+# Ambiguous distinctions
+
+## Rock vs. rocks. vs rocky
+
+```{r}
+lith_fix(desc = c("broken rock", "rock", "rocks", "rocky")) |>
+  lith_tbl()
+```
