@@ -766,16 +766,15 @@ lith_categorize <- function(p, s, t) {
             all(c("sand", "silt") %in% p)) {                # Sand and Fines
     cat <- "Sand and Fines"
 
-  } else if(("sand" %in% p & any_gravel) |
-            ("gravel" %in% p & any_sand)) {
-    cat <- "Sand and Gravel (Clean)"
-
   } else if(any(p %in% "gravel") & dirty |
             all(c("gravel", "silt") %in% p)){               # Gravel (dirty)
     cat <- "Gravel (Dirty)"
 
   } else if(gravelly & "silt" %in% p) {                               # Silts
     cat <- "Sandy or Gravelly Silt"
+
+  } else if(any_gravel & any_sand) {
+    cat <- "Sand and Gravel (Clean)"
 
     # Boulders
   } else if("boulders" %in% c(p, s, t)) {
