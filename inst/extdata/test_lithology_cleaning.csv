@@ -28,7 +28,7 @@
 "fractured red rock", "Weathered, Fractured or Faulted Bedrock"
 "broken rock", "Weathered, Fractured or Faulted Bedrock"
 "shattered rock", "Weathered, Fractured or Faulted Bedrock"
-"hard packed gravel & boulders", "Boulders"
+"hard packed gravel & boulders", "Sand or Gravel Till or Diamicton"
 "shells", "Shells"
 "shells and sand", "Sand"
 "shells and peat", "Organics"
@@ -47,3 +47,10 @@
 "silt silty clay", "Medium to Clay Till or Diamicton"
 "med. to hard granite", "Bedrock"
 "aquifer data: glacial till", "Medium to Clay Till or Diamicton"
+"dirty gravel with some sandy seams", "Gravel (Dirty")
+"gravelly sand", "Sand and Gravel (Clean)"
+"sandy gravel", "Sand and Gravel (Clean)"
+"sandy gravel with silt", "Gravel (Dirty")
+"silty gravel with sand", "Gravel (Dirty")
+"gravely silt with sand", "Sandy or Gravelly Silt"
+
