@@ -743,6 +743,24 @@ lith_categorize <- function(p, s, t) {
   } else if("boulders" %in% c(p, s, t)) {
     cat <- "Boulders"
 
+    # Sand or Gravel Till or Diamicton
+  } else if(sg_till |
+            (any(p %in% c("till", "clay")) & (any_sand | any_gravel))) {
+    cat <- "Sand or Gravel Till or Diamicton"
+  } else if(any(c("sand", "gravel") %in% p) & "till" %in% c(s, t)) {
+    cat <- "Sand or Gravel Till or Diamicton"
+  } else if("compact" %in% p & (any(c("sand", "gravel") %in% c(p, s)))) {
+    cat <- "Sand or Gravel Till or Diamicton"
+
+    # Clay and Till
+  } else if(any(p %in% c("till", "hardpan", "hard earth")) |
+            (any(c("silt", "clay") %in% p) & "till" %in% t)) {
+    cat <- "Medium to Clay Till or Diamicton"
+  } else if("compact" %in% p & any(c("silt", "clay") %in% p)) {
+    cat <- "Medium to Clay Till or Diamicton"
+  } else if(all(c("silt", "clay") %in% unique(c(p, t, s))) ) {
+    cat <- "Medium to Clay Till or Diamicton"
+
     # Sand, Gravel and fines
   } else if((all(c("sand", "gravel") %in% p) & dirty) |
             all(c("sand", "gravel", "silt") %in% p)) {      # Sand and Gravels
@@ -760,26 +778,10 @@ lith_categorize <- function(p, s, t) {
             all(c("gravel", "silt") %in% p)){               # Gravel (dirty)
     cat <- "Gravel (Dirty)"
 
-    # Sand or Gravel Till or Diamicton
-  } else if(sg_till |
-            (any(p %in% c("till", "clay")) & (any_sand | any_gravel))) {
-    cat <- "Sand or Gravel Till or Diamicton"
-  } else if(any(c("sand", "gravel") %in% p) & "till" %in% c(s, t)) {
-    cat <- "Sand or Gravel Till or Diamicton"
-  } else if("compact" %in% p & (any(c("sand", "gravel") %in% c(p, s)))) {
-    cat <- "Sand or Gravel Till or Diamicton"
-
   } else if(gravelly & "silt" %in% p) {                               # Silts
     cat <- "Sandy or Gravelly Silt"
 
-    # Clay and Till
-  } else if(any(p %in% c("till", "hardpan", "hard earth")) |
-            (any(c("silt", "clay") %in% p) & "till" %in% t)) {
-    cat <- "Medium to Clay Till or Diamicton"
-  } else if("compact" %in% p & any(c("silt", "clay") %in% p)) {
-    cat <- "Medium to Clay Till or Diamicton"
-  } else if(all(c("silt", "clay") %in% unique(c(p, t, s))) ) {
-    cat <- "Medium to Clay Till or Diamicton"
+
 
     # Organics
   } else if("organic" %in% p) {
