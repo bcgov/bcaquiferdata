@@ -3,10 +3,12 @@
 Lithology categories (`lithology_category`) are created by cleaning and categorizing the 
 lithology descriptions from GWELLs data (`lithology_raw_data`).
 
+For more details on how lithology is categorized, please see 
+
 Adding "Basic" columns means including relevant lithology measures such as
 - `well_tag_number`
 - `lithology_from_m` / `lithology_to_m` -> Start and end of the depth being described
-- `lithology_raw_data` -> Original lithology description included in GWELLS
+- `lithology_raw_data` -> Original lithology description from GWELLS
 - `lithology_clean` -> Cleaned lithology description (see below)
 - `lithology_category` -> Categorized lithology (see below)
 

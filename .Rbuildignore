@@ -14,3 +14,8 @@
 ^README_files$
 ^RELEASE.R$
 ^rosm.cache$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^vignettes$

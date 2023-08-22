@@ -1,0 +1,432 @@
+---
+title: "Lithology Cleaning and Categorizing"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Lithology Cleaning and Categorizing}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+library(dplyr)
+library(gt)
+library(bcaquiferdata)
+
+knitr::opts_chunk$set(echo = FALSE)
+
+lith_tbl <- function(d, colour = TRUE) {
+  
+  lith_int <- c("lith_primary", "lith_secondary", "lith_tertiary")
+  
+  d <- d |>
+    select(-flag_missing_cats) |>
+    mutate(across(contains("flag_"), ~if_else(.x, "TRUE", ""))) |>
+    gt() |>
+    tab_spanner(
+      label = md("**Intermediate Categories**<br><small>(`lith_primary`,`lith_secondary`,`lith_tertiary`)</small>"),
+      columns = starts_with("lith_")) |>
+    tab_spanner(
+      label = md("**Flags**"),
+      columns = contains("flag")) |>
+    cols_width(
+      any_of(c("lith_primary", "lith_secondary", "lith_tertiary")) ~ pct(10)) |>
+    cols_align(
+      align = "center",
+      columns = any_of(c("lith_primary", "lith_secondary", "lith_tertiary"))) |>
+    cols_label(
+      lithology_raw_data = md("**Starting Description**<br><small>(`lithology_raw_data`)</small>"),
+      lithology_clean = md("**Cleaned Description**<br><small>(`lithology_clean`)</small>"),
+      lith_primary = md("1°"),
+      lith_secondary = md("2°"),
+      lith_tertiary = md("3°"),
+      lithology_category = md("**Final Category**<br><small>(`lithology_category`)</small>"),
+      flag_bedrock = "bedrock",
+      flag_boulders = "boulders") |>
+    cols_hide(columns = c("lithology_clean", "lithology_extra", "yield_units",
+                          "flag_boulders", "flag_bedrock"))
+  
+  if(colour) {
+    d <- d |>
+      tab_style_body(
+        style = cell_fill(color = "lightblue", alpha = 0.6),
+        columns = any_of(c("lith_primary", "lith_secondary", "lith_tertiary")),
+        fn = \(x) TRUE) |>
+      tab_style_body(
+        style = cell_fill(color = "lightgreen", alpha = 0.6),
+        columns = any_of(c("lithology_category")),
+        fn = \(x) TRUE)
+  }
+  d
+}
+```
+
+## Overview
+
+When GWELLS data is downloaded, the raw lithology descriptions are cleaned and categories into 
+lithology categories for use by other programs. 
+
+This results in ultimately transforming the original starting description from GWELLS
+into a new lithology category defined by a set of rules. 
+
+For example, an original lithology record of "**gravel with some sandy seams**"
+would be categorized as "**`r lith_fix(desc = "gravel with some sandy seams")$lithology_category`**". 
+
+However this process happens over several steps and for transparency, the outputs
+of intermediate steps are retained in the final data set.
+
+Here is a full example of lithology data.
+
+```{r}
+lith_fix(desc = c("gravl w/ sands", "bentonite", "sand and roots",
+                  "muddy sand", "reddish sand with pink gravel")) |>
+  select(-yield_units) |>
+  gt() |>
+  tab_style(style = cell_text(weight = "bold"), location = cells_column_labels())
+```
+
+
+> In this article we will explain how this data is created. 
+
+
+# Categorization Steps
+
+Categorizing lithology happens over three steps: 
+
+1. Cleaning
+2. Initial categorizing
+3. Final categorizing
+
+The lithology data contains columns reflecting these steps.
+
+```{r}
+tribble(
+  ~ Column, ~ Description, ~ Step,
+  "lithology_raw_data", "Original lithology description from GWELLS", "Original Data",
+  "lithology_clean", "Cleaned lithology description", "1. Cleaning",
+  "lith_primary, lith_secondary, lith_tertiary", "Intermediate categories created from `lithology_clean`", "2. Initial categorizing",
+  "lithology_extra", "Extra, potentially important descriptors extracted from the lithology description", "3. Final categorizing",
+  "lithology_category", "Final categorized lithology", "3. Final categorizing",
+  "flag_bedrock, flag_boulders, flag_missing_cats", "Columns flagging a particular observation as problematic", "3. Final categorizing") |>
+  gt() |>
+  tab_style(
+    style = cell_text(font = system_fonts(name = "monospace-code")),
+    locations = cells_body(columns = "Column")) |>
+  tab_style(style = cell_text(weight = "bold"), location = cells_column_labels()) |>
+  fmt_markdown(columns = 1:2)
+```
+
+
+### 1. Cleaning
+- Remove erroneous text (unnecessary qualifiers)
+- Fix spelling mistakes
+- Consolidate/standardize similar terms 
+
+For example...
+```{r}
+lith_fix(desc = c("gravl w/ sands", "bentonite", "sand and roots",
+                  "muddy sand", "reddish sand with pink gravel")) |>
+  lith_tbl(colour = FALSE) |>
+  cols_unhide("lithology_clean") |>
+  cols_hide(columns = matches("cat|lith_"))
+```
+
+### 2. Initial Categorizing
+
+Create *primary*, *secondary* and *tertiary* categories from important terms
+
+**Primary categories**  
+
+- **'Standalone' terms**, possibly qualified by other categories
+- e.g., sand, silt, clay, till, boulders, bedrock
+
+**Secondary categories**  
+
+- **'With' terms**
+- e.g., with sand, with silt, with clay, with boulders, with bedrock, with till
+
+**Tertiary categories**  
+
+- **Terms ending in 'y'/'ey'**
+- sandy, silty, clayey, tilly, bouldery
+
+```{r, echo = FALSE}
+lith_fix(desc = c("sand", "sand with silt", "silty sand", "sand with silty clay")) |>
+  lith_tbl() |>
+  cols_hide(columns = matches("category")) |>
+  tab_source_note(source_note = md(
+    "**Note**: There can be multiple terms per category."
+  ))
+```
+
+
+### 3. Final Categorizing
+
+These categories are then used to define a single final category, according to a 
+a set of rules
+
+For example...
+
+```{r, echo = FALSE}
+lith_fix(desc = c("sand", "sand with silt", "silty sand", "sand with silty clay")) |>
+  lith_tbl()
+```
+
+The "Categorization" section explains in more detail how this final category is decided upon.
+
+### Flags and Extra 
+
+In addition to creating the lithology category, we flag specific situations that 
+may warrent extra investigation, as well as pull out and note some terms in an
+'extra' column (`lithology_extra`).
+
+
+# Categorization Rules
+
+Here are the rules used to define final lithology categories, by examining the
+primary, secondary, and tertiary categories. 
+
+> **Note:** These rules are in order of importance. Therefore if a combination 
+> of terms matches more than one rule, the first rule takes presidence. 
+
+## Weathered, Fractured or Faulted Bedrock
+
+> **Any** category is `fractured`, `weathered`, or `faulted`
+
+```{r}
+lith_fix(desc = c("fractured bedrock", 
+                  "fractured",
+                  "fractured bedrock and sand")) |>
+  lith_tbl() |>
+  cols_unhide(contains("flag")) |>
+  tab_source_note(md("**Flags**: Flagged if present with any other **primary** categories except bedrock"))
+```
+
+
+## Bedrock
+
+> **Any** category is `bedrock`
+
+
+
+```{r}
+#TODO: Figure out 'rocks'/'rock'/'rocky' terms
+lith_fix(desc = c("bedrock",
+                  "sand with bedrock",  # Flag
+                  "sandy bedrock",      # No flag
+                  "sand & bedrock")) |> # Flag
+  lith_tbl() |>
+  cols_unhide(contains("flag")) |>
+  tab_source_note(md("**Flags**: Flagged if present with any other **primary** categories"))
+```
+
+## Boulders
+
+> **Any** category is `boulders`
+
+```{r}
+lith_fix(desc = c("boulders",            # No flag
+                  "sand with boulders",  # Flag
+                  "sandy boulders",      # No flag
+                  "sand & boulders",     # Flag
+                  "bouldery",            # No flag
+                  "bouldery sand"))  |>  # Flag
+  lith_tbl()|>
+  cols_unhide(contains("flag")) |>
+  tab_source_note(
+    md(paste0(
+      "**Flags**: Flagged if present with any other **primary** categories<br>",
+      "**Extra**: Noted in 'Extra' column (`lithology_extra`) if present in any category")))
+```
+
+## Organics
+
+> **Primary** is `organic`
+
+```{r}
+lith_fix(desc = c("organic",
+                  "organic with sand",
+                  "sandy organic",
+                  "organic and sand")) |>
+  lith_tbl() |>
+  tab_source_note(
+    md("**Extra**: Noted in 'Extra' column (`lithology_extra`) if present in any category"))
+```
+
+## Gravel, Sand, Clay, or Silt
+
+> **Primary** is `gravel`, `sand`, `clay`, *or* `silt`  
+> **No Secondary/Tertiary** (exception: `clay` can have Tertiary `silt`)
+
+```{r}
+lith_fix(desc = c("gravel", "sand", "clay", "silt", 
+                  "silty clay")) |>  # TODO: CHECK
+  lith_tbl()
+```
+
+## Sandy or Gravelly Silt
+
+> **Primary** is `silt`  
+> **Secondary/Tertiary** are `sand` or `gravel`
+
+```{r}
+lith_fix(desc = c("silt with sand",
+                  "silt with gravel",
+                  "sandy silt", 
+                  "gravely silt", 
+                  "gravely silt with sand")) |>
+  lith_tbl()
+```
+
+## Sand and Gravel (Clean)
+
+> **Primary** is **both** `sand` and `gravel`  
+> **No Secondary/Tertiary**
+
+```{r}
+lith_fix(desc = c("sand & gravel", "gravel & sand", "sand, gravel", 
+                  "sand & gravel & silt")) |>
+  lith_tbl() |>
+  tab_footnote(footnote = "Example of similar terms but different category",
+               locations = cells_body(columns = 1, rows = last_col()))
+```
+
+## Sand and Gravel (Dirty)
+
+> **Primary** is **both** `gravel` and `sand` and **Secondary/Tertiary** is `silt` or `clay`  
+> **OR**  
+> **Primary** is **all** `gravel`, `sand` and `silt` (*not* `clay`)  
+
+```{r}
+lith_fix(desc = c("gravel & sand with silt", "gravel & sand with clay", 
+                  "silty gravel & sand ", "clayey gravel & sand ", 
+                  "gravel & sand & silt", 
+                  "gravel & sand & clay"))  |>   # something else
+  lith_tbl() |>
+  tab_footnote(footnote = "Example of similar terms but different category",
+               locations = cells_body(columns = 1, rows = last_col()))
+
+# TODO: 
+# - SHOULD GRAVEL SAND CLAY BE SAND AND GRAVEL CLEAN OR some sort of diamiction?
+# - What should `sandy gravel with silt` be? or `silty gravel with sand`?
+# - `till with gravel and sand seam`
+# - Catch term 'dirty' gravel? "dirty gravel with some sandy seams"
+```
+
+## Sand and Fines
+
+> **Primary** is `sand` and **Secondary/Tertiary** is `silt` or `clay`  
+> **OR**  
+> **Primary** is **both** `sand` and `silt` (*not* `clay`)
+
+```{r}
+lith_fix(desc = c("sand with silt", "sand with clay", "silty sand", 
+                  "clayey sand", "sand & silt", 
+                  "sand & clay"))  |>   # something else
+  lith_tbl() |>
+  tab_footnote(footnote = "Example of similar terms but different category",
+               locations = cells_body(columns = 1, rows = last_col()))
+```
+
+## Gravel (Dirty)
+
+> **Primary** is `gravel` and **Secondary/Tertiary** is `silt` or `clay`  
+> **OR**  
+> **Primary** is **both** `gravel` and `silt` (*not* `clay`)
+
+```{r}
+lith_fix(desc = c("gravel with silt", "gravel with clay", "silty gravel", 
+                  "clayey gravel", "gravel & silt", 
+                  "gravel & clay")) |>   # something else
+  lith_tbl() |>
+  tab_footnote(footnote = "Example of similar terms but different category",
+               locations = cells_body(columns = 1, rows = last_col()))
+```
+
+
+## Sand or Gravel Till or Diamicton
+
+> **Any** category is `sgtill`    
+> **OR**   
+> **Primary** is `till` or `clay` and **any** category is `sand` or `gravel`     
+> **OR**    
+> **Primary** is `sand` or `gravel` and **Secondary/Tertiary** is `till`  
+> **OR**  
+> **Primary** is `compact` and **any** category is `sand` or `gravel`  
+
+```{r}
+lith_fix(desc = c("sgtill", 
+                  "till with gravel and sand seam",
+                  "till with sand", "clay with gravel", "sand with till", 
+                  "tilly gravel",
+                  "compact sand", "compact gravel",
+                  "compact with sand",
+                  "gravel & clay", "sand & clay"))  |> # TODO: Are these correct? IF SO, add to description
+  lith_tbl()
+```
+
+
+## Medium to Clay Till or Diamicton
+
+> **Primary** is `till`, `hardpan` or `hard earth`  
+> **OR**  
+> **Primary** is `silt` and **Secondary/Tertiary** is `till`  
+> **OR**  
+> **Primary** is `clay` and **any** category is `till`  
+> **OR**  
+> **Primary** is `compact` and **any** category is `silt` or `clay`  
+> **OR**  
+> **Any combination** of `silt` or `clay` not already categorized  
+
+
+```{r}
+lith_fix(desc = c("till", "hard pan", "hard earth",
+                  "tilly silt", 
+                  "silt with till",                         # TODO: CHECK AND FIX
+                  "clay & till", "tilly clay", 
+                  "clay with till",                         # TODO: CHECK AND FIX
+                  "compact silt", "compact clay", 
+                  "compact with silt", "compact with clay", # TODO: CHECK AND FIX
+                  "silt & clay", "clayey silt", "silty clay", "clay with silt", "silt with clay")) |>
+  lith_tbl()
+```
+
+
+## Shells
+
+> **Primary** is *only* `shells`   
+> **No Secondary/Tertiary** 
+
+```{r}
+lith_fix(desc = c("shells", "shells & sand")) |>
+  lith_tbl() |>
+  tab_source_note(
+    md("**Extra**: Noted in 'Extra' column (`lithology_extra`) if present in any category")) |>
+  tab_footnote(footnote = "Example of similar terms but different category",
+               locations = cells_body(columns = 1, rows = last_col()))
+```
+
+## Overburden
+
+> **Primary** is *only* `overburden`  
+> **No Secondary/Tertiary**
+
+```{r}
+lith_fix(desc = c("overburden", "overburden & sand")) |>
+  lith_tbl() |>
+  tab_footnote(footnote = "Example of similar terms but different category",
+               locations = cells_body(columns = 1, rows = last_col()))
+```
+
+## No category
+
+> **All** categories are empty
+
+# Extra columns
+- Organics, Boulders, and Shells are noted in the column `lithology_extra`
+- As are: 
+  
+  - `flow` (water, flowing, stream of water, etc.)
+  - `seepage`, `wet`, `saturated`, `trickle`
+  - `waterbearing` (water-bearing, wb, w.b. etc.)
+  - `aquifer`, `reservoir`, `artesian`
+

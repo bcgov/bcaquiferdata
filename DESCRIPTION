@@ -35,9 +35,13 @@ Suggests:
     DT (>= 0.23),
     ggplot2 (>= 3.3.5),
     ggthemes (>= 4.2.4),
+    knitr,
+    rmarkdown,
     shinyhttr (>= 1.1.0),
     shinyjs (>= 2.1.0),
     shinyWidgets (>= 0.7.6),
     testthat (>= 3.0.0)
 LazyData: true
 Config/testthat/edition: 3
+URL: http://steffilazerte.ca/bcaquiferdata/
+VignetteBuilder: knitr

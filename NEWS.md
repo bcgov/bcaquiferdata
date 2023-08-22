@@ -1,4 +1,4 @@
-# 0.0.1.9000
+# Version 0.0.1.9000
 - Fix package dependencies
 - Clarify error messages for tiles and for loading shapefiles
 - Round elevation and well depths
@@ -8,5 +8,5 @@
 - Clean up hydrostratigraphy
 
 
-# 0.0.0.9000
+# Version 0.0.0.9000
 - Initial app
