@@ -739,10 +739,6 @@ lith_categorize <- function(p, s, t) {
   } else if(any(c(p, s, t) %in% "bedrock")) {
     cat <- "Bedrock"
 
-  # Boulders
-  } else if("boulders" %in% c(p, s, t)) {
-    cat <- "Boulders"
-
     # Sand or Gravel Till or Diamicton
   } else if(sg_till |
             (any(p %in% c("till", "clay")) & (any_sand | any_gravel))) {
@@ -781,7 +777,9 @@ lith_categorize <- function(p, s, t) {
   } else if(gravelly & "silt" %in% p) {                               # Silts
     cat <- "Sandy or Gravelly Silt"
 
-
+    # Boulders
+  } else if("boulders" %in% c(p, s, t)) {
+    cat <- "Boulders"
 
     # Organics
   } else if("organic" %in% p) {
