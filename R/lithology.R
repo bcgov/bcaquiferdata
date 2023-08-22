@@ -393,13 +393,13 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
   # "Define 'good' terms" (above)
 
   terms_compound <- c(
-    "& \b(silt|clay|sand|gravel)\b" = "with \\1",  # i.e., with sand
-    "\b(silt|clay|sand|gravel) layer(s*)(es*)\b" = "with \\1",
-    "\b(silt|clay|sand|gravel) streak(s*)\b" = "with \\1",
-    "\b(silt|clay|sand|gravel) band(s*)\b" = "with \\1",
-    "\b(silt|sand|gravel) seam(s*)\b" = "\\1y",  #i.e. sandy
-    "\bclay seam(s*)\b" = "clayey",
-    "\bsilt sand\b" = "silty sand")
+    #"& \\b(silt|clay|sand|gravel)\\b" = "with \\1",  # i.e., with sand
+    "\\b(silt|clay|sand|gravel) layer(s*)(es*)\\b" = "with \\1",
+    "\\b(silt|clay|sand|gravel) streak(s*)\\b" = "with \\1",
+    "\\b(silt|clay|sand|gravel) band(s*)\\b" = "with \\1",
+    "\\b(silt|sand|gravel) seam(s*)\\b" = "\\1y",  #i.e. sandy
+    "\\bclay seam(s*)\\b" = "clayey",
+    "\\bsilt sand\\b" = "silty sand")
 
   ## FIDDLY TERMS - Apply fix ----
   lith_desc <- lith_desc %>%
