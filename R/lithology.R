@@ -739,7 +739,7 @@ lith_categorize <- function(p, s, t) {
   } else if(any(c(p, s, t) %in% "bedrock")) {
     cat <- "Bedrock"
 
-    # Sand or Gravel Till or Diamicton
+  # Sand or Gravel Till or Diamicton
   } else if(sg_till |
             (any(p %in% c("till", "clay")) & (any_sand | any_gravel))) {
     cat <- "Sand or Gravel Till or Diamicton"
@@ -748,11 +748,11 @@ lith_categorize <- function(p, s, t) {
   } else if("compact" %in% p & (any(c("sand", "gravel") %in% c(p, s)))) {
     cat <- "Sand or Gravel Till or Diamicton"
 
-    # Clay and Till
+  # Clay and Till
   } else if(any(p %in% c("till", "hardpan", "hard earth")) |
             (any(c("silt", "clay") %in% p) & "till" %in% t)) {
     cat <- "Medium to Clay Till or Diamicton"
-  } else if("compact" %in% p & any(c("silt", "clay") %in% p)) {
+  } else if("compact" %in% p & any(c("silt", "clay") %in% c(p, s, t))) {
     cat <- "Medium to Clay Till or Diamicton"
   } else if(all(c("silt", "clay") %in% unique(c(p, t, s))) ) {
     cat <- "Medium to Clay Till or Diamicton"
