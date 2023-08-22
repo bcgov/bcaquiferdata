@@ -294,7 +294,7 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
   ## Spelling in other terms ------------------
   terms_sp_other <- c(terms_good_other, terms_good_first) %>%
     all_terms() %>%
-    lith_fix_spelling(lith_terms, omit = "shelfs|(\\brock\\b)|(\\brocks\\b)") %>%
+    lith_fix_spelling(lith_terms, omit = "shelfs|(\\brock\\b)|(\\brocks\\b)|(\\brocky\\b)") %>%
     lith_prep_regex()
 
   ## Spelling in extra terms ------------------
