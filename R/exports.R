@@ -75,8 +75,9 @@ wells_export <- function(wells_sub, id, type, dir = ".", preview = FALSE) {
     stop("Must provide `id` in order to export data", call. = FALSE)
   }
 
-  if(missing(type) || !type %in% c("strater", "voxler", "archydro")) {
-    stop("`type` must be one of 'strater', 'voxler', or 'archydro'",
+  opts <- c("strater", "voxler", "archydro", "leapfrog", "surfer")
+  if(missing(type) || !type %in% opts) {
+    stop("`type` must be one of '", paste0(opts, collapse = "', '"), "'",
          call. = FALSE)
   }
 
@@ -86,17 +87,16 @@ wells_export <- function(wells_sub, id, type, dir = ".", preview = FALSE) {
     dplyr::bind_cols(as.data.frame(sf::st_coordinates(.))) %>%
     sf::st_drop_geometry()
 
-  if(type == "strater") r <- export_strater(wells_sub, id, dir, preview)
-  if(type == "voxler") r <- export_voxler(wells_sub, id, dir, preview)
-  if(type == "archydro") r <- export_archydro(wells_sub, id, dir, preview)
-
-  r
+  # Export with appropriate function
+  get(paste0("export_", type))(wells_sub, id, dir, preview)
 }
 
 export_strater <- function(wells_sub, id, dir, preview) {
 
   if(!preview) {
-    f <- file.path(dir, paste0(id, c("_lith.csv", "_collars.csv", "_wls.csv")))
+    f <- file.path(
+      dir,
+      paste0(id, "_strater_", c("lith.csv", "collars.csv", "wls.csv")))
   }
 
   # Strater Lithology
@@ -139,7 +139,7 @@ export_strater <- function(wells_sub, id, dir, preview) {
 
 export_voxler <- function(wells_sub, id, dir, preview) {
 
-  if(!preview) f <- file.path(dir, paste0(id, "_vox"))
+  if(!preview) f <- file.path(dir, paste0(id, "_voxler.csv"))
 
   voxler <- wells_sub %>%
     dplyr::mutate(Water_Elevation = .data$elev - .data$water_depth_m,
@@ -170,7 +170,7 @@ export_archydro <- function(wells_sub, id, dir, preview) {
   if(!preview) {
     f <- file.path(
       dir,
-      paste0(id, c("_arc_well.csv", "_arc_hguid.csv", "_arc_bh.csv")))
+      paste0(id, "_archydro_", c("well.csv", "hguid.csv", "bh.csv")))
   }
 
   w <- wells_sub %>%
@@ -226,4 +226,57 @@ export_archydro <- function(wells_sub, id, dir, preview) {
   r
 }
 
+export_leapfrog <- function(wells_sub, id, dir, preview) {
 
+  if(!preview) {
+    f <- file.path(
+      dir,
+      paste0(id, "_leapfrog_", c("collars.csv", "intervals.csv")))
+  }
+
+  f1 <- wells_sub %>%
+    dplyr::select("Hole ID" = "well_tag_number",
+                  "East (X)" = "X", "North (Y)" = "Y",
+                  "Elev (Z)" = "elev",
+                  "Max Depth" = "well_depth_m") %>%
+    dplyr::distinct()
+
+  f2 <- wells_sub %>%
+    dplyr::select("Hole ID" = "well_tag_number",
+                  "From" = "lithology_from_m",
+                  "To" = "lithology_to_m",
+                  "Lithology" = "lithology_category") %>%
+    dplyr::distinct()
+
+  if(preview) {
+    r <- list("leapfrog_collars" = f1,
+              "leapfrog_intervals" = f2)
+  } else {
+    message("Writing Leapfrog files ", paste0(f, collapse = ", "))
+    readr::write_csv(f1, f[1])
+    readr::write_csv(f2, f[2])
+    r <- f
+  }
+  r
+}
+
+export_surfer <- function(wells_sub, id, dir, preview) {
+
+  if(!preview) f <- file.path(dir, paste0(id, "_surfer.csv"))
+
+  f1 <- wells_sub %>%
+    dplyr::select("well_tag_number",
+                  "X", "Y",
+                  "bedrock_depth_m",
+                  "water_depth_m") %>%
+    dplyr::distinct()
+
+  if(preview) {
+    r <- list("surfer" = f1)
+  } else {
+    message("Writing Surfer file ", f)
+    readr::write_csv(f1, f)
+    r <- f
+  }
+  r
+}

@@ -39,8 +39,10 @@ test_that("wells_export() Strater", {
   expect_message(
     wells_export(mill_elev, id = "mill", type = "strater", dir = test_path()),
     "Writing Strater files")
+  expect_equal(list.files(test_path(), "strater"),
+               c("mill_strater_collars.csv", "mill_strater_lith.csv", "mill_strater_wls.csv"))
 
-  unlink(list.files(test_path(), "^mill_", full.names = TRUE))
+  unlink(list.files(test_path(), "^mill_strater", full.names = TRUE))
 })
 
 
@@ -62,8 +64,9 @@ test_that("wells_export() Voxler", {
     expect_message(
       wells_export(mill_elev, id = "mill", type = "voxler", dir = test_path()),
       "Writing Voxler file")
+    expect_equal(list.files(test_path(), "voxler"), "mill_voxler.csv")
 
-    unlink(list.files(test_path(), "^mill_vox", full.names = TRUE))
+    unlink(list.files(test_path(), "^mill_voxler", full.names = TRUE))
 
 })
 
@@ -94,6 +97,58 @@ test_that("wells_export() ArcHydro", {
   expect_message(
     wells_export(mill_elev, id = "mill", type = "archydro", dir = test_path()),
     "Writing ArcHydro files")
+  expect_equal(list.files(test_path(), "archydro"),
+               c("mill_archydro_bh.csv", "mill_archydro_hguid.csv", "mill_archydro_well.csv"))
 
-  unlink(list.files(test_path(), "^mill_arc", full.names = TRUE))
+  unlink(list.files(test_path(), "^mill_archydro", full.names = TRUE))
+})
+
+test_that("wells_export() Leapfrog", {
+
+  # Preview data
+  expect_silent(p <- wells_export(mill_elev, id = "mill", type = "leapfrog",
+                                  preview = TRUE))
+  expect_named(p, c("leapfrog_collars", "leapfrog_intervals"))
+
+  expect_s3_class(p[["leapfrog_collars"]], "data.frame")
+  expect_s3_class(p[["leapfrog_intervals"]], "data.frame")
+
+  expect_named(
+    p[["leapfrog_collars"]],
+    c("Hole ID", "East (X)", "North (Y)", "Elev (Z)", "Max Depth"))
+
+  expect_named(
+    p[["leapfrog_intervals"]], c("Hole ID", "From", "To", "Lithology"))
+
+  # Save data
+  expect_message(
+    wells_export(mill_elev, id = "mill", type = "leapfrog", dir = test_path()),
+    "Writing Leapfrog files")
+  expect_equal(list.files(test_path(), "leapfrog"),
+               c("mill_leapfrog_collars.csv", "mill_leapfrog_intervals.csv"))
+
+  unlink(list.files(test_path(), "^mill_leapfrog", full.names = TRUE))
+})
+
+test_that("wells_export() Surfer", {
+
+  # Preview data
+  expect_silent(p <- wells_export(mill_elev, id = "mill", type = "surfer",
+                                  preview = TRUE))
+  expect_named(p, "surfer")
+
+  expect_s3_class(p[["surfer"]], "data.frame")
+
+  expect_named(
+    p[["surfer"]],
+    c("well_tag_number", "X", "Y", "bedrock_depth_m", "water_depth_m"))
+
+  # Save data
+  expect_message(
+    wells_export(mill_elev, id = "mill", type = "surfer", dir = test_path()),
+    "Writing Surfer file")
+  expect_equal(list.files(test_path(), "surfer"), "mill_surfer.csv")
+
+  unlink(list.files(test_path(), "^mill_surfer", full.names = TRUE))
+
 })
