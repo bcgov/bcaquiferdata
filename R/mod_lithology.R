@@ -58,7 +58,7 @@ server_lithology <- function(id, wells) {
                                     "lithology_from_m", "lithology_to_m",
                                     "lithology_raw_data",
                                     "lithology_clean", "lithology_category",
-                                    "depth_to_bedrock")
+                                    "bedrock_depth_m")
       if("extra" %in% show) cols <- c(cols, "lithology_extra")
       if("cats" %in% show) cols <- c(cols, "lith_primary", "lith_secondary",
                                      "lith_tertiary")

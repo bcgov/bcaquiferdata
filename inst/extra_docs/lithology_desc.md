@@ -12,7 +12,7 @@ Adding "Basic" columns means including relevant lithology measures such as
 - `lithology_raw_data` -> Original lithology description from GWELLS
 - `lithology_clean` -> Cleaned lithology description (see below)
 - `lithology_category` -> Categorized lithology (see below)
-- `depth_to_bedrock_m` -> Depth to bedrock in meters (if bedrock appears in the record) 
+- `bedrock_depth_m` -> Depth to bedrock in meters (if bedrock appears in the record) 
 
 Adding "Extra" columns means including `lithology_extra` which captures 
 extra potentially important descriptors (such as `wet`, `flow`, `seepage`).

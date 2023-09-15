@@ -617,10 +617,10 @@ lith_bedrock <- function(l) {
     dplyr::mutate(
       bedrock_above = dplyr::lag(.data$bedrock, default = FALSE),
       flg = !.data$bedrock & .data$bedrock_above,
-      depth_to_bedrock_m = min(.data$lithology_from_m[.data$bedrock]),
+      bedrock_depth_m = min(.data$lithology_from_m[.data$bedrock]),
       flg = any(.data$flg)) %>%
     dplyr::ungroup() %>%
-    dplyr::select("n", "flg", "depth_to_bedrock_m") %>%
+    dplyr::select("n", "flg", "bedrock_depth_m") %>%
     dplyr::left_join(l, ., by = "n") %>%
     dplyr::mutate(flag_bedrock_position = tidyr::replace_na(.data$flg, FALSE)) %>%
     dplyr::select(-"n", -"flg")

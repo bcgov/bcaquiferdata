@@ -70,6 +70,10 @@ data_read <- function(type, update = FALSE, permission = FALSE) {
 #' @inheritParams common_docs
 #'
 #' @export
+#'
+#' @examplesIf interactive()
+#'
+#' data_update(type = "lithology")
 
 data_update <- function(type = "all", download = TRUE, permission = FALSE) {
 
