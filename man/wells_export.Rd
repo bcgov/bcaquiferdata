@@ -12,7 +12,7 @@ wells_export(wells_sub, id, type, dir = ".", preview = FALSE)
 \item{id}{Character. Id to prepend to all output files e.g., "id_lith.csv"}
 
 \item{type}{Character. Format in which to export. One of "strater", "voxler",
-"archydro" (case-insensitive).}
+"archydro", "leapfrog", or "surfer" (case-insensitive).}
 
 \item{dir}{Character. Directory where files should be exported to. Defaults
 to working directory.}
@@ -57,5 +57,8 @@ wells_export(creek_wells, id = "clinton", type = "strater")
 
 # Export Arc Hydro
 wells_export(creek_wells, id = "clinton", type = "archydro")
+
+# Export Surver
+wells_export(creek_wells, id = "clinton", type = "surfer")
 \dontshow{\}) # examplesIf}
 }

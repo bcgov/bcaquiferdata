@@ -19,3 +19,9 @@ user is asked for permission, if \code{TRUE}, permission is implied.}
 \description{
 Update the GWELLs data stored locally.
 }
+\examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+
+data_update(type = "lithology")
+\dontshow{\}) # examplesIf}
+}

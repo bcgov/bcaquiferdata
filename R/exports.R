@@ -19,7 +19,7 @@
 #' @param dir Character. Directory where files should be exported to. Defaults
 #'   to working directory.
 #' @param type Character. Format in which to export. One of "strater", "voxler",
-#'   "archydro" (case-insensitive).
+#'   "archydro", "leapfrog", or "surfer" (case-insensitive).
 #' @param preview Logical. Whether to preview the exports (`TRUE`, return a list
 #'   of data frames) or to actually export the data (`FALSE`, write the
 #'   necessary files to the `dir` folder.
@@ -57,6 +57,9 @@
 #'
 #' # Export Arc Hydro
 #' wells_export(creek_wells, id = "clinton", type = "archydro")
+#'
+#' # Export Surver
+#' wells_export(creek_wells, id = "clinton", type = "surfer")
 
 
 wells_export <- function(wells_sub, id, type, dir = ".", preview = FALSE) {
