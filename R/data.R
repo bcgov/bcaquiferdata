@@ -165,6 +165,8 @@ clean_lithology <- function(file = "GWELLS/lithology.csv") {
   #l_std <- lith_yield(l_std)
 
   l <- dplyr::left_join(l_prep, l_std, by = "lithology_raw_data")
+  message("Lithology - Calculating depth to bedrock")
+  l <- lith_bedrock(l)
 
   message("Lithology - Saving data to cache")
   readr::write_rds(l, file.path(cache_dir(), "lithology_nice.rds"))

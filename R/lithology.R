@@ -597,6 +597,35 @@ lith_yield <- function(lith, flatten = FALSE) {
     dplyr::relocate("yield_units", .after = "yield")
 }
 
+#' Get depth to bedrock from lithology
+#'
+#' Get depth to bedrock and flag wells where any bedrock lithology is
+#' observed *above* a non-bedrock lithology.
+#'
+#' @noRd
+lith_bedrock <- function(l) {
+
+  l <- dplyr::mutate(l, n = 1:dplyr::n())
+
+  l |>
+    dplyr::mutate(
+      bedrock = lithology_category %in%
+        c("Bedrock", "Weathered, Fractured or Faulted Bedrock")) %>%
+    dplyr::arrange(.data$well_tag_number, .data$lithology_from_m) %>%
+    dplyr::group_by(.data$well_tag_number) %>%
+    dplyr::filter(any(bedrock)) %>%
+    dplyr::mutate(
+      bedrock_above = dplyr::lag(.data$bedrock, default = FALSE),
+      flg = !.data$bedrock & .data$bedrock_above,
+      depth_to_bedrock_m = min(.data$lithology_from_m[.data$bedrock]),
+      flg = any(.data$flg)) %>%
+    dplyr::ungroup() %>%
+    dplyr::select("n", "flg", "depth_to_bedrock_m") %>%
+    dplyr::left_join(l, ., by = "n") %>%
+    dplyr::mutate(flag_bedrock_position = tidyr::replace_na(.data$flg, FALSE)) %>%
+    dplyr::select(-"n", -"flg")
+}
+
 
 
 lith_get_terms <- function(from, not) {

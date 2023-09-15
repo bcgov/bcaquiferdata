@@ -25,8 +25,9 @@ flags <- dplyr::tribble(
   "flag_zero_zero", "Any lithology record that has a depth of 0 to 0",
 
   # Specific observation flags
-  "flag_bedrock", "Bedrock should be the only primary term in a lithology record",
-  "flag_boulders", "Boulders should be the only primary term in a lithology record",
+  "flag_bedrock", "Record where Bedrock occurs with any other primary term",
+  "flag_bedrock_position", "A non-bedrock category occurs *below* a bedrock category",
+  "flag_boulders", "Record where Boulders occur with any other primary term",
   "flag_missing_cats", "No categories were extracted from the cleaned lithology record"
 )
 
