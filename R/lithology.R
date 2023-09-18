@@ -137,7 +137,8 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
                           "gravel" = c("stone", "cobble", "pebble",
                                        "rocks", "stones", "cobbles", "pebbles",
                                        "grav", "grvl", "cobl", "peagravel",
-                                       "pea gravel"),
+                                       # Broken is not bedrock when with gravel
+                                       "pea gravel", "broken gravel"),
                           "till" = c("blue clay", "blue c"),
                           "sgtill" = "sgtill",
                           "boulders" = c("boulder", "bldrs"))
