@@ -257,10 +257,10 @@ lith_fix(desc = c("organic",
 ## Gravel, Sand, Clay, or Silt
 
 > **Primary** is `gravel`, `sand`, `clay`, *or* `silt`  
-> **No Secondary/Tertiary** 
+> **No Secondary/Tertiary**  <small>(*Except `silty clay` and `clay with silt`*)</small>
 
 ```{r}
-lith_fix(desc = c("gravel", "sand", "clay", "silt")) |>
+lith_fix(desc = c("gravel", "sand", "clay", "silt", "silty clay", "clay with silt")) |>
   lith_tbl()
 ```
 
@@ -294,14 +294,16 @@ lith_fix(desc = c("sand & gravel", "gravel & sand", "sand, gravel",
 
 ## Sand and Gravel (Dirty)
 
-> **Primary** is **both** `gravel` and `sand` and **Secondary/Tertiary** is `silt` or `clay`  
+> `gravel` or `sand` are both present in any category, at least one is **Primary** and **Secondary/Tertiary** is also `silt` or `clay`  
 > **OR**  
-> **Primary** is **all** `gravel`, `sand` and `silt` (*not* `clay`)  
+> **Primary** is **all** `gravel`, `sand` and `silt`/`clay`
+
 
 ```{r}
 lith_fix(desc = c("gravel & sand with silt", "gravel & sand with clay", 
                   "silty gravel & sand ", "clayey gravel & sand ", 
-                  "gravel & sand & silt"))  |>
+                  "gravel & sand & silt", "gravel & sand & clay",
+                  "gravelly sand with silt", "clayey sand with gravel"))  |>
   lith_tbl() #|>
  # tab_footnote(footnote = "Example of similar terms but different category",
  #             locations = cells_body(columns = 1, rows = last_col()))
@@ -316,11 +318,12 @@ lith_fix(desc = c("gravel & sand with silt", "gravel & sand with clay",
 ```{r}
 lith_fix(desc = c("sand with silt", "sand with clay", "silty sand", 
                   "clayey sand", "sand & silt", 
-                  "gravelly sand with silt",
+                  "gravelly sand with silt", # something else
                   "sand & clay"))  |>   # something else
   lith_tbl() |>
   tab_footnote(footnote = "Example of similar terms but different category",
-               locations = cells_body(columns = 1, rows = last_col()))
+               locations = cells_body(columns = 1, 
+                                      rows = c(last_col() - 1, last_col())))
 ```
 
 ## Gravel (Dirty)
@@ -343,7 +346,7 @@ lith_fix(desc = c("gravel with silt", "gravel with clay", "silty gravel",
 
 > **Any** category is `sgtill`    
 > **OR**   
-> **Primary** is `till` or `clay` and **any** category is `sand` or `gravel`     
+> **Primary** is `till` or `clay` and **any** category is `sand` or `gravel` (but both cannot be primary)
 > **OR**    
 > **Primary** is `sand` or `gravel` and **Secondary/Tertiary** is `till`  
 > **OR**  
@@ -356,8 +359,11 @@ lith_fix(desc = c("sgtill",
                   "tilly gravel",
                   "compact sand", "compact gravel",
                   "compact with sand",
-                  "clay & gravel", "clay & sand"))  |>
-  lith_tbl()
+                  "clay & gravel", "clay & sand",
+                  "gravel & sand & silt"))  |>
+  lith_tbl() |>
+  tab_footnote(footnote = "Example of similar terms but different category",
+               locations = cells_body(columns = 1, rows = last_col()))
 ```
 
 
@@ -371,18 +377,23 @@ lith_fix(desc = c("sgtill",
 > **OR**  
 > **Primary** is `compact` and **any** category is `silt` or `clay`  
 > **OR**  
-> **Any combination** of `silt` or `clay` not already categorized  
+> **Any combination** of `silt` or `clay` not already categorized
+
+**Note:** That `silty clay` is already categorized as "Clay" (see [Gravel, Sand, Clay, or Silt](#gravel-sand-clay-or-silt))
 
 
 ```{r}
 lith_fix(desc = c("till", "hard pan", "hard earth",
-                  "tilly silt", 
+                  "silt with till", "tilly silt", 
                   "clay & till", "tilly clay", 
                   "compact silt", "compact clay", 
                   "compact with silt", "compact with clay", 
-                  "silt & clay", "clayey silt", "silty clay", 
-                  "clay with silt", "silt with clay")) |>
-  lith_tbl()
+                  "silt & clay", "silt with clay", "clayey silt",
+                  "silty clay", "clay with silt")) |>
+  lith_tbl()|>
+  tab_footnote(footnote = "Example of similar terms but different category",
+               locations = cells_body(columns = 1, 
+                                      rows = c(last_col() - 1, last_col())))
 ```
 
 
