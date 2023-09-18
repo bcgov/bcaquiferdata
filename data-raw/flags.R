@@ -12,23 +12,25 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
+# Use "lithologic interval" rather than "lithology record" - 2023-09-15
 flags <- dplyr::tribble(
 
   ~ "Flag", ~ "Description",
 
   # Whole record flags
-  "flag_missing", "Missing lithology record",
-  "flag_no_depths", "All lithology records have depths of 0 ('from' and 'to')",
-  "flag_overruns", paste0("Some lithology records have depths of 0 ('from' and 'to'). ",
-                          "Possibly a second entry for a single record, 'overrun' record"),
+  "flag_missing", "Missing lithologic interval",
+  "flag_no_depths", "All lithologic intervals have depths of 0 ('from' and 'to')",
+  "flag_overruns", paste0("Some lithologic intervals have depths of 0 ('from' and 'to'). ",
+                          "Possibly a second entry for a single interval, 'overrun' interval"),
   "flag_bottom_unit", "",
-  "flag_zero_zero", "Any lithology record that has a depth of 0 to 0",
+  "flag_zero_zero", "Any lithologic interval that has a depth of 0 to 0",
 
   # Specific observation flags
-  "flag_bedrock", "Record where Bedrock occurs with any other primary term",
+  "flag_bedrock", "Interval where Bedrock occurs with any other primary term",
   "flag_bedrock_position", "A non-bedrock category occurs *below* a bedrock category",
-  "flag_boulders", "Record where Boulders occur with any other primary term",
-  "flag_missing_cats", "No categories were extracted from the cleaned lithology record"
+  "flag_boulders", "Interval where Boulders occur with any other primary term",
+  "flag_missing_cats", "No categories were extracted from the cleaned lithologic interval",
+  "flag_extra_digits", "Lithology with extra digits which were not converted to a yield or depth (only applies to Hydrostratigraphy)"
 )
 
 usethis::use_data(flags, internal = FALSE, overwrite = TRUE)

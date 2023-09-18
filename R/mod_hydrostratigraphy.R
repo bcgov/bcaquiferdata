@@ -29,7 +29,12 @@ ui_hydrostratigraphy <- function(id) {
                              "Raw lithology" = "lith_raw",
                              "Flags" = "flags"),
               selected = "min"
-            )),
+            ),
+            markdown(paste0(
+              "**Note:**<br>The `flag_extra_digits` column shows digits ",
+              "extracted from raw lithology which could not be converted to ",
+              "a yield or depth (see 'Info' tab for more details)."))
+            ),
           DT::dataTableOutput(ns("hydrostratigraphy_table"))
         )
       ),

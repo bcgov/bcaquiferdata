@@ -16,11 +16,13 @@ If there are multiple depths, these records will be split into two records
 Adding the "Raw lithology" column adds the `lithology_raw_data` column so you can 
 see for yourself what the original data looked like.
 
-Adding "Flags" adds the `flag_extra_digits` column which flags raw lithology that
-had extra digits which were not converted to a yield or depth. 
+Adding "Flags" adds the `flag_extra_digits` column which shows any digits from
+raw lithology that which could not be converted to a yield or depth. 
 This generally indicates one of the following:
 
 - An error/typo in the lithology e.g., "fine t0 0medium brown sand"
-- A lack of units e.g., "1 gpm at 625" (we can assume feet, but we are not sure
+- A lack of units e.g., "1 gpm at 625" (we can assume feet, but we are not sure)
+
+In these cases the solution is to submit a fix to GWELLS
 
 
