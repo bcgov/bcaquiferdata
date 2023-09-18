@@ -17,15 +17,18 @@ flags <- dplyr::tribble(
 
   ~ "Flag", ~ "Description",
 
-  # Whole record flags
+  # General record
   "flag_missing", "Missing lithologic interval",
   "flag_no_depths", "All lithologic intervals have depths of 0 ('from' and 'to')",
-  "flag_overruns", paste0("Some lithologic intervals have depths of 0 ('from' and 'to'). ",
-                          "Possibly a second entry for a single interval, 'overrun' interval"),
-  "flag_bottom_unit", "",
-  "flag_zero_zero", "Any lithologic interval that has a depth of 0 to 0",
+  "flag_zero_zero", "Any lithologic interval that has a depth of 0 to 0 (only marks a single interval)",
+  "flag_overruns", paste0("Any lithologic interval has both depths of 0 ('from' and 'to'). ",
+                          "Possibly a second entry for a single interval, 'overrun' interval ",
+                          "(marks all intervals for a well)"),
 
-  # Specific observation flags
+  "flag_bottom_unit", paste0("All 'from' depths are 0, end depths are not (except possibly the first).",
+                             "Problem: The original log shows only the bottom of a unit (fix in GWELLS)"),
+
+  # Lithology catetegories
   "flag_bedrock", "Interval where Bedrock occurs with any other primary term",
   "flag_bedrock_position", "A non-bedrock category occurs *below* a bedrock category",
   "flag_boulders", "Interval where Boulders occur with any other primary term",

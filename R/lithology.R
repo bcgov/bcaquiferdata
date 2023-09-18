@@ -39,8 +39,7 @@ lith_prep <- function(file = "GWELLS/lithology.csv") {
       flag_overruns = any(.data$lithology_from_m == 0 & .data$lithology_to_m == 0),
 
       # Flag where show bottom unit
-      flag_bottom_unit =
-        .data$n > 1 & all(.data$lithology_from_m[-1] == 0) & all(.data$lithology_to_m[-1] > 0),
+      flag_bottom_unit = .data$n > 1 & all(.data$lithology_from_m == 0),
 
       # Flag overflow lithology (zero to zero)
       flag_zero_zero = .data$lithology_from_m == 0 & .data$lithology_to_m == 0,

@@ -6,6 +6,10 @@
 - Add Info tabs to better explain lithology and hydrostratigraphy
 - Clean up lithology
 - Clean up hydrostratigraphy
+- Tweak lithology
+- Tweak flags
+- Add leapfrog and surfer exports
+
 
 
 # Version 0.0.0.9000
