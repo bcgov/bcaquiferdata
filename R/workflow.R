@@ -136,12 +136,12 @@ wells_subset <- function(region, update = FALSE) {
 
   # Subset wells to creek area
   message("Subset wells")
-
   data_read(type = "wells_sf", update = update) %>%
     sf::st_transform(sf::st_crs(region)) %>%
     sf::st_filter(region) %>%
-    dplyr::left_join(data_read("lithology"),
-                     by = c("well_tag_number", "well_yield_unit_code"))
+    dplyr::left_join(
+      data_read("lithology") |> dplyr::select(-"well_yield_unit_code"),
+      by = "well_tag_number") #by = c("well_tag_number", "well_yield_unit_code"))
 }
 
 

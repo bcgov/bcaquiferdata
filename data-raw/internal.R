@@ -57,7 +57,7 @@ fields_lith_gwells <- c(
   "well_tag_number", "lithology_from_ft_bgl", "lithology_to_ft_bgl",
   "lithology_raw_data", "lithology_description_code", "lithology_material_code",
   "lithology_hardness_code", "lithology_colour_code",
-  "water_bearing_estimated_flow_usgpm", "well_yield_unit_code",
+  "water_bearing_estimated_flow_usgpm", # "well_yield_unit_code",
   "lithology_observation")
 
 fields_lith_new <- c(
