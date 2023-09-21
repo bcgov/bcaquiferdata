@@ -13,13 +13,19 @@
 # the License.
 
 test_that("wells", {
-  #creek_sf <- st_read("misc/data/Clinton_Creek.shp")
+  skip_if(!file.exists(m <- test_path("../../misc/data/Clinton_Creek.shp")))
+  creek_sf <- sf::st_read(m, quiet = TRUE)
 
-  # creek_lidar <- dem_region(creek_sf)
-  # plot(creek_lidar)
-  # creek_wells <- creek_sf |>
-  #   wells_subset() |>        # Subset to region
-  #   wells_elev(creek_lidar)  # Add Lidar
+  # Get lidar
+  expect_message(creek_lidar <- dem_region(creek_sf)) |>
+    suppressMessages()
 
+  # Subset to region
+  expect_message(creek_wells <- wells_subset(creek_sf)) |>
+    suppressMessages()
+
+  # Add Lidar
+  expect_message(creek_wells <- wells_elev(creek_wells, creek_lidar)) |>
+    suppressMessages()
 
 })
