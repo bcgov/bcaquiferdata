@@ -101,7 +101,7 @@ dem_region <- function(region, type = "lidar", buffer = 1,
     stars::read_stars(proxy = TRUE) %>%
     stats::setNames("elev")
 
-  message("Cropping DEM to region")
+  message("Cropping DEM to region\n")
 
   # Match regional crs to dem
   region <- sf::st_transform(region, crs = sf::st_crs(dem))
