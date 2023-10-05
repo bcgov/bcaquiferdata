@@ -67,11 +67,10 @@ Here is a summary with links to the relevant sections
 - [Code] User passes area of interest to `dem_region()` function
 - [App] Automatically happens once area of interest is selected
 
-> **Status** - Partially complete
+> **Status** - Mostly complete
 >
 > **TODO**
 > 
-> - ~~Add alternative methods (e.g, TRIM DEM data)~~
 > - Add option for user to supply their own spatial elevation data
 
 ### Adding elevation data

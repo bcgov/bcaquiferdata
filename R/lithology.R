@@ -609,11 +609,11 @@ lith_bedrock <- function(l) {
 
   l |>
     dplyr::mutate(
-      bedrock = lithology_category %in%
+      bedrock = .data$lithology_category %in%
         c("Bedrock", "Weathered, Fractured or Faulted Bedrock")) %>%
     dplyr::arrange(.data$well_tag_number, .data$lithology_from_m) %>%
     dplyr::group_by(.data$well_tag_number) %>%
-    dplyr::filter(any(bedrock)) %>%
+    dplyr::filter(any(.data$bedrock)) %>%
     dplyr::mutate(
       bedrock_above = dplyr::lag(.data$bedrock, default = FALSE),
       flg = !.data$bedrock & .data$bedrock_above,
