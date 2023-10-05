@@ -1,0 +1,14 @@
+---
+title: "Flags"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Flags}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Flag definitions for lithology and hydrostratigraphy
+
+```{r}
+gt::gt(bcaquiferdata::flags)
+```
