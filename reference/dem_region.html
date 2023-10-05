@@ -34,6 +34,7 @@ interest."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/m
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/flags.html">Flags</a>
     <a class="dropdown-item" href="../articles/lithology_categorization.html">Lithology Cleaning and Categorizing</a>
   </div>
 </li>
@@ -116,18 +117,25 @@ tiles that don't exist locally. Defaults to TRUE. Only apples when <code>type = 
 <p>stars spatiotemporal array object</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Lidar tiles are the newest tile available. If you have reason to need a
+historical file, contact the team to discuss your use case.</p>
+    </div>
+    <div class="section level2">
     <h2 id="data-source">Data Source<a class="anchor" aria-label="anchor" href="#data-source"></a></h2>
     
 
 
-<p>Lidar data is obtained programatically from the BC government portal
-https://nrs.objectstore.gov.bc.ca/gdwuts based on overlap between map tiles and the provided shapefile (<code>region</code>).
-These Lidar tiles can be browsed and downloaded manually via the
+<p>Lidar data is obtained from the LidarBC portal. The <code>tiles</code> data frame
+contains is an internally created data frame listing tiles and their
+respective download locations. Tiles to download are selected based on
+overlap between map tiles and the provided shapefile (<code>region</code>). These Lidar
+tiles can be browsed and downloaded manually via the
 <a href="https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03" class="external-link">LidarBC Open LiDAR Data Portal</a></p>
 <p>The grid of map tiles is obtained from the BC Data Catalogue,
 <a href="https://catalogue.data.gov.bc.ca/dataset/a61976ac-d8e8-4862-851e-d105227b6525" class="external-link">BCGS 1:20,000 Grid</a></p>
-<p>TRIM data is obtained via the <code>bcmaps</code> package from the BC government portal
-https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d
+<p>TRIM data is obtained via the <code>bcmaps</code> package from the BC government
+<a href="https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d" class="external-link">Data Catalogue</a>
 based on overlap between map tiles and the provided shapefile (<code>region</code>).</p>
     </div>
 
