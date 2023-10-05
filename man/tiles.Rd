@@ -5,7 +5,7 @@
 \alias{tiles}
 \title{Tiles}
 \format{
-An object of class \code{sf} (inherits from \code{bcdc_sf}, \code{tbl_df}, \code{tbl}, \code{data.frame}) with 7073 rows and 3 columns.
+An object of class \code{sf} (inherits from \code{bcdc_sf}, \code{tbl_df}, \code{tbl}, \code{data.frame}) with 7129 rows and 5 columns.
 }
 \usage{
 tiles

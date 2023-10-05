@@ -57,17 +57,9 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
 
   fetch <- fetch %>%
     sf::st_drop_geometry() %>%
-    create_url() %>%
-    tidyr::nest(tiles = -"map_tile") %>%
-    dplyr::mutate(tiles = purrr::map(
-      .data$tiles, ~lidar_check_urls(.x, local_tiles, verbose))) %>%
-    tidyr::unnest("tiles") %>%
-    dplyr::group_by(.data$map_tile) %>%
-    dplyr::mutate(n_good = sum(.data$tif_good, na.rm = TRUE)) %>%
-    dplyr::arrange(dplyr::desc(.data$tif_good), dplyr::desc(.data$tile),
-                   .by_group = TRUE) %>%
-    dplyr::slice(1) %>%
-    dplyr::mutate(out_file = file.path(.env$out_dir, .data$tile))
+    dplyr::mutate(
+      tif_good = purrr::map_lgl(.data$url, url_exists),
+      out_file = file.path(.env$out_dir, .data$tile_name))
 
   # Warn if cannot find a tile
   if(any(!fetch$tif_good)) {
@@ -94,8 +86,9 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
     }
   }
 
+  # Download tiles
   for(i in seq_len(nrow(fetch))) {
-    if(!quiet) msg <- paste0("Fetching ", fetch$tile[i])
+    if(!quiet) msg <- paste0("Fetching ", fetch$tile_name[i])
     if(only_new && file.exists(fetch$out_file[i])) {
       if(!quiet) message(paste0(msg, " - skipping (new_only = TRUE)"))
       next
@@ -110,62 +103,6 @@ lidar_fetch <- function(region, out_dir = NULL, only_new = TRUE, verbose = FALSE
 }
 
 
-#' Create url for tiles
-#'
-#' Based on the interal `tiles` data frame, create all the possible year/id
-#' combinations and then return the most recent which can be found.
-#'
-#' `tiles` are created in data-raw/internal.R based
-#'
-#' @noRd
-create_url <- function(tiles) {
-  t <- tiles %>%
-    dplyr::mutate(n = stringr::str_extract(.data$map_tile, "^[0-9]{3}"),
-                  l = stringr::str_extract(.data$map_tile, "[[:alpha:]]"),
-                  year = list(seq(lubridate::year(Sys.Date()), by = -1,
-                                  length.out = 10))) %>%
-    tidyr::unnest("year") %>%
-    dplyr::mutate(
-      tile = paste0("bc_", .data$map_tile, "_xli1m_utm", .data$utm,
-                    "_", .data$year, ".tif"),
-      url = file.path(.env$lidar_url, .data$n, paste0(.data$n, .data$l),
-                      .data$year, "dem", .data$tile)) %>%
-    dplyr::select(-"utm", -"n", -"l", -"year")
-
-  t %>%
-    dplyr::mutate(url = stringr::str_replace(.data$url, "xli1m", "xl1m"),
-                  tile = stringr::str_replace(.data$tile, "xli1m", "xl1m")) %>%
-    dplyr::bind_rows(t) %>%
-    dplyr::arrange(dplyr::desc(.data$url))
-}
-
-
 url_exists <- function(url) {
   identical(httr::status_code(httr::HEAD(url)), 200L)
-}
-
-#' Check for urls
-#'
-#' Loops until finds one then breaks
-#'
-#' @noRd
-lidar_check_urls <- function(x, local_tiles, verbose) {
-
-  x$tif_good <- NA
-  x$tif_good[x$tile %in% local_tiles] <- TRUE
-
-  if(!any(x$tif_good, na.rm = TRUE)) {
-    for(i in seq_len(nrow(x))) {
-      if(verbose) message("  Checking for ", x$tile[i], "...")
-      x$tif_good[i] <- url_exists(x$url[i])
-      if(x$tif_good[i]) {
-        if(verbose) message("    found online")
-        break
-      }
-    }
-  } else {
-    t <- x$tile[x$tif_good][1]
-    if(verbose) message("  Checking for ", t, "...\n    found locally")
-  }
-  x
 }

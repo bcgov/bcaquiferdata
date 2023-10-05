@@ -12,6 +12,10 @@ data_update()
 
 # Update NEWS --------------
 
+# Update Datasets
+source("data-raw/flags.R")
+source("data-raw/tiles.R")
+source("data-raw/internal.R")
 
 
 

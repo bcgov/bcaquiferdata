@@ -44,6 +44,10 @@ don't already exist unless \code{only_new = FALSE}. TRIM data is obtained via th
 coarser than Lidar Use Lidar unless it is missing for your region of
 interest.
 }
+\details{
+Lidar tiles are the newest tile available. If you have reason to need a
+historical file, contact the team to discuss your use case.
+}
 \section{Data Source}{
 
 

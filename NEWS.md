@@ -9,6 +9,7 @@
 - Tweak lithology
 - Tweak flags
 - Add leapfrog and surfer exports
+- Compile all Lidar tiles before hand for complete and quicker searching
 
 
 

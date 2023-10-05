@@ -21,6 +21,9 @@
 #' coarser than Lidar Use Lidar unless it is missing for your region of
 #' interest.
 #'
+#' Lidar tiles are the newest tile available. If you have reason to need a
+#' historical file, contact the team to discuss your use case.
+#'
 #' @param type Character. Type of DEM to download, either "lidar" or "trim". Use
 #'  Lidar unless unavailable.
 #' @param buffer Numeric. Percent buffer to apply to the `region` spatial file
