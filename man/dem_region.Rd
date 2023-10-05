@@ -51,16 +51,18 @@ historical file, contact the team to discuss your use case.
 \section{Data Source}{
 
 
-Lidar data is obtained programatically from the BC government portal
-https://nrs.objectstore.gov.bc.ca/gdwuts based on overlap between map tiles and the provided shapefile (\code{region}).
-These Lidar tiles can be browsed and downloaded manually via the
+Lidar data is obtained from the LidarBC portal. The \code{tiles} data frame
+contains is an internally created data frame listing tiles and their
+respective download locations. Tiles to download are selected based on
+overlap between map tiles and the provided shapefile (\code{region}). These Lidar
+tiles can be browsed and downloaded manually via the
 \href{https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03}{LidarBC Open LiDAR Data Portal}
 
 The grid of map tiles is obtained from the BC Data Catalogue,
 \href{https://catalogue.data.gov.bc.ca/dataset/a61976ac-d8e8-4862-851e-d105227b6525}{BCGS 1:20,000 Grid}
 
-TRIM data is obtained via the \code{bcmaps} package from the BC government portal
-https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d
+TRIM data is obtained via the \code{bcmaps} package from the BC government
+\href{https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d}{Data Catalogue}
 based on overlap between map tiles and the provided shapefile (\code{region}).
 }
 

@@ -42,16 +42,18 @@
 #'
 #' @section Data Source:
 #'
-#' Lidar data is obtained programatically from the BC government portal
-#' `r lidar_url` based on overlap between map tiles and the provided shapefile (`region`).
-#' These Lidar tiles can be browsed and downloaded manually via the
+#' Lidar data is obtained from the LidarBC portal. The `tiles` data frame
+#' contains is an internally created data frame listing tiles and their
+#' respective download locations. Tiles to download are selected based on
+#' overlap between map tiles and the provided shapefile (`region`). These Lidar
+#' tiles can be browsed and downloaded manually via the
 #' [LidarBC Open LiDAR Data Portal](https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03)
 #'
 #' The grid of map tiles is obtained from the BC Data Catalogue,
 #' [BCGS 1:20,000 Grid](https://catalogue.data.gov.bc.ca/dataset/a61976ac-d8e8-4862-851e-d105227b6525)
 #'
-#' TRIM data is obtained via the `bcmaps` package from the BC government portal
-#' https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d
+#' TRIM data is obtained via the `bcmaps` package from the BC government
+#' [Data Catalogue](https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d)
 #' based on overlap between map tiles and the provided shapefile (`region`).
 
 #' @return stars spatiotemporal array object
