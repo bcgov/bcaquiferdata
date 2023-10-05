@@ -3,22 +3,29 @@ template:
   bootstrap: 5
 
 reference:
+
 - title: Shiny App
 - contents:
   - aq_app
+
 - title: Dealing with Data
   desc: Download and manage data
 - contents:
   - starts_with("data_")
   - starts_with("cache_")
+
 - title: Workflow
   desc: Processing data
 - contents:
   - dem_region
   - starts_with("wells_")
+
 - title: Helper Functions
   desc: Functions you may not need, but might use for troubleshooting
 - contents:
   - lith_fix
+
 - title: Data
-- contents: tiles
+- contents:
+  - tiles
+  - flags

@@ -74,19 +74,19 @@ creek_lidar <- dem_region(creek_sf)
 
     ## Get Lidar data
 
-    ## Saving tiles to cache directory: ~/.local/share/bcaquiferdata
+    ## Saving new tiles to cache directory: ~/.local/share/bcaquiferdata
 
     ## Checking for matching tifs
 
-    ## Fetching bc_092i092_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
-
     ## Fetching bc_092p002_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
 
-    ## Fetching bc_092p003_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
+    ## Fetching bc_092p013_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
 
     ## Fetching bc_092p012_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
 
-    ## Fetching bc_092p013_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
+    ## Fetching bc_092i092_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
+
+    ## Fetching bc_092p003_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
 
     ## Cropping DEM to region
 
@@ -98,7 +98,7 @@ plot(creek_lidar)
 
     ## downsample set to 39
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](man/figures/unnamed-chunk-7-1.png)<!-- -->
 
 Collect wells in this region with added elevation from Lidar
 
@@ -120,7 +120,7 @@ ggplot() +
   geom_sf(data = creek_wells, size= 1, aes(colour = elev))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](man/figures/unnamed-chunk-9-1.png)<!-- -->
 
 Export data for Strater, Voxler, and ArcHydro
 
@@ -128,26 +128,27 @@ Export data for Strater, Voxler, and ArcHydro
 wells_export(creek_wells, id = "clinton", type = "strater")
 ```
 
-    ## Writing Strater files ./clinton_lith.csv, ./clinton_collars.csv, ./clinton_wls.csv
+    ## Writing Strater files ./clinton_strater_lith.csv, ./clinton_strater_collars.csv, ./clinton_strater_wls.csv
 
-    ## [1] "./clinton_lith.csv"    "./clinton_collars.csv" "./clinton_wls.csv"
+    ## [1] "./clinton_strater_lith.csv"    "./clinton_strater_collars.csv"
+    ## [3] "./clinton_strater_wls.csv"
 
 ``` r
 wells_export(creek_wells, id = "clinton", type = "voxler")
 ```
 
-    ## Writing Voxler file ./clinton_vox
+    ## Writing Voxler file ./clinton_voxler.csv
 
-    ## [1] "./clinton_vox"
+    ## [1] "./clinton_voxler.csv"
 
 ``` r
 wells_export(creek_wells, id = "clinton", type = "archydro")
 ```
 
-    ## Writing ArcHydro files ./clinton_arc_well.csv, ./clinton_arc_hguid.csv, ./clinton_arc_bh.csv
+    ## Writing ArcHydro files ./clinton_archydro_well.csv, ./clinton_archydro_hguid.csv, ./clinton_archydro_bh.csv
 
-    ## [1] "./clinton_arc_well.csv"  "./clinton_arc_hguid.csv"
-    ## [3] "./clinton_arc_bh.csv"
+    ## [1] "./clinton_archydro_well.csv"  "./clinton_archydro_hguid.csv"
+    ## [3] "./clinton_archydro_bh.csv"
 
 #### Mill Bay Watershed
 
@@ -176,9 +177,7 @@ g <- ggplot() +
 g
 ```
 
-    ## Zoom: 13
-
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](man/figures/unnamed-chunk-12-1.png)<!-- -->
 
 Fetch Lidar DEM (this may take a while the first time)
 
@@ -188,13 +187,13 @@ mill_lidar <- dem_region(mill_sf)
 
     ## Get Lidar data
 
-    ## Saving tiles to cache directory: ~/.local/share/bcaquiferdata
+    ## Saving new tiles to cache directory: ~/.local/share/bcaquiferdata
 
     ## Checking for matching tifs
 
-    ## Fetching bc_092b062_xl1m_utm10_2019.tif - skipping (new_only = TRUE)
-
     ## Fetching bc_092b063_xl1m_utm10_2019.tif - skipping (new_only = TRUE)
+
+    ## Fetching bc_092b062_xl1m_utm10_2019.tif - skipping (new_only = TRUE)
 
     ## Cropping DEM to region
 
@@ -211,14 +210,9 @@ mill_lidar_sf <- stars::st_downsample(mill_lidar, n = 12) |> # Downsample first
 g + geom_sf(data = mill_lidar_sf, aes(fill = elev), colour = NA)
 ```
 
-    ## The legacy packages maptools, rgdal, and rgeos, underpinning this package
-    ## will retire shortly. Please refer to R-spatial evolution reports on
-    ## https://r-spatial.org/r/2023/05/15/evolution4.html for details.
-    ## This package is now running under evolution status 0
-
     ## Zoom: 13
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](man/figures/unnamed-chunk-14-1.png)<!-- -->
 
 Looks like we don’t have elevation data for the whole region. This can
 be confirmed by checking the online [LidarBC
@@ -247,7 +241,7 @@ g + geom_sf(data = mill_trim_sf, aes(fill = elev), colour = NA)
 
     ## Zoom: 13
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](man/figures/unnamed-chunk-16-1.png)<!-- -->
 
 TRIM is at a coarser resolution, but covers our entire area. Let’s use
 it instead.
@@ -275,7 +269,7 @@ g +
 
     ## Zoom: 13
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](man/figures/unnamed-chunk-18-1.png)<!-- -->
 
 Export data for Strater, Voxler, and ArcHydro
 
@@ -283,25 +277,27 @@ Export data for Strater, Voxler, and ArcHydro
 wells_export(mill_wells, id = "mill", type = "strater")
 ```
 
-    ## Writing Strater files ./mill_lith.csv, ./mill_collars.csv, ./mill_wls.csv
+    ## Writing Strater files ./mill_strater_lith.csv, ./mill_strater_collars.csv, ./mill_strater_wls.csv
 
-    ## [1] "./mill_lith.csv"    "./mill_collars.csv" "./mill_wls.csv"
+    ## [1] "./mill_strater_lith.csv"    "./mill_strater_collars.csv"
+    ## [3] "./mill_strater_wls.csv"
 
 ``` r
 wells_export(mill_wells, id = "mill", type = "voxler")
 ```
 
-    ## Writing Voxler file ./mill_vox
+    ## Writing Voxler file ./mill_voxler.csv
 
-    ## [1] "./mill_vox"
+    ## [1] "./mill_voxler.csv"
 
 ``` r
 wells_export(mill_wells, id = "mill", type = "archydro")
 ```
 
-    ## Writing ArcHydro files ./mill_arc_well.csv, ./mill_arc_hguid.csv, ./mill_arc_bh.csv
+    ## Writing ArcHydro files ./mill_archydro_well.csv, ./mill_archydro_hguid.csv, ./mill_archydro_bh.csv
 
-    ## [1] "./mill_arc_well.csv"  "./mill_arc_hguid.csv" "./mill_arc_bh.csv"
+    ## [1] "./mill_archydro_well.csv"  "./mill_archydro_hguid.csv"
+    ## [3] "./mill_archydro_bh.csv"
 
 ### Extra tools
 
@@ -325,7 +321,7 @@ lith_std <- wells_lith |>
 lith_std
 ```
 
-    ## # A tibble: 612,373 × 17
+    ## # A tibble: 614,295 × 17
     ##    well_tag_number lithology_from_ft_bgl lithology_to_ft_bgl lithology_raw_data 
     ##              <dbl>                 <dbl>               <dbl> <chr>              
     ##  1              11                   164                 187 "red ash"          
@@ -338,7 +334,7 @@ lith_std
     ##  8              98                     0                  15  <NA>              
     ##  9             105                     0                  15  <NA>              
     ## 10             163                   200                 210 "gray,clean a litt…
-    ## # ℹ 612,363 more rows
+    ## # ℹ 614,285 more rows
     ## # ℹ 13 more variables: lithology_description_code <chr>,
     ## #   lithology_material_code <chr>, lithology_hardness_code <chr>,
     ## #   lithology_colour_code <chr>, lithology_observation <chr>,

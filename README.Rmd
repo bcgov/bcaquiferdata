@@ -4,6 +4,12 @@ output: github_document
 
 # bcaquiferdata
 
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  fig.path = "man/figures/"
+)
+```
+
 This is an R package for processing BC Gov GWELLS data into formats more suitable for 
 other analyses (e.g., Strater, Voxler, ArcHydro).
 
@@ -100,7 +106,7 @@ mill_sf <- st_read("misc/data/MillBayWatershed.shp")
 ```
 
 We'll check against some tiles
-```{r, cache = TRUE}
+```{r, cache = TRUE, message = FALSE}
 g <- ggplot() +
   annotation_map_tile(type = "osm", zoomin = -1) +
   geom_sf(data = mill_sf, fill = NA, linewidth = 1.5) +
@@ -195,9 +201,11 @@ write_csv(lith_std, "lith_categorization.csv")
 
 ```{r, include = FALSE}
 unlink(c("lith_categorization.csv", 
-         "clinton_lith.csv", "clinton_collars.csv", "clinton_wls.csv", "clinton_vox",
-         "clinton_arc_bh.csv", "clinton_arc_hguid.csv", "clinton_arc_well.csv",
-         "mill_lith.csv", "mill_collars.csv", "mill_wls.csv", "mill_vox",
-         "mill_arc_bh.csv", "mill_arc_hguid.csv", "mill_arc_well.csv"))
+         "clinton_strater_lith.csv", "clinton_strater_collars.csv", "clinton_strater_wls.csv", 
+         "clinton_voxler.csv",
+         "clinton_archydro_bh.csv", "clinton_archydro_hguid.csv", "clinton_archydro_well.csv",
+         "mill_strater_lith.csv", "mill_strater_collars.csv", "mill_strater_wls.csv", 
+         "mill_voxler.csv",
+         "mill_archydro_bh.csv", "mill_archydro_hguid.csv", "mill_archydro_well.csv"))
 ```
 
