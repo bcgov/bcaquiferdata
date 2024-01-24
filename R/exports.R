@@ -183,9 +183,9 @@ export_archydro <- function(wells_sub, id, dir, preview) {
       LandElev = .data$elev,
       X = .data$utm_easting,
       Y = .data$utm_northing,
-      WellDepth = .data$finished_well_depth_ft_bgl,
-      FromDepth = .data$lithology_from_ft_bgl,
-      ToDepth = .data$lithology_to_ft_bgl,
+      WellDepth = .data$well_depth_m,
+      FromDepth = .data$lithology_from_m,
+      ToDepth = .data$lithology_to_m,
       TopElev = .data$LandElev - .data$FromDepth,
       BottomElev = .data$LandElev - .data$ToDepth,
       Description = .data$lithology_category,
@@ -195,7 +195,8 @@ export_archydro <- function(wells_sub, id, dir, preview) {
   f1 <- dplyr::select(w,
                       "HydroID", "HydroCode",
                       "X", "Y",
-                      "LandElev", "WellDepth")
+                      "LandElev", "WellDepth") |>
+    dplyr::distinct()
 
   f2 <- w %>%
     dplyr::select("Description", "HGUName") %>%
