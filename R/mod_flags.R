@@ -19,12 +19,15 @@ ui_flags <- function(id) {
   nav_panel(
     title = "Check Flags",
     card(
-      title = "Check Flags",
+      full_screen = TRUE,
       # Data table with flags,
       DT::dataTableOutput(ns("flags_table"))
     ),
-    card(title = "Glossary",
-         tableOutput(ns("flags_glossary"))
+    card(
+      card_header("Glossary"),
+      max_height = "25%",
+      full_screen = TRUE,
+      tableOutput(ns("flags_glossary"))
 
     )
   )

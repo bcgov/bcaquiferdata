@@ -68,7 +68,7 @@ server_wells <- function(id, have_data) {
       req(input$spatial_file)
 
       id <- showNotification("Loading spatial file...",
-                             duration = NULL, closeButton = FALSE)
+                             duration = NULL, closeButton = TRUE)
       type <- ext(input$spatial_file$datapath)
 
       if(all(c("shp", "shx", "dbf", "prj") %in% type)) {
@@ -83,8 +83,10 @@ server_wells <- function(id, have_data) {
       } else {
         validate(need(
         FALSE,
-        paste0("Cannot detect file type. Must be a shapefile including a ",
-               "shp, shx, prj, and dbf file (can be zipped or multiple selected)")))
+        {removeNotification(id)
+          paste0("Cannot detect file type. Must be a shapefile including a ",
+                 "shp, shx, prj, and dbf file (can be zipped or multiple selected)")
+          }))
       }
 
       removeNotification(id)
