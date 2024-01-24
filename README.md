@@ -321,7 +321,7 @@ lith_std <- wells_lith |>
 lith_std
 ```
 
-    ## # A tibble: 614,295 × 17
+    ## # A tibble: 617,526 × 17
     ##    well_tag_number lithology_from_ft_bgl lithology_to_ft_bgl lithology_raw_data 
     ##              <dbl>                 <dbl>               <dbl> <chr>              
     ##  1              11                   164                 187 "red ash"          
@@ -334,7 +334,7 @@ lith_std
     ##  8              98                     0                  15  <NA>              
     ##  9             105                     0                  15  <NA>              
     ## 10             163                   200                 210 "gray,clean a litt…
-    ## # ℹ 614,285 more rows
+    ## # ℹ 617,516 more rows
     ## # ℹ 13 more variables: lithology_description_code <chr>,
     ## #   lithology_material_code <chr>, lithology_hardness_code <chr>,
     ## #   lithology_colour_code <chr>, lithology_observation <chr>,

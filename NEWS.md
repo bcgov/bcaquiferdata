@@ -1,3 +1,9 @@
+# Version 0.0.2.9000
+* Fix ArcHydro exports
+* Fix tiles erroring with missing areas
+* Flag mismatches between yield and depth extractions
+* Update internal data
+
 # Version 0.0.1.9000
 - Fix package dependencies
 - Clarify error messages for tiles and for loading shapefiles
