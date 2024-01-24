@@ -95,6 +95,9 @@ tile_files <- tile_files |>
 # Join and finish ----------------------------------------
 tiles <- tiles |>
   dplyr::left_join(tile_utm, by = "map_tile") |>
-  dplyr::left_join(dplyr::select(tile_files, "map_tile", "tile_name" = "file", "url"), by = "map_tile")
+  dplyr::left_join(dplyr::select(tile_files, "map_tile", "tile_name" = "file", "url"), by = "map_tile") |>
+  tidyr::drop_na(url) # Not all have lidar, drop missing tiles
+
+assertr::assert(tiles, assertr::not_na, tile_name, url)
 
 usethis::use_data(tiles, overwrite = TRUE)
