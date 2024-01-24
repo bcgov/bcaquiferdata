@@ -44,22 +44,23 @@ test_that("lith_fix()", {
 
 test_that("lith_yield()", {
   t <- dplyr::tribble(
-    ~lithology_raw_data,   ~yield_units, ~flag_extra_digits, ~yield, ~depth, ~depth_units,
-    "2 to 3 gpm",     "gpm",  "", 2.5,    as.double(), "",
-    "50 gpm. and it takes 14 hrs. to recover", "gpm", "14", 50, as.double(), "",
-    "365' - 2 1/2 gpm  s", "gpm", "", 2.5,   365, "ft",
-    "45feet - 1/2-3 gpm","gpm", "", 1.75, 45, "ft",
-    "5 gpm at 50', 10 gpm at 75'", "gpm", "", c(5, 10), c(50, 75), "ft",
-    "60 and 80; 5gpm", "gpm", "60;80", 5, as.double(), "",
-    "425 feet 1 3/4 gpm", "gpm", "", 1.75, 425, "ft",
-    "fine t0 medium brown sand and gravel wet 3 gpm", "gpm", "0", 3, as.double(), "") %>%
-    dplyr::select("lithology_raw_data", "flag_extra_digits", "depth", "depth_units", "yield", "yield_units")
+    ~lithology_raw_data,   ~yield_units, ~flag_extra_digits, ~flag_yield,~yield, ~depth, ~depth_units,
+    "2 to 3 gpm",     "gpm",  "", FALSE, 2.5,    as.double(), "",
+    "50 gpm. and it takes 14 hrs. to recover", "gpm", "14", FALSE, 50, as.double(), "",
+    "365' - 2 1/2 gpm  s", "gpm", "", FALSE, 2.5,   365, "ft",
+    "45feet - 1/2-3 gpm","gpm", "", FALSE, 1.75, 45, "ft",
+    "5 gpm at 50', 10 gpm at 75'", "gpm", "", FALSE, c(5, 10), c(50, 75), "ft",
+    "60 and 80; 5gpm", "gpm", "60;80", FALSE, 5, as.double(), "",
+    "425 feet 1 3/4 gpm", "gpm", "", FALSE, 1.75, 425, "ft",
+    "fine t0 medium brown sand and gravel wet 3 gpm", "gpm", "0", FALSE, 3, as.double(), "",
+    "1 1/2 gpm at 108'-120'", "gpm", "", TRUE, NA, NA, "ft",
+    "1/2 gpm at 99' and 1 gpm at", "gpm", "", TRUE, NA, NA, "ft") %>%
+    dplyr::select("lithology_raw_data", "flag_extra_digits", "flag_yield",
+                  "depth", "depth_units", "yield", "yield_units")
 
   l <- lith_yield(dplyr::select(t, "lithology_raw_data", "yield_units"))
 
-  tidyr::unnest(l, c("yield", "depth"), keep_empty = TRUE)
-
-  expect_equal(l, t)
+  expect_equal(l, tidyr::unnest(t, c("yield", "depth"), keep_empty = TRUE))
 
 })
 

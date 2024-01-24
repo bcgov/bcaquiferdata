@@ -60,7 +60,7 @@ server_hydrostratigraphy <- function(id, wells) {
         #"well_yield_usgpm", "well_yield_unit_code",
         "depth", "depth_units", "yield", "yield_units")
       if("lith_raw" %in% show) cols <- c(cols, "lithology_raw_data")
-      if("flags" %in% show) cols <- c(cols, "flag_extra_digits")
+      if("flags" %in% show) cols <- c(cols, "flag_yield", "flag_extra_digits")
 
       wells() %>%
         sf::st_drop_geometry() %>%

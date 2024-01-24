@@ -260,6 +260,6 @@ wells_yield <- function(wells_sub) {
       "fractured", "yield_units",
       "lithology_raw_data", dplyr::starts_with("flag")) %>%
     lith_yield() %>%
-    tidyr::unnest(cols = c("yield", "depth"), keep_empty = TRUE)
+    dplyr::mutate(flag_yield = tidyr::replace_na(.data$flag_yield, FALSE))
 }
 

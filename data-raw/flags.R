@@ -28,12 +28,19 @@ flags <- dplyr::tribble(
   "flag_bottom_unit", paste0("All 'from' depths are 0, end depths are not (except possibly the first).",
                              "Problem: The original log shows only the bottom of a unit (fix in GWELLS)"),
 
-  # Lithology catetegories
+  # Lithology categories
   "flag_bedrock", "Interval where Bedrock occurs with any other primary term",
   "flag_bedrock_position", "A non-bedrock category occurs *below* a bedrock category",
   "flag_boulders", "Interval where Boulders occur with any other primary term",
   "flag_missing_cats", "No categories were extracted from the cleaned lithologic interval",
-  "flag_extra_digits", "Lithology with extra digits which were not converted to a yield or depth (only applies to Hydrostratigraphy)"
+
+  # Yield flags
+  "flag_yield", paste0("Lithology where there are both depths and yields, ",
+                       "but the number of yield measures do not match up with the number of depth measures ",
+                       "(thus `yield` and `depths` are NA). Problem: there is a problem in the original log (i.e. missing a depth, or the depth is a range)",
+                       "or there is a problem with the extract algorithm. ",
+                       "This only applies to Hydrostratigraphy."),
+  "flag_extra_digits", "Lithology with extra digits which were not converted to a yield or depth. This only applies to Hydrostratigraphy."
 )
 
 usethis::use_data(flags, internal = FALSE, overwrite = TRUE)

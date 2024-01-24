@@ -593,8 +593,23 @@ lith_yield <- function(lith, flatten = FALSE) {
       yield = purrr::map(.data$yield_chr, fix_range)) %>%
     dplyr::select(-"yield_chr")
 
+  # Checks and flags
+  l <- l %>%
+    dplyr::mutate(
+      n_yield = purrr::map_int(.data$yield, length),
+      n_depth = purrr::map_int(.data$depth, length),
+      # Flag yields where the depths and yields don't match and there are at
+      # least one of each
+      flag_yield = .data$n_yield != .data$n_depth &
+        .data$n_yield != 0 & .data$n_depth != 0,
+      yield = replace(yield, .data$flag_yield, NA),
+      depth = replace(depth, .data$flag_yield, NA)) %>%
+    dplyr::select(-"n_yield", -"n_depth") %>%
+    tidyr::unnest(cols = c("yield", "depth"), keep_empty = TRUE)
+
   dplyr::left_join(lith, l, by = "lithology_raw_data") %>%
-    dplyr::relocate("yield_units", .after = "yield")
+    dplyr::relocate("yield_units", .after = "yield") %>%
+    dplyr::relocate("flag_yield", .before = "depth")
 }
 
 #' Get depth to bedrock from lithology
