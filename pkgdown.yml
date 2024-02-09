@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   flags: flags.html
   lithology_categorization: lithology_categorization.html
-last_built: 2024-01-24T19:45Z
+last_built: 2024-02-09T23:42Z
 urls:
   reference: http://steffilazerte.ca/bcaquiferdata/reference
   article: http://steffilazerte.ca/bcaquiferdata/articles
