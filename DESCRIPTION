@@ -28,19 +28,19 @@ Imports:
     stringdist (>= 0.9.8),
     stringr (>= 1.4.0),
     tidyr (>= 1.1.4),
-    fs (>= 1.6.1)
-Depends: 
-    R (>= 4.0)
-Suggests: 
+    fs (>= 1.6.1),
     DT (>= 0.23),
     ggplot2 (>= 3.3.5),
     ggthemes (>= 4.2.4),
-    gt,
-    knitr,
-    rmarkdown,
     shinyhttr (>= 1.1.0),
     shinyjs (>= 2.1.0),
-    shinyWidgets (>= 0.7.6),
+    shinyWidgets (>= 0.7.6)
+Depends: 
+    R (>= 4.0)
+Suggests: 
+    knitr,
+    gt,
+    rmarkdown,
     testthat (>= 3.0.0)
 LazyData: true
 Config/testthat/edition: 3
