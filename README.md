@@ -16,9 +16,8 @@ This is work is still in the preliminary stages, but is testable.
 To install:
 
 ``` r
-install.packages("bcaquiferdata", 
-                 repos = c(bcaquiferdata = "https://steffilazerte.r-universe.dev", 
-                           getOption("repos")))
+install.packages("remotes") # If not already installed
+remotes::install_github("bcgov/bcaquiferdata")
 ```
 
 ## General Workflow

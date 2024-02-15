@@ -4,7 +4,7 @@ Lithology categories (`lithology_category`) are created by cleaning and categori
 lithology descriptions from GWELLs data (`lithology_raw_data`).
 
 For more details on how lithology is categorized, please see the
-documentation regarding <a href="http://steffilazerte.ca/bcaquiferdata/articles/lithology_categorization.html" target="_blank">Lithology Cleaning and Categorizing</a>.
+documentation regarding <a href="http://bcgov.github.io/bcaquiferdata/articles/lithology_categorization.html" target="_blank">Lithology Cleaning and Categorizing</a>.
 
 Adding "Basic" columns means including relevant lithology measures such as
 - `well_tag_number`
@@ -43,7 +43,7 @@ The second step is to extract important terms to create the primary, secondary a
 - `sand with silt` becomes a primary category of sand and secondary of silt
 - `silty sand` becomes a primary category of sand and tertiary of silt.
 
-See <a href="http://steffilazerte.ca/bcaquiferdata/articles/lithology_categorization.html#categorization-rules" target="_blank">Categorization Rules</a> for more details on this type of categorization. 
+See <a href="http://bcgov.github.io/bcaquiferdata/articles/lithology_categorization.html#categorization-rules" target="_blank">Categorization Rules</a> for more details on this type of categorization. 
 
 The final step is to convert the primary, secondary and tertiary categories into
 one overall category (`lithology_category`). 

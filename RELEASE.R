@@ -17,7 +17,7 @@ source("data-raw/internal.R")
 unlink("README_files", recursive = TRUE)
 devtools::build_readme()
 
-# Preview website
+# Preview website - "Real" version run as GitHub action
 pkgdown::build_site()
 pkgdown::build_site(lazy = TRUE)
 pkgdown::build_article("lithology_categorization")
