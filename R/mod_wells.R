@@ -33,10 +33,10 @@ ui_wells <- function(id) {
         radioButtons(ns("dem_type"), strong("DEM source"), inline = TRUE,
                      choices = c("Lidar" = "lidar", "TRIM" = "trim")),
         h4("Messages"),
-        verbatimTextOutput(ns("messages"), placeholder = TRUE),
-        shinyWidgets::progressBar(
-          title = "Current Lidar tile:",
-          id = ns("lidar_progress"), value = 0, display_pct = TRUE)
+        verbatimTextOutput(ns("messages"), placeholder = TRUE)
+        #shinyWidgets::progressBar(
+        #  title = "Current Lidar tile:",
+        #  id = ns("lidar_progress"), value = 0, display_pct = TRUE)
       ),
       nav_panel("Maps",
                 plotOutput(ns("map_plot"), height = "650px")),
