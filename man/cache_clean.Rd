@@ -4,7 +4,12 @@
 \alias{cache_clean}
 \title{Clean cache}
 \usage{
-cache_clean()
+cache_clean(bcmaps_cded = FALSE)
+}
+\arguments{
+\item{bcmaps}{Logical. Whether or not to also remove CDED files cached with
+the bcmaps package. These are used by bcaquifertools for acquiring TRIM
+data, but may also be cached for use by other workflows.}
 }
 \description{
 Removes data cache
@@ -12,5 +17,6 @@ Removes data cache
 \examples{
 
 # cache_clean()
+# cache_clean(bcmaps_cded = TRUE)
 
 }

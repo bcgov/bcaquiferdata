@@ -25,14 +25,15 @@ ui_data <- function(id) {
         card_header(h4("Data Status")),
         card_body(
           layout_column_wrap(
-            width = 1/2,
+            width = NULL,
+            style = htmltools::css(grid_template_columns = "3fr 5fr"),
             fill = FALSE,
             card_body(fillable = FALSE, uiOutput(ns("data_status"))),
             card_body(
               fillable = FALSE,
-              strong("Note:"), br(),
+              strong("Cache directories"), br(),
               uiOutput(ns("cache_status")),
-              actionButton(ns("data_download"), "Fetch/Update data",
+              actionButton(ns("data_download"), "Fetch/Update GWELLS data",
                            class = "btn-success m-2"),
               actionButton(ns("data_cache"), "Clear cache",
                            class = "btn-warning m-2")
@@ -57,21 +58,27 @@ server_data <- function(id) {
 
     data_check <- reactiveVal(TRUE)
 
-    # Cache status
+    # Cache status ----
     output$cache_status <- renderUI({
-      if(dir.exists(cache_dir())) {
-        t <- tagList("Using existing cache directory:", br(), code(cache_dir()))
-      } else {
-        t <- tagList("Will create new cache dir at:", br(), code(cache_dir()))
-      }
-      t
+
+      data_check()
+
+      aq <- tagList("bcaquiferdata ", code(cache_dir()))
+      if(!dir.exists(cache_dir())) aq <- tagList(aq, tags$small("(to be created)"))
+
+      d <- file.path(bcmaps:::data_dir(), "cded")
+      mp <- tagList("bcmaps ", code(d))
+      if(!dir.exists(d)) mp <- tagList(mp, tags$small("(to be created)"))
+
+      tagList(tags$ul(tags$li(aq), tags$li(mp)))
+
     })
 
-    # Check data status
+    # Check data status ----
     meta <- reactive(cache_meta()) %>% bindEvent(data_check())
     have_data <- reactive(data_ready()) %>% bindEvent(data_check())
 
-    # Output metadata
+    # Output metadata ----
     output$data_meta <- renderTable({
       meta() %>%
         tidyr::pivot_longer(cols = dplyr::everything(),
@@ -79,7 +86,7 @@ server_data <- function(id) {
                             names_to = "Step", values_to = "Status")
     })
 
-    # Output data status
+    # Output data status ----
     output$data_status <- renderUI({
 
       if(!have_data()) {
@@ -99,6 +106,7 @@ server_data <- function(id) {
       v
     }) %>% bindEvent(data_check())
 
+    # Download -----------
     observe({
 
       msg_id <- showNotification("Downloading GWELLS data...",
@@ -120,6 +128,9 @@ server_data <- function(id) {
     }) %>% bindEvent(input$data_download)
 
 
+    # Delete cache -----------------
+
+    # Confirm
     observe({
       showModal(modalDialog(
         title = "Delete Cache?",
@@ -131,10 +142,11 @@ server_data <- function(id) {
       ))
     }) %>% bindEvent(input$data_cache)
 
+    # Proceed
     observe({
       removeModal()
       withCallingHandlers({
-        cache_clean()
+        cache_clean(bcmaps_cded = TRUE)
       },
       message = function(m) {
         shinyjs::html(id = "messages", html = m$message, add = TRUE)
@@ -143,7 +155,7 @@ server_data <- function(id) {
       data_check(TRUE)
     }) %>% bindEvent(input$data_cache_confirm)
 
-    # Outputs
+    # Outputs -----------
     have_data
   })
 }

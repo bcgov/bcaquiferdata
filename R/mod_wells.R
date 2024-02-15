@@ -54,10 +54,10 @@ server_wells <- function(id, have_data) {
     output$data_warning <- renderUI({
       if(have_data()) {
         w <- tagList(icon("check", style = "color:lightgreen;"),
-                     "Data Available", p())
+                     "Wells Data Available", p())
       } else {
         w <- tagList(icon("x", style = "color:red;"),
-                     "Data Not Available (see Download Data tab)",
+                     "Wells Data Not Available (see Download Data tab)",
                      p())
       }
       w

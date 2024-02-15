@@ -216,21 +216,34 @@ cache_dir <- function() {
 #'
 #' Removes data cache
 #'
+#' @param bcmaps Logical. Whether or not to also remove CDED files cached with
+#'   the bcmaps package. These are used by bcaquifertools for acquiring TRIM
+#'   data, but may also be cached for use by other workflows.
+#'
 #' @examples
 #'
 #' # cache_clean()
+#' # cache_clean(bcmaps_cded = TRUE)
 #'
 #' @export
 
-cache_clean <- function() {
+cache_clean <- function(bcmaps_cded = FALSE) {
   if(dir.exists(cache_dir())) {
     message("Removing cache directory: ", cache_dir(), appendLF = FALSE)
     unlink(cache_dir(), recursive = TRUE)
     if(length(list.files(cache_dir())) == 0) {
       message("... Successful")
     } else message("... Unsuccessful")
-  } else {
-    message("No cache directory to remove")
+  } else message("No bcaquiferdata cache directory to remove")
+
+
+  if(bcmaps_cded) {
+    f <- list.files(file.path(bcmaps:::data_dir(), "cded"), recursive = TRUE)
+    if(length(f) > 0) {
+      message("Removing bcmaps cache files related to CDED: \n",
+              paste0(paste0(" - ", f), sep = "\n"))
+      unlink(file.path(bcmaps:::data_dir(), "cded"), recursive = TRUE)
+    } else message("No bcmaps CDED cache directory to remove")
   }
 }
 

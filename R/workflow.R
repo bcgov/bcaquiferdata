@@ -97,7 +97,7 @@ dem_region <- function(region, type = "lidar", buffer = 1,
 
   } else if(type == "trim") {
     message("Get TRIM data")
-    dem <- bcmaps::cded(region)
+    dem <- bcmaps::cded(region, ask = FALSE)
   }
 
   dem <- dem %>%

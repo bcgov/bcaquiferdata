@@ -3,6 +3,8 @@
 * Fix tiles erroring with missing areas
 * Flag mismatches between yield and depth extractions
 * Update internal data
+* Allow removal of bcmaps/cded cache as well as bcaquiferdata cache
+* Update Shiny app cache handling
 
 # Version 0.0.1.9000
 - Fix package dependencies
