@@ -2,10 +2,16 @@
 output: github_document
 ---
 
+<!-- badges: start -->
+[![Lifecycle](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+[![R-CMD-check](https://github.com/bcgov/bcaquiferdata/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bcgov/bcaquiferdata/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 # bcaquiferdata
 
 ```{r include = FALSE}
 knitr::opts_chunk$set(
+  comment = "#>",
   fig.path = "man/figures/"
 )
 ```
@@ -20,29 +26,54 @@ lithology and yield data.
 The Shiny app (a graphical user interface), provides a tool for data exploration
 and exporting.
 
+We're still actively refining and adding to this tool, but it is maturing.
 
-This is work is still in the preliminary stages, but is testable.
+## Quick Start
+
+- Install [**R**](https://cloud.r-project.org/) and [**RStudio**](https://rstudio.com/)
+- Install remotes - `install.packages("remotes")`
+- Install bcaquiferdata - `remotes::install_github("bcgov/bcaquiferdata")` [Update All if asked]
+- Launch the Shiny App - `aq_app()`
+
+## In Detail
+
+1. [**Update RStudio**](https://rstudio.com/) (if it's been a while)
+2. [**Update R**](https://cloud.r-project.org/) (if it's been a while)
+3. **Open RStudio**
+4. **Install remotes** In the console type the following and hit enter
+
+     ```{r, eval = FALSE}
+     install.packages("remotes")
+     ```
+5. **Install bcgwcat** In the console type the following and hit enter 
+(be sure to install all updates if prompted!)
+  
+    ```{r, eval = FALSE}
+    remotes::install_github("bcgov/bcgwcat")
+    ```
+    
+#### Troubleshooting
+
+**Update all packages** If you run into errors right at the start, consider updating your packages.
+
+    ```{r, eval = FALSE}
+    remotes::update_packages()
+    ```
+
+## Using bcaquiferdata
+
+### Shiny User-Interface
+
+Type this line into the R console at the prompt (in the screen with `>`) and
+hit 'Enter'.
+   ```{r, eval = FALSE}
+   bcaquiferdata::aq_app() # Launch the app
+   ```
+    
+**See the [tutorial](https://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.html) for a more in-depth look at how to use the User Interface**
 
 
-To install:
-
-```{r, eval = FALSE}
-install.packages("remotes") # If not already installed
-remotes::install_github("bcgov/bcaquiferdata")
-```
-
-## General Workflow
-
-### Shiny App
-To run the Shiny app
-```{r, eval = FALSE}
-library(bcaquiferdata)
-aq_app()
-```
-
-
-
-### By Code
+#### R command line
 
 A general workflow 'by hand' (without using the app) is to run through 
 the various steps using the functions directly.
@@ -50,7 +81,8 @@ the various steps using the functions directly.
 This gives you a bit more flexibility in how you explore and/or filter your
 data.
 
-Let's work through a couple of examples. 
+Let's work through a couple of examples (note these are presented for illustration, but 
+the shape files are not included in the package)
 
 ```{r, message = FALSE}
 library(bcaquiferdata)
@@ -59,7 +91,7 @@ library(ggplot2)
 library(ggspatial)
 ```
 
-#### Clinton Creek
+**Clinton Creek**
 Load a shape file defining the region of interest
 ```{r}
 creek_sf <- st_read("misc/data/Clinton_Creek.shp")
@@ -98,7 +130,7 @@ wells_export(creek_wells, id = "clinton", type = "voxler")
 wells_export(creek_wells, id = "clinton", type = "archydro")
 ```
 
-#### Mill Bay Watershed
+**Mill Bay Watershed**
 Load a shape file defining the region of interest
 ```{r}
 mill_sf <- st_read("misc/data/MillBayWatershed.shp")
@@ -169,7 +201,7 @@ wells_export(mill_wells, id = "mill", type = "archydro")
 ```
 
 
-### Extra tools
+#### Extra tools
 
 ```{r, message = FALSE}
 library(dplyr)
@@ -196,6 +228,26 @@ Save it to peruse later
 ```{r}
 write_csv(lith_std, "lith_categorization.csv")
 ```
+
+## Vignette/Tutorials
+
+See the [bcaquiferdata website](https://bcgov.github.io/bcaquiferdata)
+
+## License
+
+Copyright 2024 Province of British Columbia
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 
 ```{r, include = FALSE}
