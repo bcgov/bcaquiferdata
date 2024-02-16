@@ -50,7 +50,7 @@ usethis::use_github_release()
 # Preview website - "Real" version run as GitHub action -----------------
 pkgdown::build_site()
 pkgdown::build_site(lazy = TRUE)
-pkgdown::build_article("lithology_categorization")
+pkgdown::build_article("articles/shiny_apps")
 
 # Preview app -----------------------------------------------------------
 aq_app()

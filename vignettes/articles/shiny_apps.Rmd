@@ -1,0 +1,189 @@
+---
+title: "Shiny Apps Workshop"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Welcome!
+
+In this workshop we will be walking through the steps needed to install and use
+a Shiny App on your computer.
+
+This workshop has three main sections:
+
+1. Installing Software
+2. Introducing the software
+3. Exploring the software
+
+## Installing Software
+
+The first step is to install the software. In our case, we will be installing
+
+- [R](https://cran.rstudio.com/)
+- [RStudio](https://posit.co/download/rstudio-desktop/)
+- bcgwcat (a Shiny App)
+- bcaquiferdata (a Shiny App)
+
+
+### R & RStudio
+We can install R and RStudio by clicking on the links above and following the 
+download instructions.
+
+**Note:** For our minimal use of R, we could probably get away with not installing RStudio, 
+so if you would prefer, you may skip the RStudio step.
+
+### R packages
+
+Now we will **open** RStudio (which will use R; or we can skip RStudio and just open R)
+and will install the Apps.
+
+#### Install pak
+
+First, we need to install an R package called 'pak'.
+
+To do this, we're going to send some commands to the R console.
+
+- First we'll open R/RStudio
+- Next we'll locate the console
+    - This is an open window with the name "console" or with text referring to the R version:
+  
+  ```
+  R version 4.3.2 (2023-10-31) -- "Eye Holes"
+  Copyright (C) 2023 The R Foundation for Statistical Computing
+  Platform: ...
+  ```
+
+- Now, in the console, at the prompt (`>`)
+    - Type (or copy/paste) `install.packages("pak")`
+    - Hit Enter
+- Wait for this installation to complete
+    - When complete you'll see the prompt again (`>`) as well as `* DONE (pak)`
+    
+> **Awesome! You just installed your first R package 🎉**
+
+
+#### Install Shiny Apps  {.tabset}
+
+##### Installing
+
+Now that we have pak, we can install the packages we want to play with.
+
+> **Why two different ways of installing packages?**  
+>
+> *pak is a package stored on the CRAN server, so we can download it directly with `install.packages()`,
+however, many of our custom R packages used at BC Gov are stored on GitHub, and so need to be installed from there.*
+> *The pak package provides functions we can use to do that.*
+
+Again in the console, at the prompt (`>`) we'll type the following commands and hit Enter after each.
+
+```{r}
+#| eval: false
+pak::pkg_install("bcgov/bcgwcat", upgrade = TRUE)
+pak::pkg_install("bcgov/bcaquiferdata", upgrade = TRUE)
+```
+
+Here, we're using the pak function, `pkg_install()` to install two R packages (with Shiny Apps)
+from the `bcgov` organization on GitHub.
+
+> **If you are on Windows and are asked to install RTools, please do.**  
+> You can find RTools here: <https://cran.r-project.org/bin/windows/Rtools/rtools43/files/rtools43-5958-5975.exe>
+
+##### Troubleshooting
+
+Generally speaking, the vast majority of problems arise through out of date packages.
+R and R packages change constantly and the best way to avoid problems is to keep things up-to-date.
+This is why the installation code says `upgrade = TRUE` to ensure that packages are always updated.
+ 
+This process is actually installing a bunch of packages upon which our focal 
+packages depend. So if we run into problems with any of these, we'll need to fix 
+them before we can resume installing our packages. 
+
+If you run into problems with a specific package, the best thing to do is to
+try installing that package directly with pak. For example, if we have a 
+hard time with the 'dplyr' package, we could try...
+
+```{r}
+#| eval: false
+pak:pkg_install("dplyr")
+```
+ 
+If that succeeds, we'll try again with the installation of our focal package...
+
+```{r}
+#| eval: false
+pak:pkg_install("bcgov/bcgwcat")
+```
+
+Rinse and repeat 😉
+
+
+## Introducing the Software
+
+In this section, Steffi will guide you through the use of the two Shiny Apps 
+we just downloaded, and will demonstrate use of a third which is currently under
+development.
+
+
+### bcgwcat
+
+- **Documentation and Website** - https://bcgov.github.io/bcgwcat/
+- **To launch the Shiny App**
+    ```{r}
+    #| eval: false
+    bcgwcat::gw_app()
+    ```
+- **EMS IDs we will be playing with today**
+
+EMS ID  |	WTN    | Aquifer # | OW# | Location |	Aquifer Type
+------- | ------ | ----- | --- | ------ | --------------
+1401077 | 25272  | 1271  | 124 | Charlie Lake | Bedrock
+1401059 | 26549  | 15	   | 8	 | Abbotsford | Unconsolidated
+E218240 | 41479  | 97	   | 320 | Cobble Hill | Unconsolidated
+E105920 | 14947  | 158   | 217 | Grand Forks | Unconsolidated
+1401808 | 44358  | 464 	 | 262 | Kelowna | Unconsolidated
+1401448 | 42266  | 1216	 | 255 | Chilliwack | Bedrock
+E282789 | 85327  | 211	 | 388 | Nanaimo | Bedrock
+E284491 | 102925 | 664	 | 389 | Qualicum Beach | Unconsolidated
+E255156 | 84697  | 41	   | 360 | Langley | Unconsolidated
+E311344 | 115691 | 194	 | 467 | Osoyoos | Unconsolidated
+
+You can play with them one at a time, or copy and paste a series of them: 
+
+
+1401077, 1401059, E218240, E105920, 1401808, 1401448, E282789, E284491, E255156, E311344
+
+
+### bcaquiferdata
+
+- **Documentation and Website** - https://bcgov.github.io/bcaquiferdata/
+- **To launch the Shiny App**
+    ```{r}
+    #| eval: false
+    bcaquiferdata::aq_app()
+    ```
+- **The shape files we will be playing with will be provided as a link during the workshop**
+
+### fasstrshiny
+
+- **Documentation and Website** - https://bcgov.github.io/fasstrshiny/
+
+
+## Exploring the Software
+
+Now it's your turn! 
+
+Try exploring some EMS data with bcgwcat.
+
+Try out your own watershed shape file with bcaquiferdata.
+
+- Try to break the software!
+- If anything doesn't work as you think it should, let Steffi know
+- Get an error? Let Steffi know
+- Have a great idea of what it should/could do? Let Steffi know
+
+Enjoy!
