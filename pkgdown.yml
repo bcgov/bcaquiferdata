@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   flags: flags.html
   lithology_categorization: lithology_categorization.html
-last_built: 2024-02-16T00:32Z
+last_built: 2024-02-16T00:45Z
 urls:
   reference: http://bcgov.github.io/bcaquiferdata/reference
   article: http://bcgov.github.io/bcaquiferdata/articles
