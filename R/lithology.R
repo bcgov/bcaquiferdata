@@ -602,8 +602,8 @@ lith_yield <- function(lith, flatten = FALSE) {
       # least one of each
       flag_yield = .data$n_yield != .data$n_depth &
         .data$n_yield != 0 & .data$n_depth != 0,
-      yield = replace(yield, .data$flag_yield, NA),
-      depth = replace(depth, .data$flag_yield, NA)) %>%
+      yield = replace(.data$yield, .data$flag_yield, NA),
+      depth = replace(.data$depth, .data$flag_yield, NA)) %>%
     dplyr::select(-"n_yield", -"n_depth") %>%
     tidyr::unnest(cols = c("yield", "depth"), keep_empty = TRUE)
 

@@ -29,8 +29,7 @@ aq_app <- function() {
 
   # Check for suggested packages
   rlang::check_installed(
-    c("DT", "ggplot2", "ggthemes",
-      "shinyWidgets", "shinyjs", "shinyhttr"))
+    c("DT", "ggplot2", "ggthemes", "shinyjs"))
 
   ui <- tagList(
     page_navbar(

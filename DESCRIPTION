@@ -34,9 +34,8 @@ Imports:
     DT (>= 0.23),
     ggplot2 (>= 3.3.5),
     ggthemes (>= 4.2.4),
-    shinyhttr (>= 1.1.0),
     shinyjs (>= 2.1.0),
-    shinyWidgets (>= 0.7.6)
+    htmltools (>= 0.5.7)
 Depends: 
     R (>= 4.0)
 Suggests: 

@@ -34,9 +34,6 @@ ui_wells <- function(id) {
                      choices = c("Lidar" = "lidar", "TRIM" = "trim")),
         h4("Messages"),
         verbatimTextOutput(ns("messages"), placeholder = TRUE)
-        #shinyWidgets::progressBar(
-        #  title = "Current Lidar tile:",
-        #  id = ns("lidar_progress"), value = 0, display_pct = TRUE)
       ),
       nav_panel("Maps",
                 plotOutput(ns("map_plot"), height = "650px")),
@@ -177,15 +174,13 @@ dem_region_shiny <- function(type, watershed, session) {
   withCallingHandlers({
     message(stringr::str_to_title(type), " - Start")
 
-    p <- shinyhttr::progress(session, id = "dem_progress")
-
     # Catch errors if have issues and try again
-    l <- try(dem_region(watershed, progress = p, type = type), silent = TRUE)
+    l <- try(dem_region(watershed, type = type), silent = TRUE)
     #l <- try(stop("testing"), silent = TRUE)
     if(inherits(l, "try-error")) {
       message("  Problem with ", type, " tiles, trying again...")
       l <- tryCatch(
-        dem_region(watershed, progress = p, type = type),
+        dem_region(watershed, type = type),
         #stop("testing2"),
         error = function(cond) {
           message("  Problem fetching ", type, " tiles\n",

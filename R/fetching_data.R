@@ -216,7 +216,7 @@ cache_dir <- function() {
 #'
 #' Removes data cache
 #'
-#' @param bcmaps Logical. Whether or not to also remove CDED files cached with
+#' @param bcmaps_cded Logical. Whether or not to also remove CDED files cached with
 #'   the bcmaps package. These are used by bcaquifertools for acquiring TRIM
 #'   data, but may also be cached for use by other workflows.
 #'
