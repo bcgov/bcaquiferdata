@@ -2,9 +2,10 @@ pandoc: 2.19.2
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
+  Workflow-examples: Workflow-examples.html
   flags: flags.html
   lithology_categorization: lithology_categorization.html
-last_built: 2024-02-16T00:45Z
+last_built: 2024-02-16T19:35Z
 urls:
   reference: http://bcgov.github.io/bcaquiferdata/reference
   article: http://bcgov.github.io/bcaquiferdata/articles
