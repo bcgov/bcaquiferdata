@@ -1,6 +1,17 @@
 url: http://bcgov.github.io/bcaquiferdata/
 template:
   bootstrap: 5
+  bootswatch: cerulean
+  bslib:
+    headings-color: "#003366"
+    primary: "#003366"
+    body-secondary-color: "white"
+  #simplex
+  #sandstone
+  #litera
+
+navbar:
+  bg: dark
 
 reference:
 
