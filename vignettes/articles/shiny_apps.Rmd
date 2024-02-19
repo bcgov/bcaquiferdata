@@ -58,20 +58,43 @@ To do this, we're going to send some commands to the R console.
   Platform: ...
   ```
 
-- Now, in the console, at the prompt (`>`)
-    - Type (or copy/paste) `install.packages("pak")`
-    - Hit Enter
+- Now, in the console, at the prompt (`>`) type (or copy/paste) the following and hit Enter
+
+```{r}
+#| eval: false
+install.packages("pak", dependencies = TRUE)
+```
+  
 - Wait for this installation to complete
     - When complete you'll see the prompt again (`>`) as well as `* DONE (pak)`
     
 > **Awesome! You just installed your first R package 🎉**
+
+#### Install Build Tools {.tabset}
+
+##### Automatically with R
+Now we'll check that our computers have what they need to install the other packages. 
+Because we're using custom software tools, some systems (Windows for one), often
+need R-specific build tools to install them.
+
+Run the following at the prompt (`>`), and install build tools if prompted.
+```{r}
+#| eval: false
+pkgbuild::check_build_tools()
+```
+
+##### Troubleshooting
+
+Best is to use the `check_build_tools()` function to automate this, but 
+if you have trouble installing the build tools, you can install them by hand here:
+<https://cran.r-project.org/bin/windows/Rtools/rtools43/files/rtools43-5958-5975.exe>
 
 
 #### Install Shiny Apps  {.tabset}
 
 ##### Installing
 
-Now that we have pak, we can install the packages we want to play with.
+Now that we have pak and our systems are ready, we can install the packages we want to play with.
 
 > **Why two different ways of installing packages?**  
 >
@@ -90,8 +113,6 @@ pak::pkg_install("bcgov/bcaquiferdata", upgrade = TRUE)
 Here, we're using the pak function, `pkg_install()` to install two R packages (with Shiny Apps)
 from the `bcgov` organization on GitHub.
 
-> **If you are on Windows and are asked to install RTools, please do.**  
-> You can find RTools here: <https://cran.r-project.org/bin/windows/Rtools/rtools43/files/rtools43-5958-5975.exe>
 
 ##### Troubleshooting
 
@@ -132,6 +153,7 @@ development.
 ### bcgwcat
 
 - **Documentation and Website** - https://bcgov.github.io/bcgwcat/
+- **Shiny App Tutorial** - https://bcgov.github.io/bcgwcat/articles/bcgwcat.html
 - **To launch the Shiny App**
     ```{r}
     #| eval: false
@@ -161,6 +183,7 @@ You can play with them one at a time, or copy and paste a series of them:
 ### bcaquiferdata
 
 - **Documentation and Website** - https://bcgov.github.io/bcaquiferdata/
+- **Shiny App Tutorial** - https://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.html
 - **To launch the Shiny App**
     ```{r}
     #| eval: false
