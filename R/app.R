@@ -55,7 +55,7 @@ aq_app <- function() {
     server_export_data("export_data", wells)
   }
 
-  shinyApp(ui, server)
+  shinyApp(ui, server, options = list(launch.browser = TRUE))
 }
 
 aq_theme <- function() {
