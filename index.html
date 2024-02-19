@@ -22,7 +22,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-dark"><div class="container">
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
     
     <a class="navbar-brand me-2" href="index.html">bcaquiferdata</a>
 
@@ -35,6 +35,9 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item">
+  <a class="nav-link" href="articles/bcaquiferdata.html">Get started</a>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
@@ -81,11 +84,11 @@
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <ul>
-<li>Install <a href="https://cloud.r-project.org/" class="external-link"><strong>R</strong></a> and <a href="https://rstudio.com/" class="external-link"><strong>RStudio</strong></a>
+<li>Install/Update <a href="https://cloud.r-project.org/" class="external-link"><strong>R</strong></a> and <a href="https://rstudio.com/" class="external-link"><strong>RStudio</strong></a>
 </li>
-<li>Install remotes - <code>install.packages("remotes")</code>
+<li>Install pak - <code>install.packages("pak", dependencies = TRUE)</code>
 </li>
-<li>Install bcaquiferdata - <code>remotes::install_github("bcgov/bcaquiferdata")</code> [Update All if asked]</li>
+<li>Install bcaquiferdata - <code>pak::pkg_install("bcgov/bcaquiferdata")</code> [Update All if asked]</li>
 <li>Launch the Shiny App - <code><a href="reference/aq_app.html">aq_app()</a></code>
 </li>
 </ul>
@@ -94,33 +97,38 @@
 <h2 id="in-detail">In Detail<a class="anchor" aria-label="anchor" href="#in-detail"></a>
 </h2>
 <ol style="list-style-type: decimal">
-<li><p><a href="https://rstudio.com/" class="external-link"><strong>Update RStudio</strong></a> (if it’s been a while)</p></li>
-<li><p><a href="https://cloud.r-project.org/" class="external-link"><strong>Update R</strong></a> (if it’s been a while)</p></li>
+<li><p><a href="https://rstudio.com/" class="external-link"><strong>Install/Update RStudio</strong></a> (if it’s been a while)</p></li>
+<li><p><a href="https://cloud.r-project.org/" class="external-link"><strong>Install/Update R</strong></a> (if it’s been a while)</p></li>
 <li><p><strong>Open RStudio</strong></p></li>
 <li>
-<p><strong>Install remotes</strong> In the console type the following and hit enter</p>
+<p><strong>Install pak</strong> In the console type the following and hit enter</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+</li>
+<li>
+<p><strong>Check that your system is ready</strong> Install build tools if prompted</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">pkgbuild</span><span class="fu">::</span><span class="fu"><a href="https://pkgbuild.r-lib.org/reference/has_build_tools.html" class="external-link">check_build_tools</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>Install bcgwcat</strong> In the console type the following and hit enter (be sure to install all updates if prompted!)</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"bcgov/bcgwcat"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"bcgov/bcgwcat"</span><span class="op">)</span></span></code></pre></div>
 </li>
 </ol>
 </div>
 <div class="section level2">
 <h2 id="troubleshooting">Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
 </h2>
-<p><strong>Update all packages</strong> if you run into errors right at the start</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">update_packages</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>If you run into errors right at the start, try <strong>updating all packages required by bcgwcat</strong></p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"bcgov/bcgwcat"</span>, upgrade <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="shiny-user-interface">Shiny User-Interface<a class="anchor" aria-label="anchor" href="#shiny-user-interface"></a>
 </h2>
-<p>Type this line into the R console at the prompt (in the screen with <code>&gt;</code>) and hit ‘Enter’.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>To lauch the Shiny User-Interface, type this line into the R console at the prompt (in the screen with <code>&gt;</code>) and hit ‘Enter’.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">bcaquiferdata</span><span class="fu">::</span><span class="fu"><a href="reference/aq_app.html">aq_app</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Launch the app</span></span></code></pre></div>
 <p><strong>See the <a href="https://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.html" class="external-link">tutorial</a> for a more in-depth look at how to use the User Interface</strong></p>
 </div>
