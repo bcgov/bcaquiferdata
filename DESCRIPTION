@@ -35,13 +35,13 @@ Imports:
     ggplot2 (>= 3.3.5),
     ggthemes (>= 4.2.4),
     shinyjs (>= 2.1.0),
-    htmltools (>= 0.5.7)
+    htmltools (>= 0.5.7),
+    rmarkdown
 Depends: 
     R (>= 4.0)
 Suggests: 
     knitr,
     gt,
-    rmarkdown,
     testthat (>= 3.0.0)
 LazyData: true
 Config/testthat/edition: 3
