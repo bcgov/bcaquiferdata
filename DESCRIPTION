@@ -37,7 +37,8 @@ Imports:
     shinyjs (>= 2.1.0),
     htmltools (>= 0.5.7),
     markdown,
-    rmarkdown
+    rmarkdown,
+    wk (>= 0.9.1)
 Depends: 
     R (>= 4.0)
 Suggests: 

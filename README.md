@@ -22,47 +22,55 @@ maturing.
 
 ## Quick Start
 
-- Install [**R**](https://cloud.r-project.org/) and
+- Install/Update [**R**](https://cloud.r-project.org/) and
   [**RStudio**](https://rstudio.com/)
-- Install remotes - `install.packages("remotes")`
-- Install bcaquiferdata -
-  `remotes::install_github("bcgov/bcaquiferdata")` \[Update All if
-  asked\]
+- Install pak - `install.packages("pak", dependencies = TRUE)`
+- Install bcaquiferdata - `pak::pkg_install("bcgov/bcaquiferdata")`
+  \[Update All if asked\]
 - Launch the Shiny App - `aq_app()`
 
 ## In Detail
 
-1.  [**Update RStudio**](https://rstudio.com/) (if it’s been a while)
+1.  [**Install/Update RStudio**](https://rstudio.com/) (if it’s been a
+    while)
 
-2.  [**Update R**](https://cloud.r-project.org/) (if it’s been a while)
+2.  [**Install/Update R**](https://cloud.r-project.org/) (if it’s been a
+    while)
 
 3.  **Open RStudio**
 
-4.  **Install remotes** In the console type the following and hit enter
+4.  **Install pak** In the console type the following and hit enter
 
     ``` r
-    install.packages("remotes")
+    install.packages("pak", dependencies = TRUE)
     ```
 
-5.  **Install bcgwcat** In the console type the following and hit enter
+5.  **Check that your system is ready** Install build tools if prompted
+
+    ``` r
+    pkgbuild::check_build_tools()
+    ```
+
+6.  **Install bcgwcat** In the console type the following and hit enter
     (be sure to install all updates if prompted!)
 
     ``` r
-    remotes::install_github("bcgov/bcgwcat")
+    pak::pkg_install("bcgov/bcgwcat")
     ```
 
 ## Troubleshooting
 
-**Update all packages** if you run into errors right at the start
+If you run into errors right at the start, try **updating all packages
+required by bcgwcat**
 
 ``` r
-remotes::update_packages()
+pak::pkg_install("bcgov/bcgwcat", upgrade = TRUE)
 ```
 
 ## Shiny User-Interface
 
-Type this line into the R console at the prompt (in the screen with `>`)
-and hit ‘Enter’.
+To lauch the Shiny User-Interface, type this line into the R console at
+the prompt (in the screen with `>`) and hit ‘Enter’.
 
 ``` r
 bcaquiferdata::aq_app() # Launch the app

@@ -51,6 +51,7 @@ usethis::use_github_release()
 pkgdown::build_site()
 pkgdown::build_site(lazy = TRUE)
 pkgdown::build_article("articles/shiny_apps")
+pkgdown::build_article("bcaquiferdata")
 
 # Preview app -----------------------------------------------------------
 aq_app()

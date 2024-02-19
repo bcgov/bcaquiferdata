@@ -10,9 +10,6 @@ template:
   #sandstone
   #litera
 
-navbar:
-  bg: dark
-
 reference:
 
 - title: Shiny App
