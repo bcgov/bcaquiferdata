@@ -36,6 +36,7 @@ Imports:
     ggthemes (>= 4.2.4),
     shinyjs (>= 2.1.0),
     htmltools (>= 0.5.7),
+    markdown,
     rmarkdown
 Depends: 
     R (>= 4.0)
