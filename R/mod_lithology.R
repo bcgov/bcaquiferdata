@@ -70,8 +70,8 @@ server_lithology <- function(id, wells) {
       wells() %>%
         dplyr::select(dplyr::all_of(cols)) %>%
         sf::st_drop_geometry() %>%
-        aq_dt()
-    })
+        aq_dt(filename = "lithology")
+    }, server = FALSE)
 
   })
 }

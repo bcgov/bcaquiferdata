@@ -66,8 +66,8 @@ server_hydrostratigraphy <- function(id, wells) {
         sf::st_drop_geometry() %>%
         wells_yield() %>%
         dplyr::select(dplyr::all_of(cols)) %>%
-        aq_dt()
-    })
+        aq_dt(filename = "hydrostratigraphy")
+    }, server = FALSE)
 
   })
 

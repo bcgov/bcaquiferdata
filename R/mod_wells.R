@@ -158,8 +158,8 @@ server_wells <- function(id, have_data) {
     output$wells_table <- DT::renderDataTable({
       wells() %>%
         sf::st_drop_geometry() %>%
-        aq_dt()
-    })
+        aq_dt(filename = "wells")
+    }, server = FALSE)
 
     # Outputs
     wells
