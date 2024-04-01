@@ -1,6 +1,6 @@
 Package: bcaquiferdata
 Title: BC Aquifer data tools
-Version: 0.0.3
+Version: 0.0.3.9000
 Authors@R: 
    c(person("Steffi", "LaZerte", email = "sel@steffilazerte.ca", role = c("aut", "cre"), 
              comment = c(ORCID = "0000-0002-7690-8360")),
