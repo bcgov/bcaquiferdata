@@ -28,7 +28,7 @@ ui_about <- function(id) {
       p("Data can be exported for use in a variety of external programs or as basic csv/xlsx files."),
       h3("Citing", code("bcaquiferdata")),
       p("To cite this software please use the following:"),
-      markdown(paste0(capture.output(print(citation("bcaquiferdata"), style = "text")), collapse = "\n"))
+      markdown(paste0(utils::capture.output(print(utils::citation("bcaquiferdata"), style = "text")), collapse = "\n"))
     )
   )
 }

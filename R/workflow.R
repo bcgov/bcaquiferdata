@@ -255,15 +255,15 @@ wells_elev <- function(wells_sub, dem, dem_extra = NULL, update = FALSE) {
             "Use with caution.", call. = FALSE)
 
     e2 <- wells_sub %>%
-      dplyr::select(well_tag_number, geometry) %>%
+      dplyr::select("well_tag_number", "geometry") %>%
       sf::st_transform(sf::st_crs(dem_extra)) %>%
       dplyr::mutate(elev2 = round(stars::st_extract(dem_extra, .)[[1]], 2)) %>%
       sf::st_drop_geometry()
 
     e1 <- e1 %>%
-      dplyr::rename(elev1 = elev) %>%
+      dplyr::rename(elev1 = "elev") %>%
       dplyr::left_join(e2, by = "well_tag_number") |>
-      dplyr::mutate(elev = dplyr::coalesce(elev1, elev2))
+      dplyr::mutate(elev = dplyr::coalesce(.data[["elev1"]], .data[["elev2"]]))
   }
   e1
 }

@@ -4,13 +4,20 @@
 \alias{wells_elev}
 \title{Subset wells and add elevation}
 \usage{
-wells_elev(wells_sub, dem, update = FALSE)
+wells_elev(wells_sub, dem, dem_extra = NULL, update = FALSE)
 }
 \arguments{
 \item{wells_sub}{sf spatial data frame. Subset of wells data output by
 \code{wells_subset()}}
 
-\item{dem}{stars simple features object. Output of \code{dem_region()}.}
+\item{dem}{stars simple features object. Output of \code{dem_region()}. Primary
+source of elevation data.}
+
+\item{dem_extra}{stars simple features object. Output of \code{dem_region()}.
+Optional secondary source of elevation data. Useful in situations where the
+primary source is incomplete. \strong{Use with caution: Combining elevations
+measured though different techniques may introduce artifacts (See
+Details)}.}
 
 \item{update}{Logical. Force update of the data?}
 }
@@ -21,6 +28,15 @@ sf spatial data frame
 This function takes a region shape file and the DEM of a region (output of
 \code{dem_region()}), subsets the wells data (from GWELLS) to this region and adds
 the elevation data.
+}
+\details{
+Because combining elevation data measured from different sources can
+introduce artifacts, if two sources of elevation are provided (i.e. both
+\code{dem} and \code{dem_extra}), the data will contain extra columns for assessment.
+Specifically, there will be three elevation columns, rather than just one.
+\code{elev1} contains elevations from the primary source (\code{dem}), \code{elev2} contains
+elevations from the secondary source (\code{dem_extra}), \code{elev} contains the
+combined elevation data, \code{elev1} unless missing, then \code{elev2}.
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -57,5 +73,17 @@ ggplot() +
   geom_sf(data = creek_wells, aes(colour = elev), size = 0.5,
           fill = "NA", show.legend = FALSE) +
  coord_sf(datum = st_crs(3005)) # BC Albers
+
+# Dealing with missing data
+mill_sf <- st_read("misc/data/MillBayWatershed.shp")
+mill_wells <- wells_subset(mill_sf)
+
+mill_lidar <- dem_region(mill_sf)
+mill_trim <- dem_region(mill_sf, type = "trim")
+
+mill_wells <- wells_elev(mill_wells, dem = mill_lidar, dem_extra = mill_trim)
+
+# See how the elevation data is combined, `dem` (elev1) is the primary source.
+select(mill_wells, well_tag_number, elev1, elev2, elev)
 \dontshow{\}) # examplesIf}
 }
