@@ -553,7 +553,7 @@ lith_yield <- function(lith, flatten = FALSE) {
 
   p_units_yield <- "( )?(gpm|gph)"
   p_units_depth_ft <- "'|ft|feet"
-  p_units_depth_m <- "(m|meters|metres)\\b"
+  p_units_depth_m <- "(m|meters|metres|meter|metre)\\b"
   p_units_depth <- paste0("( )?(", p_units_depth_ft, "|", p_units_depth_m, ")")
 
   p_yield <- paste0("(", p_range(), "|", p_dbl(), ")", p_units_yield)

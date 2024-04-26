@@ -55,7 +55,19 @@ test_that("lith_yield()", {
     "fine t0 medium brown sand and gravel wet 3 gpm", "gpm", "0", FALSE, 3, as.double(), "",
     "1 1/2 gpm at 108'-120'", "gpm", "", TRUE, NA, NA, "ft",
     "1/2 gpm at 99' and 1 gpm at", "gpm", "", TRUE, NA, NA, "ft",
-    ".5 gpm at 50'", "gpm", "",  FALSE, 0.5, 50, "ft") %>%
+    ".5 gpm at 50'", "gpm", "",  FALSE, 0.5, 50, "ft",
+
+    # Depth units
+    "0.6 gpm at 100ft", "gpm", "", FALSE, 0.6, 100, "ft",
+    "0.6 gpm at 100feet", "gpm", "", FALSE, 0.6, 100, "ft",
+    "0.6 gpm at 100 feet", "gpm", "", FALSE, 0.6, 100, "ft",
+    "0.6 gpm at 100 ft", "gpm", "", FALSE, 0.6, 100, "ft",
+    "0.6 gpm at 100'", "gpm", "", FALSE, 0.6, 100, "ft",
+    "0.6 gpm at 100m", "gpm", "", FALSE, 0.6, 100, "m",
+    "0.6 gpm at 100metres", "gpm", "", FALSE, 0.6, 100, "m",
+    "0.6 gpm at 100meter", "gpm", "", FALSE, 0.6, 100, "m",
+    "0.6 gpm at 100 m", "gpm", "", FALSE, 0.6, 100, "m",
+    ) %>%
     dplyr::select("lithology_raw_data", "flag_extra_digits", "flag_yield",
                   "depth", "depth_units", "yield", "yield_units")
 
