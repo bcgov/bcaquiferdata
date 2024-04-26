@@ -75,8 +75,7 @@
 #' creek_trim <- dem_region(creek_sf, type = "trim")
 #'
 #' plot(creek_trim)
-#'
-#'
+
 dem_region <- function(region, type = "lidar", buffer = 1,
                        lidar_dir = NULL, only_new = TRUE,
                        progress = httr::progress()) {
@@ -156,7 +155,23 @@ wells_subset <- function(region, update = FALSE) {
 #' `dem_region()`), subsets the wells data (from GWELLS) to this region and adds
 #' the elevation data.
 #'
-#' @param dem stars simple features object. Output of `dem_region()`.
+#' @param dem stars simple features object. Output of `dem_region()`. Primary
+#'   source of elevation data.
+#' @param dem_extra stars simple features object. Output of `dem_region()`.
+#'   Optional secondary source of elevation data. Useful in situations where the
+#'   primary source is incomplete. **Use with caution: Combining elevations
+#'   measured though different techniques may introduce artifacts (See
+#'   Details)**.
+#'
+#' @details
+#' Because combining elevation data measured from different sources can
+#' introduce artifacts, if two sources of elevation are provided (i.e. both
+#' `dem` and `dem_extra`), the data will contain extra columns for assessment.
+#' Specifically, there will be three elevation columns, rather than just one.
+#' `elev1` contains elevations from the primary source (`dem`), `elev2` contains
+#' elevations from the secondary source (`dem_extra`), `elev` contains the
+#' combined elevation data, `elev1` unless missing, then `elev2`.
+#'
 #'
 #' @inheritParams common_docs
 #'
@@ -198,7 +213,19 @@ wells_subset <- function(region, update = FALSE) {
 #'           fill = "NA", show.legend = FALSE) +
 #'  coord_sf(datum = st_crs(3005)) # BC Albers
 #'
-wells_elev <- function(wells_sub, dem, update = FALSE) {
+#' # Dealing with missing data
+#' mill_sf <- st_read("misc/data/MillBayWatershed.shp")
+#' mill_wells <- wells_subset(mill_sf)
+#'
+#' mill_lidar <- dem_region(mill_sf)
+#' mill_trim <- dem_region(mill_sf, type = "trim")
+#'
+#' mill_wells <- wells_elev(mill_wells, dem = mill_lidar, dem_extra = mill_trim)
+#'
+#' # See how the elevation data is combined, `dem` (elev1) is the primary source.
+#' select(mill_wells, well_tag_number, elev1, elev2, elev)
+#'
+wells_elev <- function(wells_sub, dem, dem_extra = NULL, update = FALSE) {
 
   # Checks
   if(!"sf" %in% class(wells_sub)) {
@@ -217,10 +244,28 @@ wells_elev <- function(wells_sub, dem, update = FALSE) {
   }
 
   message("Add elevation")
-  wells_sub <- wells_sub %>%
-    sf::st_transform(sf::st_crs(dem)) %>%
+  e1 <- wells_sub %>%
+    sf::st_transform(sf::st_crs(dem)) %>%  # Faster to transform wells than dem
     dplyr::mutate(elev = round(stars::st_extract(dem, .)[[1]], 2)) %>%
     sf::st_transform(crs = 3005) # Transform to BC albers
+
+  if(!is.null(dem_extra)) {
+    warning("Combining elevations measured through different techniques may ",
+            "introduce artifacts into your measure of elevation. ",
+            "Use with caution.", call. = FALSE)
+
+    e2 <- wells_sub %>%
+      dplyr::select(well_tag_number, geometry) %>%
+      sf::st_transform(sf::st_crs(dem_extra)) %>%
+      dplyr::mutate(elev2 = round(stars::st_extract(dem_extra, .)[[1]], 2)) %>%
+      sf::st_drop_geometry()
+
+    e1 <- e1 %>%
+      dplyr::rename(elev1 = elev) %>%
+      dplyr::left_join(e2, by = "well_tag_number") |>
+      dplyr::mutate(elev = dplyr::coalesce(elev1, elev2))
+  }
+  e1
 }
 
 
