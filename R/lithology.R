@@ -566,6 +566,7 @@ lith_yield <- function(lith, flatten = FALSE) {
     dplyr::mutate(
       flag_extra_digits = stringr::str_squish(.data$lithology_raw_data),
       flag_extra_digits = fix_fraction(.data$flag_extra_digits),
+      flag_extra_digits = fix_leading_zero(.data$flag_extra_digits),
       yield_chr = stringr::str_extract_all(
         .data$flag_extra_digits, .env$p_yield),
       flag_extra_digits = stringr::str_remove_all(

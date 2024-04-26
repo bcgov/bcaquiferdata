@@ -65,6 +65,9 @@ fix_range <- function(x) {
     purrr::map_vec(\(x) eval(parse(text = x)))
 }
 
+fix_leading_zero <- function(x) {
+  stringr::str_replace_all(x, "(?<!\\d)(\\.\\d+)", "0\\1")
+}
 
 # File names - https://stackoverflow.com/a/56276939
 aq_dt <- function(data, filename = NULL, minimal = FALSE) {
