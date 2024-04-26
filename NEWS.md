@@ -1,5 +1,8 @@
 # Version dev
 * Fix download buttons (#1)
+* Fix yield values where no 0 before the decimal and units are metres (#5)
+* Add citation information (#4)
+* Add option to merge Lidar and TRIM elevation data (#3)
 
 # Version 0.0.3
 * Fix ArcHydro exports
