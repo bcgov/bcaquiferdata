@@ -28,6 +28,9 @@ source("data-raw/flags.R")
 source("data-raw/tiles.R")
 source("data-raw/internal.R")
 
+# Update citation information!
+citation("bcaquiferdata")
+
 # Compile README ---------------------------------
 unlink("README_files", recursive = TRUE)
 devtools::build_readme()

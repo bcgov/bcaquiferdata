@@ -40,7 +40,8 @@ aq_app <- function() {
       ui_lithology("lithology"),
       ui_hydrostratigraphy("hydrostratigraphy"),
       ui_flags("flags"),
-      ui_export_data("export_data")
+      ui_export_data("export_data"),
+      ui_about("about")
     ),
     shinyjs::useShinyjs()  # Set up shinyjs
   )

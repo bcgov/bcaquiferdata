@@ -85,6 +85,14 @@ for a more in-depth look at how to use the User Interface**
 See more details on the [bcaquiferdata
 website](https://bcgov.github.io/bcaquiferdata)
 
+## Citing `bcaquiferdata`
+
+You can cite this software as follows:
+
+LaZerte S, Bieber C, Province of British Columbia (2024). *BC Aquifer
+Data Tools*. R package version 0.0.3.9000,
+<http://bcgov.github.io/bcaquiferdata/>.
+
 ## License
 
 Copyright 2024 Province of British Columbia

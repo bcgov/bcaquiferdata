@@ -79,6 +79,15 @@ hit 'Enter'.
 
 See more details on the [bcaquiferdata website](https://bcgov.github.io/bcaquiferdata)
 
+## Citing `bcaquiferdata`
+
+You can cite this software as follows: 
+
+```{r, results = "asis", echo = FALSE}
+citation("bcaquiferdata") |>
+  print(style = "text")
+```
+
 ## License
 
 Copyright 2024 Province of British Columbia
