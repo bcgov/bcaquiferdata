@@ -13,8 +13,6 @@
 # limitations under the License.
 
 
-
-
 # Check version        ---------------------------
 
 # Update the app helpfiles -----------------------

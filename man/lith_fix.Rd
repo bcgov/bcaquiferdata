@@ -4,12 +4,10 @@
 \alias{lith_fix}
 \title{Fix lithology descriptions}
 \usage{
-lith_fix(file = "lithology.csv", desc = NULL)
+lith_fix(desc = NULL)
 }
 \arguments{
-\item{file}{Character. Lithology file name stored in cache}
-
-\item{desc}{Character. Text string to convert (overrides \code{file}).}
+\item{desc}{Character. Text string to convert/fix.}
 }
 \value{
 Data frame of lithology categorizations
@@ -25,9 +23,9 @@ works and for troubleshooting.
 }
 \examples{
 
-lith_fix(desc = "sandy gravel")
+lith_fix("sandy gravel")
 
 # basic spell checks
-lith_fix(desc = "saandy gravel")
+lith_fix("saandy gravel")
 
 }
