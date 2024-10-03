@@ -117,6 +117,10 @@ lith_prep <- function(file) {
       flag_int_gap = .data$lithology_from_m > dplyr::lag(.data$lithology_to_m) & .data$rec_no != 1,
       flag_int_gap = .data$flag_int_gap | dplyr::lead(.data$flag_int_gap),
 
+      # Flag intermediate layers with `from` == 0
+      flag_int_shortform = !.data$flag_int_overrun & .data$rec_no != 1 & .data$rec_no != .data$n &
+        (.data$lithology_from_m == 0 | is.na(.data$lithology_from_m)),
+
       # Flag missing lithology
       flag_int_missing = is.na(.data$lithology_raw_combined) |
         .data$lithology_raw_combined == ""

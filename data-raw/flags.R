@@ -22,6 +22,9 @@ flags <- dplyr::tribble(
   "flag_int_overlap", "Interval which overlaps with the next or previous interval", "Check original paper log, or fix in GWELLS if obvious",
   "flag_int_gap", "Interval which has a gap between it and the next or preivous interval", "Check original paper log, or fix in GWELLS if obvious",
   "flag_int_overrun", "Interval that has a depth of 0/`NA` to 0/`NA` (marks an interval as a possible overrun, where the notes from a previous record have overrun onto the next line)", "Check original paper log",
+  "flag_int_shortform", paste0("Interval which is not the first nor the last but has a `from` of 0/`NA` and a non-missing `to`. ",
+                               "Often (but not always), this indicates that the record was entered in short hand, by omitting `from` and only inputing the `to`s."),
+                               "If reasonable, fix `from` to be preceeding `to` in GWELLS",
 
   "flag_overruns", "Well with at least one overrunning interval (`flag_int_overrun` with missing depths).", "Check original paper log",
 
