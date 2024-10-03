@@ -42,6 +42,8 @@ test_that("wells_export() Strater", {
   expect_equal(list.files(test_path(), "strater"),
                c("mill_strater_collars.csv", "mill_strater_lith.csv", "mill_strater_wls.csv"))
 
+  expect_snapshot_value(p, style = "json2")
+
   unlink(list.files(test_path(), "^mill_strater", full.names = TRUE))
 })
 
@@ -65,6 +67,8 @@ test_that("wells_export() Voxler", {
       wells_export(mill_elev, id = "mill", type = "voxler", dir = test_path()),
       "Writing Voxler file")
     expect_equal(list.files(test_path(), "voxler"), "mill_voxler.csv")
+
+    expect_snapshot_value(p, style = "json2")
 
     unlink(list.files(test_path(), "^mill_voxler", full.names = TRUE))
 
@@ -100,6 +104,8 @@ test_that("wells_export() ArcHydro", {
   expect_equal(list.files(test_path(), "archydro"),
                c("mill_archydro_bh.csv", "mill_archydro_hguid.csv", "mill_archydro_well.csv"))
 
+  expect_snapshot_value(p, style = "json2")
+
   unlink(list.files(test_path(), "^mill_archydro", full.names = TRUE))
 })
 
@@ -118,7 +124,8 @@ test_that("wells_export() Leapfrog", {
     c("Hole ID", "East (X)", "North (Y)", "Elev (Z)", "Max Depth"))
 
   expect_named(
-    p[["leapfrog_intervals"]], c("Hole ID", "From", "To", "Lithology"))
+    p[["leapfrog_intervals"]],
+    c("Hole ID", "From", "To", "Lithology", "Lithology Raw"))
 
   # Save data
   expect_message(
@@ -126,6 +133,8 @@ test_that("wells_export() Leapfrog", {
     "Writing Leapfrog files")
   expect_equal(list.files(test_path(), "leapfrog"),
                c("mill_leapfrog_collars.csv", "mill_leapfrog_intervals.csv"))
+
+  expect_snapshot_value(p, style = "json2")
 
   unlink(list.files(test_path(), "^mill_leapfrog", full.names = TRUE))
 })
@@ -148,6 +157,8 @@ test_that("wells_export() Surfer", {
     wells_export(mill_elev, id = "mill", type = "surfer", dir = test_path()),
     "Writing Surfer file")
   expect_equal(list.files(test_path(), "surfer"), "mill_surfer.csv")
+
+  expect_snapshot_value(p, style = "json2")
 
   unlink(list.files(test_path(), "^mill_surfer", full.names = TRUE))
 

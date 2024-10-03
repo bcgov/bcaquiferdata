@@ -21,6 +21,6 @@ lith_expect <- function(){
     list("gravel",            "",      "",      "Gravel"),
     list("till",              "sand",  "",      "Sand or Gravel Till or Diamicton"),
     list("till",              "",      "sand",  "Sand or Gravel Till or Diamicton"),
-    list("bedrock",              "bedrock", "",    "Bedrock")
+    list("bedrock",           "bedrock", "",    "Bedrock")
   )
 }

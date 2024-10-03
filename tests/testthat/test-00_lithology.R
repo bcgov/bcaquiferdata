@@ -12,8 +12,21 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-test_that("lith_categorize()", {
+test_that("lith_prep()", {
+  f <- system.file("extdata", "test_gwells_lithology.csv", package = "bcaquiferdata")
+  expect_silent(l <- lith_prep(f))
+  expect_s3_class(l, "data.frame")
+  expect_true(all(c("lithology_from_m", "lithology_to_m", "lithology_raw_combined") %in%
+                    names(l)))
+  expect_equal(l$lithology_raw_combined,
+               paste(l$lithology_raw_data,
+                      l$lithology_description_code,
+                      l$lithology_material_code))
+})
 
+
+test_that("lith_categorize()", {
+  # Compare expected and produced results (stored in lith_expect())
   for(i in seq_len(length(lith_expect()))) {
     w <- lith_expect()[[i]]
     expect_equal(lith_categorize(w[[1]], w[[2]], w[[3]]), w[[4]], label = i)
@@ -22,7 +35,8 @@ test_that("lith_categorize()", {
 })
 
 
-# To add tests, modify inst/extdata/test_lithology_cleaning.csv
+# To add tests, modify data-raw/test_data.R
+# file.edit("data-raw/test_data.R")
 test_that("lith_fix()", {
 
   t <- system.file("extdata", "test_lithology_cleaning.csv",
@@ -44,7 +58,7 @@ test_that("lith_fix()", {
 
 test_that("lith_yield()", {
   t <- dplyr::tribble(
-    ~lithology_raw_data,   ~yield_units, ~flag_extra_digits, ~flag_yield,~yield, ~depth, ~depth_units,
+    ~lithology_raw_combined,   ~yield_units, ~flag_extra_digits, ~flag_yield,~yield, ~depth, ~depth_units,
     "2 to 3 gpm",     "gpm",  "", FALSE, 2.5,    as.double(), "",
     "50 gpm. and it takes 14 hrs. to recover", "gpm", "14", FALSE, 50, as.double(), "",
     "365' - 2 1/2 gpm  s", "gpm", "", FALSE, 2.5,   365, "ft",
@@ -68,10 +82,10 @@ test_that("lith_yield()", {
     "0.6 gpm at 100meter", "gpm", "", FALSE, 0.6, 100, "m",
     "0.6 gpm at 100 m", "gpm", "", FALSE, 0.6, 100, "m",
     ) %>%
-    dplyr::select("lithology_raw_data", "flag_extra_digits", "flag_yield",
+    dplyr::select("lithology_raw_combined", "flag_extra_digits", "flag_yield",
                   "depth", "depth_units", "yield", "yield_units")
 
-  l <- lith_yield(dplyr::select(t, "lithology_raw_data", "yield_units"))
+  l <- lith_yield(dplyr::select(t, "lithology_raw_combined", "yield_units"))
 
   expect_equal(l, tidyr::unnest(t, c("yield", "depth"), keep_empty = TRUE))
 
