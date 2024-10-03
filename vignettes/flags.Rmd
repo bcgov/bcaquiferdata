@@ -7,8 +7,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Flag definitions for lithology and hydrostratigraphy
+Flag definitions for lithology and hydrostratigraphy. 
 
-```{r}
-gt::gt(bcaquiferdata::flags)
+In all cases we give suggestions for how to fix the problem. However, if you 
+believe that the record is correct, but that the *flag* is incorrect, please
+[open an issue](https://github.com/bcgov/bcaquiferdata/issues) and let us
+know what the problem is (which flag is incorrect and why) 
+and with which Well (`well_tag_number`).
+
+You can access this list in R at any time through the `flags` dataset.
+```{r, echo = FALSE}
+gt::gt(bcaquiferdata::flags) |>
+  gt::tab_style(gt::cell_text(font = "monospace"),
+                gt::cells_body(columns = "Flag"))
+    
 ```

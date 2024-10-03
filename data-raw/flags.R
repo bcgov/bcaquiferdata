@@ -15,32 +15,31 @@
 # Use "lithologic interval" rather than "lithology record" - 2023-09-15
 flags <- dplyr::tribble(
 
-  ~ "Flag", ~ "Description",
+  ~ "Flag", ~ "Description", ~ "Solution",
 
   # General record
-  "flag_missing", "Missing lithologic interval",
-  "flag_no_depths", "All lithologic intervals have depths of 0 ('from' and 'to')",
-  "flag_zero_zero", "Any lithologic interval that has a depth of 0 to 0 (only marks a single interval)",
-  "flag_overruns", paste0("Any lithologic interval has both depths of 0 ('from' and 'to'). ",
-                          "Possibly a second entry for a single interval, 'overrun' interval ",
-                          "(marks all intervals for a well)"),
+  "flag_int_missing", "Interval missing lithologic record", "Check original paper log",
+  "flag_int_overlap", "Interval which overlaps with the next or previous interval", "Check original paper log, or fix in GWELLS if obvious",
+  "flag_int_gap", "Interval which has a gap between it and the next or preivous interval", "Check original paper log, or fix in GWELLS if obvious",
+  "flag_int_overrun", "Interval that has a depth of 0/`NA` to 0/`NA` (marks an interval as a possible overrun, where the notes from a previous record have overrun onto the next line)", "Check original paper log",
 
-  "flag_bottom_unit", paste0("All 'from' depths are 0, end depths are not (except possibly the first).",
-                             "Problem: The original log shows only the bottom of a unit (fix in GWELLS)"),
+  "flag_overruns", "Well with at least one overrunning interval (`flag_int_overrun` with missing depths).", "Check original paper log",
+
+  "flag_bottom_unit", paste0("Well where all `from` depths are 0/`NA` but `to` depths are generally present. ",
+                             "Possibly indicates that the original log shows only the bottom of a unit"), "Check original paper log",
+  "flag_no_depths", "All lithologic intervals have depths of 0 or missing ('from' and 'to')", "Check original paper log",
 
   # Lithology categories
-  "flag_bedrock", "Interval where Bedrock occurs with any other primary term",
-  "flag_bedrock_position", "A non-bedrock category occurs *below* a bedrock category",
-  "flag_boulders", "Interval where Boulders occur with any other primary term",
-  "flag_missing_cats", "No categories were extracted from the cleaned lithologic interval",
+  "flag_bedrock", "Interval where Bedrock occurs with any other primary term", "Fix in GWELLS",
+  "flag_bedrock_position", "A non-bedrock category occurs *below* a bedrock category", "Fix in GWELLS",
+  "flag_boulders", "Interval where Boulders occur with any other primary term", "Fix in GWELLS",
+  "flag_missing_cats", "No categories were extracted from the cleaned lithologic interval", "Check original paper log",
 
   # Yield flags
   "flag_yield", paste0("Lithology where there are both depths and yields, ",
                        "but the number of yield measures do not match up with the number of depth measures ",
-                       "(thus `yield` and `depths` are NA). Problem: there is a problem in the original log (i.e. missing a depth, or the depth is a range)",
-                       "or there is a problem with the extract algorithm. ",
-                       "This only applies to Hydrostratigraphy."),
-  "flag_extra_digits", "Lithology with extra digits which were not converted to a yield or depth. This only applies to Hydrostratigraphy."
+                       "(thus `yield` and `depths` are NA). This only applies to Hydrostratigraphy."), "Check original paper log",
+  "flag_extra_digits", "Lithology with extra digits which were not converted to a yield or depth. This only applies to Hydrostratigraphy.", "Fix in GWELLS"
 )
 
 usethis::use_data(flags, internal = FALSE, overwrite = TRUE)

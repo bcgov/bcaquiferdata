@@ -16,11 +16,9 @@
 
 #' Prepare raw GWELLS lithology for cleaning
 #'
-#' Flag
-#'
 #' @param file Character. Relative location of the downloaded data
 #'
-#' @return
+#' @return Data frame of cleaned and prepared lithology records.
 #'
 #' @examples
 #' lith_prep(file.path(cache_dir(), "GWELLS/lithology.csv"))
@@ -95,31 +93,53 @@ lith_prep <- function(file) {
   # TODO: Flag these wells? Have a user fix them?
   # e.g., dplyr::filter(data_read("wells"), well_tag_number %in% c(57053, 79230)) |> as.data.frame()
 
+  # Create flags
 
   l %>%
-    # Check for flags
-    dplyr::group_by(.data$well_tag_number) %>%
     dplyr::arrange(.data$well_tag_number,
                    .data$lithology_from_m, .data$lithology_to_m) %>%
+    dplyr::mutate(n = dplyr::n(),
+                  rec_no = dplyr::row_number(),
+                  .by = "well_tag_number") %>%
+
+    ## Flags by layer
     dplyr::mutate(
 
-      n = dplyr::n(),
+      # Flag individual, possible overruns - No `from` & No `to` when text takes up multiple record slots
+      flag_int_overrun = (is.na(.data$lithology_from_m) | .data$lithology_from_m == 0) &
+        (is.na(.data$lithology_to_m) | .data$lithology_to_m == 0),
 
-      # Flag lithology where no depths
-      flag_no_depths = all(.data$lithology_from_m == 0 & .data$lithology_to_m == 0),
+      # Flag overlapping intervals - Non-first `from` < preceeding `to`
+      flag_int_overlap = .data$lithology_from_m < dplyr::lag(.data$lithology_to_m) & .data$rec_no != 1,
+      flag_int_overlap = .data$flag_int_overlap | dplyr::lead(.data$flag_int_overlap),
 
-      # Flag where possible overruns
-      flag_overruns = any(.data$lithology_from_m == 0 & .data$lithology_to_m == 0),
-
-      # Flag where show bottom unit
-      flag_bottom_unit = .data$n > 1 & all(.data$lithology_from_m == 0),
-
-      # Flag overflow lithology (zero to zero)
-      flag_zero_zero = .data$lithology_from_m == 0 & .data$lithology_to_m == 0,
+      # Flag gaps between intervals - Non-first `from` > preceeding `to`
+      flag_int_gap = .data$lithology_from_m > dplyr::lag(.data$lithology_to_m) & .data$rec_no != 1,
+      flag_int_gap = .data$flag_int_gap | dplyr::lead(.data$flag_int_gap),
 
       # Flag missing lithology
-      flag_missing = is.na(.data$lithology_raw_combined) |
-        .data$lithology_raw_combined == "") |>
+      flag_int_missing = is.na(.data$lithology_raw_combined) |
+        .data$lithology_raw_combined == ""
+    ) %>%
+
+    ## Flags by lithology record
+    dplyr::group_by(.data$well_tag_number) %>%
+    dplyr::mutate(
+
+      # Get metrics
+      # TODO: Here treat zeros and NAs the same...
+      missing_all_from = all(is.na(.data$lithology_from_m) | .data$lithology_from_m == 0),
+      missing_all_to = all(is.na(.data$lithology_to_m) | .data$lithology_to_m == 0),
+
+      # Flag lithology where no depths
+      flag_no_depths = .data$missing_all_from & .data$missing_all_to,
+
+      # Flag where show bottom unit - All `from` are missing/0, but `to` present, and more than one record
+      flag_bottom_unit = .data$missing_all_from & !.data$missing_all_to & .data$n > 1,
+
+      # Flag record with overruns (mark the whole record if there are any)
+      flag_overruns = any(.data$flag_int_overrun)) %>%
+    dplyr::select(-"missing_all_from", -"missing_all_to") %>%
     dplyr::ungroup()
 }
 
