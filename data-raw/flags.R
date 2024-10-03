@@ -30,7 +30,7 @@ flags <- dplyr::tribble(
 
   "flag_bottom_unit", paste0("Well where all `from` depths are 0/`NA` but `to` depths are generally present. ",
                              "Possibly indicates that the original log shows only the bottom of a unit"), "Check original paper log",
-  "flag_no_depths", "All lithologic intervals have depths of 0 or missing ('from' and 'to')", "Check original paper log",
+  "flag_no_depths", "All lithologic intervals have depths of 0 or missing (`from` and `to`)", "Check original paper log",
 
   # Lithology categories
   "flag_bedrock", "Interval where Bedrock occurs with any other primary term", "Fix in GWELLS",

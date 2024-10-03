@@ -27,6 +27,8 @@ ui_flags <- function(id) {
       card_header("Glossary"),
       max_height = "25%",
       full_screen = TRUE,
+      includeMarkdown(system.file("extra_docs", "flags.md",
+                                  package = "bcaquiferdata")),
       tableOutput(ns("flags_glossary"))
 
     )
