@@ -12,17 +12,43 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-lith_prep <- function(file = "GWELLS/lithology.csv") {
 
-  readr::read_csv(file.path(cache_dir(), file),
-                  guess_max = Inf, show_col_types = FALSE) %>%
+
+#' Prepare raw GWELLS lithology for cleaning
+#'
+#' Flag
+#'
+#' @param file Character. Relative location of the downloaded data
+#'
+#' @return
+#'
+#' @examples
+#' lith_prep(file.path(cache_dir(), "GWELLS/lithology.csv"))
+#'
+#' @noRd
+lith_prep <- function(file) {
+
+  readr::read_csv(file, guess_max = Inf, show_col_types = FALSE, progress = FALSE) %>%
     janitor::clean_names() %>%
 
     # Convert to metric
     dplyr::mutate(
       lithology_from_m = round(.data$lithology_from_ft_bgl * 0.3048, 2),
-      lithology_to_m = round(.data$lithology_to_ft_bgl * 0.3048, 2),
-      lithology_raw_data = stringr::str_to_lower(.data$lithology_raw_data)) %>%
+      lithology_to_m = round(.data$lithology_to_ft_bgl * 0.3048, 2)) %>%
+
+   # Collect and combine lithology descriptions
+   dplyr::mutate(dplyr::across(.cols = c(
+     "lithology_raw_data",
+     "lithology_description_code",
+     "lithology_material_code"),
+     ~ as.character(.x) %>%
+       tidyr::replace_na("") %>%
+       stringr::str_to_lower())) %>%
+   dplyr::mutate(
+     lithology_raw_combined = paste(
+        .data$lithology_raw_data,
+        .data$lithology_description_code,
+        .data$lithology_material_code)) %>%
 
     # Check for flags
     dplyr::group_by(.data$well_tag_number) %>%
@@ -45,8 +71,8 @@ lith_prep <- function(file = "GWELLS/lithology.csv") {
       flag_zero_zero = .data$lithology_from_m == 0 & .data$lithology_to_m == 0,
 
       # Flag missing lithology
-      flag_missing = is.na(.data$lithology_raw_data) |
-        .data$lithology_raw_data == "") |>
+      flag_missing = is.na(.data$lithology_raw_combined) |
+        .data$lithology_raw_combined == "") |>
     dplyr::ungroup()
 }
 
@@ -60,41 +86,31 @@ lith_prep <- function(file = "GWELLS/lithology.csv") {
 #' However statements can be tested directly with this function to see how it
 #' works and for troubleshooting.
 #'
-#' @param file Character. Lithology file name stored in cache
-#' @param desc Character. Text string to convert (overrides `file`).
+#' @param desc Character. Text string to convert/fix.
 #'
 #' @return Data frame of lithology categorizations
 #' @export
 #'
 #' @examples
 #'
-#' lith_fix(desc = "sandy gravel")
+#' lith_fix("sandy gravel")
 #'
 #' # basic spell checks
-#' lith_fix(desc = "saandy gravel")
+#' lith_fix("saandy gravel")
 #'
-lith_fix <- function(file = "lithology.csv", desc = NULL) {
-
-  # File or text
-  if(is.null(desc)) {
-    lith_desc <- readr::read_csv(file.path(cache_dir(), file),
-                                 guess_max = Inf, show_col_types = FALSE) %>%
-      janitor::clean_names()
-  } else {
-    lith_desc <- data.frame(lithology_raw_data = desc)
-  }
+lith_fix <- function(desc = NULL) {
 
   # Initial cleanup -----------------------------------------------------------
-  lith_desc <- lith_desc %>%
+  lith_desc <- dplyr::tibble(lithology_raw_combined = desc) %>%
     # Convert to metric
     dplyr::mutate(
-      lithology_raw_data = stringr::str_to_lower(.data$lithology_raw_data),
-      lithology_raw_data = stringr::str_remove(.data$lithology_raw_data,
+      lithology_raw_combined = stringr::str_to_lower(.data$lithology_raw_combined),
+      lithology_raw_combined = stringr::str_remove(.data$lithology_raw_combined,
                                                "^aquifer data(:)*")) %>%
-    dplyr::select("lithology_raw_data") %>%
+    dplyr::select("lithology_raw_combined") %>%
     dplyr::distinct() %>%
     dplyr::mutate(
-      lith_clean = .data$lithology_raw_data,
+      lith_clean = .data$lithology_raw_combined,
       # omit numbers and quotes
       lith_clean = stringr::str_remove_all(.data$lith_clean, "\\d"),
       # clean punctuation
@@ -543,7 +559,7 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
       lithology_extra = purrr::map_chr(.data$extra, collapse_nested),
       yield_units = purrr::map_chr(.data$yield, collapse_nested)) %>%
     # Bind to lithology data and return
-    dplyr::select("lithology_raw_data", "lithology_clean" = "lith_clean",
+    dplyr::select("lithology_raw_combined", "lithology_clean" = "lith_clean",
                   "lith_primary", "lith_secondary", "lith_tertiary",
                   "lithology_extra", "lithology_category", "yield_units",
                   dplyr::starts_with("flag_"))
@@ -562,9 +578,9 @@ lith_yield <- function(lith, flatten = FALSE) {
   l <- lith %>%
     sf::st_drop_geometry() %>%
     dplyr::filter(.data$yield_units != "") %>%
-    dplyr::select("lithology_raw_data") %>%
+    dplyr::select("lithology_raw_combined") %>%
     dplyr::mutate(
-      flag_extra_digits = stringr::str_squish(.data$lithology_raw_data),
+      flag_extra_digits = stringr::str_squish(.data$lithology_raw_combined),
       flag_extra_digits = fix_fraction(.data$flag_extra_digits),
       flag_extra_digits = fix_leading_zero(.data$flag_extra_digits),
       yield_chr = stringr::str_extract_all(
@@ -608,7 +624,7 @@ lith_yield <- function(lith, flatten = FALSE) {
     dplyr::select(-"n_yield", -"n_depth") %>%
     tidyr::unnest(cols = c("yield", "depth"), keep_empty = TRUE)
 
-  dplyr::left_join(lith, l, by = "lithology_raw_data") %>%
+  dplyr::left_join(lith, l, by = "lithology_raw_combined") %>%
     dplyr::relocate("yield_units", .after = "yield") %>%
     dplyr::relocate("flag_yield", .before = "depth")
 }
@@ -868,7 +884,7 @@ lith_flag <- function(p, s, t) {
 }
 
 collapse_nested <- function(x) {
-  if(length(x) > 0) paste0(x, collapse = ", ") else ""
+  if(length(x) > 0) paste0(unique(x), collapse = ", ") else ""
 }
 
 

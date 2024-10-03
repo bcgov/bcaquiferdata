@@ -108,7 +108,7 @@ export_strater <- function(wells_sub, id, dir, preview) {
                   "From" = "lithology_from_m",
                   "To" = "lithology_to_m",
                   "Lithology_Keyword" = "lithology_category",
-                  "Lithology_Description" = "lithology_raw_data")
+                  "Lithology_Description" = "lithology_raw_combined")
 
   # Strater Collars
   f2 <- wells_sub %>%
@@ -149,8 +149,10 @@ export_voxler <- function(wells_sub, id, dir, preview) {
                   Component = 0) %>%
     dplyr::filter(!is.na(.data$Water_Elevation)) %>%
     dplyr::select("well_tag_number",
-                  "Easting_Albers" = "X", "Northing_Albers" = "Y",
-                  "Water_Elevation", "Component") %>%
+                  "Easting_Albers" = "X",
+                  "Northing_Albers" = "Y",
+                  "Water_Elevation",
+                  "Component") %>%
     dplyr::distinct()
 
   f1 <- voxler %>%
@@ -249,7 +251,8 @@ export_leapfrog <- function(wells_sub, id, dir, preview) {
     dplyr::select("Hole ID" = "well_tag_number",
                   "From" = "lithology_from_m",
                   "To" = "lithology_to_m",
-                  "Lithology" = "lithology_category") %>%
+                  "Lithology" = "lithology_category",
+                  "Lithology Raw" = "lithology_raw_combined") %>%
     dplyr::distinct()
 
   if(preview) {

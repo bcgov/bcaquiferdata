@@ -56,7 +56,7 @@ server_lithology <- function(id, wells) {
 
       if("min" %in% show) cols <- c(cols,
                                     "lithology_from_m", "lithology_to_m",
-                                    "lithology_raw_data",
+                                    "lithology_raw_combined",
                                     "lithology_clean", "lithology_category",
                                     "bedrock_depth_m")
       if("extra" %in% show) cols <- c(cols, "lithology_extra")

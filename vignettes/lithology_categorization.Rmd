@@ -34,7 +34,7 @@ lith_tbl <- function(d, colour = TRUE) {
       align = "center",
       columns = any_of(c("lith_primary", "lith_secondary", "lith_tertiary"))) |>
     cols_label(
-      lithology_raw_data = md("**Starting Description**<br><small>(`lithology_raw_data`)</small>"),
+      lithology_raw_combined = md("**Starting Description**<br><small>(`lithology_raw_combined`)</small>"),
       lithology_clean = md("**Cleaned Description**<br><small>(`lithology_clean`)</small>"),
       lith_primary = md("1°"),
       lith_secondary = md("2°"),
@@ -101,7 +101,7 @@ The lithology data contains columns reflecting these steps.
 ```{r}
 tribble(
   ~ Column, ~ Description, ~ Step,
-  "lithology_raw_data", "Original lithology description from GWELLS", "Original Data",
+  "lithology_raw_combined", "Original lithology descriptions from GWELLS (combination of `lithology_raw_data`, `lithology_description_code` and `lithology_material_code`)", "Original Data",
   "lithology_clean", "Cleaned lithology description", "1. Cleaning",
   "lith_primary, lith_secondary, lith_tertiary", "Intermediate categories created from `lithology_clean`", "2. Initial categorizing",
   "lithology_extra", "Extra, potentially important descriptors extracted from the lithology description", "3. Final categorizing",

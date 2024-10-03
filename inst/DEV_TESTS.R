@@ -35,13 +35,13 @@ data_update(which = "all")
 #l <- clean_lithology(wells)
 p <- lith_prep(wells)
 
-dplyr::filter(p, stringr::str_detect(lithology_raw_data, "'"))
+dplyr::filter(p, stringr::str_detect(lithology_raw_combined, "'"))
 
 l <- lith_fix()
 
 # Check for immediate problems
 test_desc <- dplyr::filter(l, is.na(lith_category), lith_clean != "", lith_yield == "") %>%
-  dplyr::pull(lithology_raw_data)
+  dplyr::pull(lithology_raw_combined)
 
 lith_fix(desc = test_desc) %>%
   dplyr::as_tibble() %>%
@@ -56,8 +56,8 @@ lith_fix(desc = test_desc) %>%
   as.data.frame()
 
 
-y <- dplyr::filter(l, stringr::str_detect(lithology_raw_data, "425 feet 1 3/4 gpm")) %>%
-  dplyr::select(lithology_raw_data, lith_clean, lith_yield) %>%
+y <- dplyr::filter(l, stringr::str_detect(lithology_raw_combined, "425 feet 1 3/4 gpm")) %>%
+  dplyr::select(lithology_raw_combined, lith_clean, lith_yield) %>%
   lith_yield()
 
 dplyr::filter(y, lith_yield == "gpm, gph")

@@ -59,7 +59,7 @@ server_hydrostratigraphy <- function(id, wells) {
         "elev", "well_depth_m", "lithology_from_m", "lithology_to_m",
         #"well_yield_usgpm", "well_yield_unit_code",
         "depth", "depth_units", "yield", "yield_units")
-      if("lith_raw" %in% show) cols <- c(cols, "lithology_raw_data")
+      if("lith_raw" %in% show) cols <- c(cols, "lithology_raw_combined")
       if("flags" %in% show) cols <- c(cols, "flag_yield", "flag_extra_digits")
 
       wells() %>%

@@ -161,14 +161,14 @@ clean_wells <- function(file = "GWELLS/well.csv") {
 clean_lithology <- function(file = "GWELLS/lithology.csv") {
 
   message("Lithology - Cleaning")
-  l_prep <- lith_prep(file)
+  l_prep <- lith_prep(file.path(cache_dir(), file))
 
   message("Lithology - Standardizing")
-  l_std <- lith_fix(file)
+  l_std <- lith_fix(l_prep$lithology_raw_combined)
 
   #l_std <- lith_yield(l_std)
 
-  l <- dplyr::left_join(l_prep, l_std, by = "lithology_raw_data")
+  l <- dplyr::left_join(l_prep, l_std, by = "lithology_raw_combined")
   message("Lithology - Calculating depth to bedrock")
   l <- lith_bedrock(l)
 
