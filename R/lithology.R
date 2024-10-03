@@ -28,7 +28,8 @@
 #' @noRd
 lith_prep <- function(file) {
 
-  readr::read_csv(file, guess_max = Inf, show_col_types = FALSE, progress = FALSE) %>%
+  l <- file %>%
+    readr::read_csv(guess_max = Inf, show_col_types = FALSE, progress = FALSE) %>%
     janitor::clean_names() %>%
 
     # Convert to metric
@@ -48,8 +49,54 @@ lith_prep <- function(file) {
      lithology_raw_combined = paste(
         .data$lithology_raw_data,
         .data$lithology_description_code,
-        .data$lithology_material_code)) %>%
+        .data$lithology_material_code))
 
+  # Find duplicates and log them
+
+  ## Remove Exact duplicates
+  dups <- which(duplicated(l))
+  if(length(dups) > 0) {
+    dups_tags <- c("Wells with omitted duplicated lithology records: ",
+                   unique(l$well_tag_number[dups]))
+    lf <- paste0("log_duplicate_records_", Sys.Date(), ".txt")
+    writeLines(dups_tags, lf)
+    message("Omitting duplicate lithology records for ",
+            length(dups_tags), " wells.\nSee ", lf, " for the list of wells.")
+
+    l <- l[-dups, ]
+  }
+
+  ## Find exact duplicates of whole lithology records (everything except well number)
+  # TODO: What should we do with these? Omit them? Or alert users to have them
+  #  fixed?
+
+  # By lithology record only - 4025 duplicate record groups
+  # d <- tidyr::nest(l, record = -"well_tag_number")
+  # dd1 <- d %>%
+  #   dplyr::group_by(record) %>%
+  #   dplyr::summarize(n = dplyr::n()) %>%
+  #   dplyr::filter(n > 1) %>%
+  #   dplyr::mutate(dup_group = dplyr::row_number()) %>%
+  #   dplyr::left_join(d, by = "record")
+  #
+  # # By lithology and locations - 42 exact duplicates including lat/lon with different well number
+  # d <- dplyr::left_join(l,
+  #                       dplyr::select(data_read("wells"), "well_tag_number",
+  #                                     "longitude_decdeg", "latitude_decdeg"),
+  #                       by = "well_tag_number") %>%
+  #   tidyr::nest(record = -"well_tag_number")
+  # dd2 <- d %>%
+  #   dplyr::group_by(record) %>%
+  #   dplyr::summarize(n = dplyr::n()) %>%
+  #   dplyr::filter(n > 1) %>%
+  #   dplyr::mutate(dup_group = dplyr::row_number()) %>%
+  #   dplyr::left_join(d, by = "record")
+  #
+  # TODO: Flag these wells? Have a user fix them?
+  # e.g., dplyr::filter(data_read("wells"), well_tag_number %in% c(57053, 79230)) |> as.data.frame()
+
+
+  l %>%
     # Check for flags
     dplyr::group_by(.data$well_tag_number) %>%
     dplyr::arrange(.data$well_tag_number,

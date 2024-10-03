@@ -33,7 +33,7 @@ data_update(which = "all")
 #   readr::write_csv("lith_categorization.csv")
 
 #l <- clean_lithology(wells)
-p <- lith_prep(wells)
+p <- lith_prep(file.path(cache_dir(), "GWELLS/lithology.csv"))
 
 dplyr::filter(p, stringr::str_detect(lithology_raw_combined, "'"))
 
