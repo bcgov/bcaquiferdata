@@ -21,7 +21,8 @@ test_that("lith_prep()", {
   expect_equal(l$lithology_raw_combined,
                paste(l$lithology_raw_data,
                       l$lithology_description_code,
-                      l$lithology_material_code))
+                      l$lithology_material_code) |>
+                 stringr::str_squish())
 })
 
 

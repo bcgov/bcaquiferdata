@@ -47,7 +47,8 @@ lith_prep <- function(file) {
      lithology_raw_combined = paste(
         .data$lithology_raw_data,
         .data$lithology_description_code,
-        .data$lithology_material_code))
+        .data$lithology_material_code),
+     lithology_raw_combined = stringr::str_squish(.data$lithology_raw_combined))
 
   # Find duplicates and log them
 
