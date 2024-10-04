@@ -12,156 +12,6 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-
-
-#' Prepare raw GWELLS lithology for cleaning
-#'
-#' @param file Character. Relative location of the downloaded data
-#'
-#' @return Data frame of cleaned and prepared lithology records.
-#'
-#' @examples
-#' lith_prep(file.path(cache_dir(), "GWELLS/lithology.csv"))
-#'
-#' @noRd
-lith_prep <- function(file) {
-
-  l <- file %>%
-    readr::read_csv(guess_max = Inf, show_col_types = FALSE, progress = FALSE) %>%
-    janitor::clean_names() %>%
-
-    # Convert to metric
-    dplyr::mutate(
-      lithology_from_m = round(.data$lithology_from_ft_bgl * 0.3048, 2),
-      lithology_to_m = round(.data$lithology_to_ft_bgl * 0.3048, 2)) %>%
-
-   # Collect and combine lithology descriptions
-   dplyr::mutate(dplyr::across(.cols = c(
-     "lithology_raw_data",
-     "lithology_description_code",
-     "lithology_material_code"),
-     ~ as.character(.x) %>%
-       tidyr::replace_na("") %>%
-       stringr::str_to_lower())) %>%
-   dplyr::mutate(
-     lithology_raw_combined = paste(
-        .data$lithology_raw_data,
-        .data$lithology_description_code,
-        .data$lithology_material_code),
-     lithology_raw_combined = stringr::str_squish(.data$lithology_raw_combined))
-
-  # Find duplicates and log them
-
-  ## Remove Exact duplicates
-  dups <- which(duplicated(l))
-  if(length(dups) > 0) {
-    dups_tags <- c("Wells with omitted duplicated lithology records: ",
-                   unique(l$well_tag_number[dups]))
-    lf <- paste0("log_duplicate_records_", Sys.Date(), ".txt")
-    writeLines(dups_tags, lf)
-    message("Omitting duplicate lithology records for ",
-            length(dups_tags), " wells.\nSee ", lf, " for the list of wells.")
-
-    l <- l[-dups, ]
-  }
-
-  ## Find exact duplicates of whole lithology records (everything except well number)
-  # TODO: What should we do with these? Omit them? Or alert users to have them
-  #  fixed?
-
-  # By lithology record only - 4025 duplicate record groups
-  # d <- tidyr::nest(l, record = -"well_tag_number")
-  # dd1 <- d %>%
-  #   dplyr::group_by(record) %>%
-  #   dplyr::summarize(n = dplyr::n()) %>%
-  #   dplyr::filter(n > 1) %>%
-  #   dplyr::mutate(dup_group = dplyr::row_number()) %>%
-  #   dplyr::left_join(d, by = "record")
-  #
-  # # By lithology and locations - 42 exact duplicates including lat/lon with different well number
-  # d <- dplyr::left_join(l,
-  #                       dplyr::select(data_read("wells"), "well_tag_number",
-  #                                     "longitude_decdeg", "latitude_decdeg"),
-  #                       by = "well_tag_number") %>%
-  #   tidyr::nest(record = -"well_tag_number")
-  # dd2 <- d %>%
-  #   dplyr::group_by(record) %>%
-  #   dplyr::summarize(n = dplyr::n()) %>%
-  #   dplyr::filter(n > 1) %>%
-  #   dplyr::mutate(dup_group = dplyr::row_number()) %>%
-  #   dplyr::left_join(d, by = "record")
-  #
-  # TODO: Flag these wells? Have a user fix them?
-  # e.g., dplyr::filter(data_read("wells"), well_tag_number %in% c(57053, 79230)) |> as.data.frame()
-
-  # Arrange and label layers
-  l <- l %>%
-    dplyr::arrange(.data$well_tag_number,
-                   .data$lithology_from_m, .data$lithology_to_m) %>%
-    dplyr::mutate(n = dplyr::n(),
-                  rec_no = dplyr::row_number(),
-                  .by = "well_tag_number")
-
-  # Create flags
-
-  l %>%
-
-    ## Flags by layer
-    dplyr::mutate(
-
-      # Flag individual, possible overruns - No `from` & No `to` when text takes up multiple record slots
-      flag_int_overrun = (is.na(.data$lithology_from_m) | .data$lithology_from_m == 0) &
-        (is.na(.data$lithology_to_m) | .data$lithology_to_m == 0),
-
-      # Flag overlapping intervals - Non-first `from` < preceeding `to`
-      flag_int_overlap = .data$lithology_from_m < dplyr::lag(.data$lithology_to_m) & .data$rec_no != 1,
-      flag_int_overlap = .data$flag_int_overlap | dplyr::lead(.data$flag_int_overlap),
-
-      # Flag gaps between intervals - Non-first `from` > preceeding `to`
-      flag_int_gap = .data$lithology_from_m > dplyr::lag(.data$lithology_to_m) & .data$rec_no != 1,
-      flag_int_gap = .data$flag_int_gap | dplyr::lead(.data$flag_int_gap),
-
-      # Flag intermediate layers with `from` == 0
-      flag_int_shortform = !.data$flag_int_overrun & .data$rec_no != 1 & .data$rec_no != .data$n &
-        (.data$lithology_from_m == 0 | is.na(.data$lithology_from_m)),
-
-      # Flag no thickness thick bottom layers
-      flag_int_bottom =
-        # Last (bottom) record
-        .data$n == .data$rec_no &
-        # Either only one record, or not missing the 'from'
-        (.data$n > 1 | .data$lithology_from_m != 0) &
-        # And missing the 'to' OR 'to' equivalent to 'from'
-        (.data$lithology_to_m == 0 | is.na(.data$lithology_to_m) |
-           .data$lithology_from_m == .data$lithology_to_m),
-
-      # Flag missing lithology
-      flag_int_missing = is.na(.data$lithology_raw_combined) |
-        .data$lithology_raw_combined == ""
-    ) %>%
-
-    ## Flags by lithology record
-    dplyr::group_by(.data$well_tag_number) %>%
-    dplyr::mutate(
-
-      # Get metrics
-      # TODO: Here treat zeros and NAs the same...
-      missing_all_from = all(is.na(.data$lithology_from_m) | .data$lithology_from_m == 0),
-      missing_all_to = all(is.na(.data$lithology_to_m) | .data$lithology_to_m == 0),
-
-      # Flag lithology where no depths
-      flag_no_depths = .data$missing_all_from & .data$missing_all_to,
-
-      # Flag where show bottom unit - All `from` are missing/0, but `to` present, and more than one record
-      flag_bottom_unit = .data$missing_all_from & !.data$missing_all_to & .data$n > 1,
-
-      # Flag record with overruns (mark the whole record if there are any)
-      flag_overruns = any(.data$flag_int_overrun)) %>%
-    dplyr::select(-"missing_all_from", -"missing_all_to", -"n") %>%
-    dplyr::ungroup()
-}
-
-
 #' Fix lithology descriptions
 #'
 #' Clean and categorize lithology descriptions into primary, secondary, tertiary
@@ -191,7 +41,7 @@ lith_fix <- function(desc = NULL) {
     dplyr::mutate(
       lithology_raw_combined = stringr::str_to_lower(.data$lithology_raw_combined),
       lithology_raw_combined = stringr::str_remove(.data$lithology_raw_combined,
-                                               "^aquifer data(:)*")) %>%
+                                                   "^aquifer data(:)*")) %>%
     dplyr::select("lithology_raw_combined") %>%
     dplyr::distinct() %>%
     dplyr::mutate(
@@ -521,9 +371,9 @@ lith_fix <- function(desc = NULL) {
 
   terms_omit <- list(
     "purple", "red", "orange", "yellow", "green", "blue", "white",
-            "black", "grey", "brown", "tan", "turquoise", "rust", "brick",
-            "pink") %>%
-              append(., paste0(., "ish")) %>%
+    "black", "grey", "brown", "tan", "turquoise", "rust", "brick",
+    "pink") %>%
+    append(., paste0(., "ish")) %>%
     append(list(
       "colour", "dark", "light", "pale", "hard", "soft", "softer", "heavily",
       "fine", "small", "medium", "med", "large", "coarse",
@@ -630,7 +480,7 @@ lith_fix <- function(desc = NULL) {
       lithology_category = purrr::pmap_chr(list(.data$primary,
                                                 .data$secondary,
                                                 .data$tertiary),
-                                      lith_categorize)) %>%
+                                           lith_categorize)) %>%
     tidyr::unnest("flags")
 
   # For comparing
@@ -836,15 +686,15 @@ lith_secondary <- function(terms, terms_to_use) {
   with <- names(terms_to_use) %>%
     paste0("(?<=with )", .) %>%   # Must have a 'with ' right before the term
     lith_prep_regex(noname = TRUE)
-#
-#   # Create regex for matching bedrock terms
-#   desc <- names(terms_good_bedrock) %>%
-#     lith_prep_regex(noname = TRUE)
-#
-#   # Grab descriptive terms that appear before the bedrock term
-#   desc <- names(terms_good_bedrock_desc) %>%
-#     stringr::str_c(collapse = "|") %>%
-#     stringr::str_c("(", ., ")(?= (", desc, "))")
+  #
+  #   # Create regex for matching bedrock terms
+  #   desc <- names(terms_good_bedrock) %>%
+  #     lith_prep_regex(noname = TRUE)
+  #
+  #   # Grab descriptive terms that appear before the bedrock term
+  #   desc <- names(terms_good_bedrock_desc) %>%
+  #     stringr::str_c(collapse = "|") %>%
+  #     stringr::str_c("(", ., ")(?= (", desc, "))")
 
   stringr::str_extract_all(terms, pattern = paste0("(", with, ")"))
 }
@@ -885,13 +735,13 @@ lith_categorize <- function(p, s, t) {
   } else if(any(c(p, s, t) %in% "bedrock")) {
     cat <- "Bedrock"
 
-  # Sand and Gravel
+    # Sand and Gravel
   } else if(("sand" %in% p & "gravel" %in% c(p, s, t) & dirty) |
             ("gravel" %in% p & "sand" %in% c(p, s, t) & dirty) |
             (all(c("sand", "gravel") %in% p) & any(c("silt", "clay") %in% p))) {
     cat <- "Sand and Gravel (Dirty)"
 
-  # Sand or Gravel Till or Diamicton
+    # Sand or Gravel Till or Diamicton
   } else if(
     sg_till |
     (any(p %in% c("till", "clay")) & (any_sand | any_gravel)) |
@@ -899,23 +749,23 @@ lith_categorize <- function(p, s, t) {
     ("compact" %in% p & (any(c("sand", "gravel") %in% c(p, s))))) {
     cat <- "Sand or Gravel Till or Diamicton"
 
-  # Silty clay
+    # Silty clay
   } else if(
     ((length(t) == 1 && t == "silt") ||
-    (length(s) == 1 && s == "silt")) &&
+     (length(s) == 1 && s == "silt")) &&
     length(p) == 1 && p == "clay") {
     cat <- "Clay"
 
-  # Clay and Till
+    # Clay and Till
   } else if(
     any(p %in% c("till", "hardpan", "hard earth")) |
     (any(c("silt", "clay") %in% p) & "till" %in% c(s, t)) |
     ("compact" %in% p & any(c("silt", "clay") %in% c(p, s, t))) |
     all(c("silt", "clay") %in% unique(c(p, t, s)))
-    ) {
+  ) {
     cat <- "Medium to Clay Till or Diamicton"
 
-  # Sand and Fines
+    # Sand and Fines
   } else if((any(p %in% "sand") & dirty) |
             all(c("sand", "silt") %in% p)) {
     cat <- "Sand and Fines"
