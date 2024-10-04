@@ -69,10 +69,11 @@ fix_leading_zero <- function(x) {
   stringr::str_replace_all(x, "(?<!\\d)(\\.\\d+)", "0\\1")
 }
 
+
 # File names - https://stackoverflow.com/a/56276939
 aq_dt <- function(data, filename = NULL, minimal = FALSE) {
   if(minimal) {
-    opts <- list(dom = "t")
+    opts <- list(dom = "tp")
     ext <- list()
   } else {
     filename <- paste0(filename, "-", Sys.Date())

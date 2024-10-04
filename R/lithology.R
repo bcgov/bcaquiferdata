@@ -94,14 +94,17 @@ lith_prep <- function(file) {
   # TODO: Flag these wells? Have a user fix them?
   # e.g., dplyr::filter(data_read("wells"), well_tag_number %in% c(57053, 79230)) |> as.data.frame()
 
-  # Create flags
-
-  l %>%
+  # Arrange and label layers
+  l <- l %>%
     dplyr::arrange(.data$well_tag_number,
                    .data$lithology_from_m, .data$lithology_to_m) %>%
     dplyr::mutate(n = dplyr::n(),
                   rec_no = dplyr::row_number(),
-                  .by = "well_tag_number") %>%
+                  .by = "well_tag_number")
+
+  # Create flags
+
+  l %>%
 
     ## Flags by layer
     dplyr::mutate(
@@ -121,6 +124,16 @@ lith_prep <- function(file) {
       # Flag intermediate layers with `from` == 0
       flag_int_shortform = !.data$flag_int_overrun & .data$rec_no != 1 & .data$rec_no != .data$n &
         (.data$lithology_from_m == 0 | is.na(.data$lithology_from_m)),
+
+      # Flag no thickness thick bottom layers
+      flag_int_bottom =
+        # Last (bottom) record
+        .data$n == .data$rec_no &
+        # Either only one record, or not missing the 'from'
+        (.data$n > 1 | .data$lithology_from_m != 0) &
+        # And missing the 'to' OR 'to' equivalent to 'from'
+        (.data$lithology_to_m == 0 | is.na(.data$lithology_to_m) |
+           .data$lithology_from_m == .data$lithology_to_m),
 
       # Flag missing lithology
       flag_int_missing = is.na(.data$lithology_raw_combined) |
@@ -144,7 +157,7 @@ lith_prep <- function(file) {
 
       # Flag record with overruns (mark the whole record if there are any)
       flag_overruns = any(.data$flag_int_overrun)) %>%
-    dplyr::select(-"missing_all_from", -"missing_all_to") %>%
+    dplyr::select(-"missing_all_from", -"missing_all_to", -"n") %>%
     dplyr::ungroup()
 }
 

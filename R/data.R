@@ -7,6 +7,7 @@
 #' \describe{
 #'   \item{Flag}{flag name}
 #'   \item{Description}{Flag description}
+#'   \item{Solution}{Suggested solution to the problem}
 #' }
 "flags"
 

@@ -4,7 +4,14 @@
 \alias{wells_export}
 \title{Export wells data for use in Strater and Voxler}
 \usage{
-wells_export(wells_sub, id, type, dir = ".", preview = FALSE)
+wells_export(
+  wells_sub,
+  id,
+  type,
+  dir = ".",
+  fix_bottom = TRUE,
+  preview = FALSE
+)
 }
 \arguments{
 \item{wells_sub}{Data frame. Output of \code{wells_elev()}}
@@ -17,9 +24,12 @@ wells_export(wells_sub, id, type, dir = ".", preview = FALSE)
 \item{dir}{Character. Directory where files should be exported to. Defaults
 to working directory.}
 
+\item{fix_bottom}{Logical. Whether to add 1m to bottom lithology layers that
+has no thickness (identified by \code{flat_int_bottom}). Default \code{TRUE}.}
+
 \item{preview}{Logical. Whether to preview the exports (\code{TRUE}, return a list
 of data frames) or to actually export the data (\code{FALSE}, write the
-necessary files to the \code{dir} folder.}
+necessary files to the \code{dir} folder, default).}
 }
 \value{
 If \code{preview = FALSE}, a vector of file names, if \code{preview = TRUE},

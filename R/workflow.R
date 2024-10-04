@@ -308,3 +308,26 @@ wells_yield <- function(wells_sub) {
     dplyr::mutate(flag_yield = tidyr::replace_na(.data$flag_yield, FALSE))
 }
 
+
+
+#' Fix the depth of the final layer if missing
+#'
+#' The `flag_int_bottom` flag identifies the bottom layer if it is depthless,
+#' but otherwise okay. Fixing these layers means adding 1m to them and to the
+#' final depth of the well.
+#'
+#' @param wells_sub The subsetted wells data frame (combined with lithology)
+#'
+#' @return Fixed wells_sub data frame
+#' @noRd
+fix_bottom_layers <- function(wells_sub) {
+
+  w <- which(wells_sub$flag_int_bottom)
+
+  wells_sub$lithology_to_m[w] <- wells_sub$lithology_to_m[w] + 1
+  wells_sub$lithology_to_ft_bgl[w] <- wells_sub$lithology_to_ft_bgl[w] + 3.28084
+  wells_sub$well_depth_m[w] <- wells_sub$well_depth_m[w] + 1
+  wells_sub$finished_well_depth_ft_bgl[w] <- wells_sub$finished_well_depth_ft_bgl[w] + 3.28084
+
+  wells_sub
+}
