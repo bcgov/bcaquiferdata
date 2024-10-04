@@ -13,12 +13,19 @@
 # limitations under the License.
 
 
-# Check version        ---------------------------
+# Check version -------------------------------
 
 # Update the app helpfiles -----------------------
 # - inst/extra_docs/lithology_desc.md
 
 # Update NEWS ------------------------------------
+file.edit("NEWS.md")
+
+# Update WORKFLOW AND DESIGN
+file.edit("WORKFLOW AND DESIGN.md")
+
+# Update CODE_DESIGN
+file.edit("CODE_DESIGN.md")
 
 # Update Datasets --------------------------------
 data_update()
@@ -49,10 +56,12 @@ usethis::use_github_release()
 
 
 # Preview website - "Real" version run as GitHub action -----------------
+# **BUILD PACKAGE FIRST!!!**
 pkgdown::build_site()
 pkgdown::build_site(lazy = TRUE)
 pkgdown::build_article("articles/shiny_apps")
 pkgdown::build_article("bcaquiferdata")
+pkgdown::build_article("flags")
 
 # Preview app -----------------------------------------------------------
 aq_app()
