@@ -37,7 +37,6 @@ lith_fix <- function(desc = NULL) {
 
   # Initial cleanup -----------------------------------------------------------
   lith_desc <- dplyr::tibble(lithology_raw_combined = desc) %>%
-    # Convert to metric
     dplyr::mutate(
       lithology_raw_combined = stringr::str_to_lower(.data$lithology_raw_combined),
       lithology_raw_combined = stringr::str_remove(.data$lithology_raw_combined,
