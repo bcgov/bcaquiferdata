@@ -24,14 +24,20 @@
 #' lith_prep(file.path(cache_dir(), "GWELLS/lithology.csv"))
 #'
 #' @noRd
-lith_prep <- function(file) {
+lith_prep <- function(file = NULL) {
+  if(is.null(file)) file.path(cache_dir(), "GWELLS/lithology.csv")
 
   l <- file %>%
     readr::read_csv(guess_max = Inf, show_col_types = FALSE, progress = FALSE) %>%
     janitor::clean_names() %>%
 
+    # Replace NA with 0 -
+    # TODO: Here treat zeros and NAs the same... Okay?
+    dplyr::mutate(dplyr::across(dplyr::matches("from|to"), \(x) tidyr::replace_na(x, 0))) %>%
+
     # Convert to metric
-    convert_m(pattern = c("ft_bgl" = "m"))  %>%
+    convert_m(cols = c("lithology_from_m" = "lithology_from_ft_bgl",
+                       "lithology_to_m" = "lithology_to_ft_bgl"))  %>%
 
    # Collect and combine lithology descriptions
     lith_desc_combine() %>%
@@ -57,15 +63,11 @@ lith_prep <- function(file) {
 
 
 # Convert to metric
-convert_m <- function(data, pattern, digits = 2) {
-  dplyr::mutate(
-    data,
-    dplyr::across(
-      .cols = dplyr::matches(names(pattern)),
-      .fns = \(x) round(x * 0.3048, digits),
-      .names = "{stringr::str_replace_all(.col, pattern)}"
-    )
-  )
+convert_m <- function(data, cols, digits = 2) {
+  dplyr::mutate(data,
+                dplyr::across(.cols = dplyr::all_of(cols),
+                              .fns = \(x) round(x * 0.3048, digits),
+                              .names = "{names(cols)}"))
 }
 
 lith_desc_combine <- function(lith) {

@@ -1,16 +1,28 @@
+# Mini GWELLs Wells ----------------------------------------------
+# For testing wells_clean()
+
+# Get the data
+f <- file.path(cache_dir(), "GWELLS/well.csv")
+if(!file.exists(f)) fetch_gwells()
+
+# Bundle subset of data
+writeLines(
+  readLines(f, n = 100),
+  file.path("inst", "extdata", "test_gwells_wells.csv")
+)
+
 # Mini GWELLs lithology ----------------------------------------------
 # For testing lith_prep()
 
-# Downloaded the data already
+# Get the data
 f <- file.path(cache_dir(), "GWELLS/lithology.csv")
 if(!file.exists(f)) fetch_gwells()
 
-# Bundle 50 lines of data
+# Bundle subset of data
 writeLines(
   readLines(f, n = 3000)[c(1, 2933:3000)],
   file.path("inst", "extdata", "test_gwells_lithology.csv")
 )
-
 
 # Expected lithology categories --------------------------------------------
 #  For testing lith_fix()

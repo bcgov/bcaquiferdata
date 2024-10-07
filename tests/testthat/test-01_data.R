@@ -12,6 +12,12 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
+test_that("clean_wells()", {
+  f <- system.file("extdata", "test_gwells_wells.csv", package = "bcaquiferdata")
+  expect_silent(w <- clean_wells(file = f))
+  expect_true(all(c("well_depth_m", "water_depth_m") %in% names(w)))
+})
+
 test_that("wells", {
   skip_if(!file.exists(m <- test_path("../../misc/data/Clinton_Creek.shp")))
   creek_sf <- sf::st_read(m, quiet = TRUE)

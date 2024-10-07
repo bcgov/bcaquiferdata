@@ -145,23 +145,24 @@ fetch_gwells <- function() {
   unlink(file.path(cache_dir(), "GWELLS", "gwells.zip"))
 }
 
-clean_wells <- function(file = "GWELLS/well.csv") {
-  readr::read_csv(file.path(cache_dir(), file),
-                  guess_max = Inf, show_col_types = FALSE) %>%
+clean_wells <- function(file = NULL) {
+  if(is.null(file)) file <- file.path(cache_dir(), "GWELLS/well.csv")
+  readr::read_csv(file, guess_max = Inf, show_col_types = FALSE) %>%
     janitor::clean_names() %>%
     dplyr::filter(!is.na(.data$latitude_decdeg),
                   !is.na(.data$longitude_decdeg)) %>%
-    dplyr::mutate(
-      water_depth_m = round(.data$static_water_level_ft_btoc * 0.3048, 1),
-      well_depth_m = round(.data$finished_well_depth_ft_bgl * 0.3048, 1)) %>%
+    # Convert to metric
+    convert_m(cols = c("well_depth_m" = "finished_well_depth_ft_bgl",
+                       "water_depth_m" = "static_water_level_ft_btoc"),
+              digits = 1) %>%
     dplyr::select(dplyr::all_of(fields_wells))
 }
 
 
-clean_lithology <- function(file = "GWELLS/lithology.csv") {
+clean_lithology <- function() {
 
   message("Lithology - Cleaning")
-  l_prep <- lith_prep(file.path(cache_dir(), file))
+  l_prep <- lith_prep()
 
   message("Lithology - Standardizing")
   l_std <- lith_fix(l_prep$lithology_raw_combined)
