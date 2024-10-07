@@ -20,8 +20,6 @@
 #'   to working directory.
 #' @param type Character. Format in which to export. One of "strater", "voxler",
 #'   "archydro", "leapfrog", or "surfer" (case-insensitive).
-#' @param fix_bottom Logical. Whether to add 1m to bottom lithology layers that
-#'   has no thickness (identified by `flat_int_bottom`). Default `TRUE`.
 #' @param preview Logical. Whether to preview the exports (`TRUE`, return a list
 #'   of data frames) or to actually export the data (`FALSE`, write the
 #'   necessary files to the `dir` folder, default).
@@ -64,8 +62,7 @@
 #' wells_export(creek_wells, id = "clinton", type = "surfer")
 
 
-wells_export <- function(wells_sub, id, type, dir = ".",
-                         fix_bottom = TRUE, preview = FALSE) {
+wells_export <- function(wells_sub, id, type, dir = ".", preview = FALSE) {
 
   # TODO: Checks
   # Check for elev and well tag number etc.
@@ -92,9 +89,6 @@ wells_export <- function(wells_sub, id, type, dir = ".",
   wells_sub <- wells_sub %>%
     dplyr::bind_cols(as.data.frame(sf::st_coordinates(.))) %>%
     sf::st_drop_geometry()
-
-
-  if(fix_bottom) wells_sub <- fix_bottom_layers(wells_sub)
 
   # Export with appropriate function
   get(paste0("export_", type))(wells_sub, id, dir, preview)

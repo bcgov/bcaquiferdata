@@ -118,6 +118,8 @@ dem_region <- function(region, type = "lidar", buffer = 1,
 #'
 #' Filter the GWELLS data returning only wells within the provided shapefile.
 #'
+#' @param fix_bottom Logical. Whether to add 1m to bottom lithology layers that
+#'   has no thickness (identified by `flat_int_bottom`). Default `TRUE`.
 #' @inheritParams common_docs
 #'
 #' @examplesIf interactive()
@@ -131,7 +133,7 @@ dem_region <- function(region, type = "lidar", buffer = 1,
 #' creek_wells <- wells_subset(creek_sf)
 #'
 #' @export
-wells_subset <- function(region, update = FALSE) {
+wells_subset <- function(region, fix_bottom = TRUE, update = FALSE) {
 
   if(!"sf" %in% class(region)) {
     stop("'region' must be an sf spatial object (see examples)",
@@ -145,7 +147,8 @@ wells_subset <- function(region, update = FALSE) {
     sf::st_filter(region) %>%
     dplyr::left_join(
       data_read("lithology") |> dplyr::select(-"well_yield_unit_code"),
-      by = "well_tag_number") #by = c("well_tag_number", "well_yield_unit_code"))
+      by = "well_tag_number") |>
+    fix_bottom_layers(fix = fix_bottom)
 }
 
 
@@ -320,14 +323,29 @@ wells_yield <- function(wells_sub) {
 #'
 #' @return Fixed wells_sub data frame
 #' @noRd
-fix_bottom_layers <- function(wells_sub) {
+fix_bottom_layers <- function(wells_sub, fix = TRUE) {
+
+  wells_sub$flag_int_bottom_fixed <- FALSE
 
   w <- which(wells_sub$flag_int_bottom)
+  problems <- unique(wells_sub$well_tag_number[w]) |> paste0(collapse = ", ")
 
-  wells_sub$lithology_to_m[w] <- wells_sub$lithology_to_m[w] + 1
-  wells_sub$lithology_to_ft_bgl[w] <- wells_sub$lithology_to_ft_bgl[w] + 3.28084
-  wells_sub$well_depth_m[w] <- wells_sub$well_depth_m[w] + 1
-  wells_sub$finished_well_depth_ft_bgl[w] <- wells_sub$finished_well_depth_ft_bgl[w] + 3.28084
+  if(fix) {
+    message("Fixing wells with a bottom lithology layer of zero thickness: ",
+            problems)
+
+    wells_sub$lithology_to_m[w] <- wells_sub$lithology_to_m[w] + 1
+    wells_sub$lithology_to_ft_bgl[w] <- wells_sub$lithology_to_ft_bgl[w] + 3.28084
+    wells_sub$well_depth_m[w] <- wells_sub$well_depth_m[w] + 1
+    wells_sub$finished_well_depth_ft_bgl[w] <- wells_sub$finished_well_depth_ft_bgl[w] + 3.28084
+    wells_sub$flag_int_bottom_fixed[w] <- TRUE
+
+  } else if(length(w) > 0) {
+    message("Some wells have a bottom lithology layer of zero thickness.\n",
+            "Consider either using `fix_bottom = TRUE` in `wells_subset()` or ",
+            "fixing the original record in GWELLS\n",
+            "Wells: ", problems)
+  }
 
   wells_sub
 }

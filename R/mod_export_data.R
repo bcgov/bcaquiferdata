@@ -20,8 +20,6 @@ ui_export_data <- function(id) {
     title = "Exports",
     navset_card_pill(
       sidebar = sidebar(
-        radioButtons(ns("fix_bottom"), label = "Fix zero-depth bottom layers",
-                     choices = c("Yes" = TRUE, "No" = FALSE)),
         textInput(ns("export_id"), h4("ID for export files"), value = "xxx"),
         p(),
         h4("Output folder"),
@@ -122,8 +120,7 @@ server_export_data <- function(id, wells) {
     observe_export <- function(type) {
       observe({
         req(!is.na(export_dir()))
-        wells_export(wells(), id = export_id(), type = type, dir = export_dir(),
-                     fix_bottom = input$fix_bottom)
+        wells_export(wells(), id = export_id(), type = type, dir = export_dir())
         feedback[[type]] <- paste(stringr::str_to_title(type), "files exported")
       }) %>%
         bindEvent(input[[paste0("export_", type)]])
@@ -182,11 +179,11 @@ server_export_data <- function(id, wells) {
     output$surfer_f1 <- renderText(files()[10])
 
     # Export previews ---------------
-    exp_strater <- reactive(wells_export(wells(), type = "strater", preview = TRUE, fix_bottom = input$fix_bottom))
-    exp_voxler <- reactive(wells_export(wells(), type = "voxler", preview = TRUE, fix_bottom = input$fix_bottom))
-    exp_archydro <- reactive(wells_export(wells(), type = "archydro", preview = TRUE, fix_bottom = input$fix_bottom))
-    exp_leapfrog <- reactive(wells_export(wells(), type = "leapfrog", preview = TRUE, fix_bottom = input$fix_bottom))
-    exp_surfer <- reactive(wells_export(wells(), type = "surfer", preview = TRUE, fix_bottom = input$fix_bottom))
+    exp_strater <- reactive(wells_export(wells(), type = "strater", preview = TRUE))
+    exp_voxler <- reactive(wells_export(wells(), type = "voxler", preview = TRUE))
+    exp_archydro <- reactive(wells_export(wells(), type = "archydro", preview = TRUE))
+    exp_leapfrog <- reactive(wells_export(wells(), type = "leapfrog", preview = TRUE))
+    exp_surfer <- reactive(wells_export(wells(), type = "surfer", preview = TRUE))
 
     output$table_strater_f1 <- DT::renderDataTable({
       aq_dt(exp_strater()[[1]], minimal = TRUE)})
