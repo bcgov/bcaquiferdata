@@ -20,17 +20,16 @@ flags <- dplyr::tribble(
   # General record
   "flag_int_missing", "Interval missing lithologic record", "Check original paper log",
   "flag_int_overlap", "Interval which overlaps with the next or previous interval", "Check original paper log, or fix in GWELLS if obvious",
-  "flag_int_gap", "Interval which has a gap between it and the next or preivous interval", "Check original paper log, or fix in GWELLS if obvious",
-  "flag_int_overrun", "Interval that has a depth of 0/`NA` to 0/`NA` (marks an interval as a possible overrun, where the notes from a previous record have overrun onto the next line)", "Check original paper log",
-  "flag_int_shortform", paste0("Interval which is not the first nor the last but has a `from` of 0/`NA` and a non-missing `to`. ",
+  "flag_int_gap", "Interval which has a gap between it and the next or previous interval", "Check original paper log, or fix in GWELLS if obvious",
+  "flag_int_note", "Interval at the start with to/from of 0/`NA` which marks possible notes made before the lithology records", "Check original paper log",
+  "flag_int_overrun", "Interval (not at the start) that has a depth of 0/`NA` to 0/`NA` (marks an interval as a possible overrun, where the notes from a previous record have overrun onto the next line)", "Check original paper log",
+  "flag_int_shortform", paste0("Interval which is not the first and has a `from` of 0/`NA` and a non-missing `to`. ",
                                "Often (but not always), this indicates that the record was entered in short hand, by omitting `from` and only inputing the `to`s."),
-                               "If reasonable, fix `from` to be preceeding `to` in GWELLS",
+                               "Check original paper log; OR, If reasonable, fix `from` to be preceeding `to` in GWELLS",
+  "flag_int_bottom", "Bottom interval with zero depth. Either because `to` is 0/`NA` or because `to` == `from`.", "Use `fix_bottom` argument in `wells_subset()` to add 1m to this bottom interval (this is the default).",
 
   "flag_overruns", "Well with at least one overrunning interval (`flag_int_overrun` with missing depths).", "Check original paper log",
-
-  "flag_bottom_unit", paste0("Well where all `from` depths are 0/`NA` but `to` depths are generally present. ",
-                             "Possibly indicates that the original log shows only the bottom of a unit"), "Check original paper log",
-  "flag_no_depths", "All lithologic intervals have depths of 0 or missing (`from` and `to`)", "Check original paper log",
+  "flag_no_depths", "All lithologic intervals have depths of 0/`NA` (`from` and `to`)", "Check original paper log",
 
   # Lithology categories
   "flag_bedrock", "Interval where Bedrock occurs with any other primary term", "Fix in GWELLS",
