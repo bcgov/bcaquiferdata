@@ -28,8 +28,9 @@ flags <- dplyr::tribble(
                                "Check original paper log; OR, If reasonable, fix `from` to be preceeding `to` in GWELLS",
   "flag_int_bottom", "Bottom interval with zero depth. Either because `to` is 0/`NA` or because `to` == `from`.", "Use `fix_bottom` argument in `wells_subset()` to add 1m to this bottom interval (this is the default).",
 
-  "flag_overruns", "Well with at least one overrunning interval (`flag_int_overrun` with missing depths).", "Check original paper log",
-  "flag_no_depths", "All lithologic intervals have depths of 0/`NA` (`from` and `to`)", "Check original paper log",
+  "flag_lith_overruns", "Well with at least one overrunning interval (`flag_int_overrun` with missing depths).", "Check original paper log",
+  "flag_lith_nodepths", "All lithologic intervals have depths of 0/`NA` (`from` and `to`)", "Check original paper log",
+  "flag_lith_missing", "No lithologic record for this well", "",
 
   # Lithology categories
   "flag_bedrock", "Interval where Bedrock occurs with any other primary term", "Fix in GWELLS",

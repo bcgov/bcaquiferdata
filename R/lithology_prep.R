@@ -185,15 +185,17 @@ lith_flags_well <- function(lith) {
     dplyr::mutate(
 
       # Flag lithology where no depths
-      flag_no_depths = all(.data$lithology_from_m == 0) & all(.data$lithology_to_m == 0),
+      flag_lith_nodepths = all(.data$lithology_from_m == 0) & all(.data$lithology_to_m == 0),
 
       # Flag record with overruns (mark the whole record if there are any)
-      flag_overruns = any(.data$flag_int_overrun)
+      flag_lith_overruns = any(.data$flag_int_overrun)
     ) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
       # Flag any interval related flags
-      flag_intervals = any(dplyr::c_across(dplyr::starts_with("flag_int_")))
+      flag_lith_intervals = any(dplyr::c_across(dplyr::starts_with("flag_int_")))
       ) %>%
     dplyr::ungroup()
+
+  # Final flag_lith_missing is applied in wells_subset() when combining with the wells data
 }
