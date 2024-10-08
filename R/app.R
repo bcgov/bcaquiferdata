@@ -80,7 +80,8 @@ aq_theme <- function() {
 }
 
 
-mod_test <- function(which) {
+mod_test <- function(which, data = "fixed") {
+  if(data == "fixed") d <- "misc/mills_fixed.rds" else d <- "misc/mills_unfixed.rds"
   ui <- tagList(
     page_navbar(
       title = "BC Aquifer Data",
@@ -96,7 +97,7 @@ mod_test <- function(which) {
     } else if(which == "wells") {
       server_wells("wells", reactive(TRUE))
     } else {
-      wells <- reactive(readr::read_rds("misc/mills.rds"))
+      wells <- reactive(readr::read_rds(d))
       get(paste0("server_", which))(which, wells)
     }
   }

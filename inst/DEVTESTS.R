@@ -28,11 +28,17 @@ data_update(download = FALSE)
 
 
 # Shiny tests -----------------------------
+# Make sure the test data is up-to-date
+source("data-raw/test_data.R")
 
 # Test app
 aq_app()
 
+# Test modules
+mod_test("wells")
+
 mod_test("export_data")
+mod_test("export_data", data = "unfixed")
 
 
 
