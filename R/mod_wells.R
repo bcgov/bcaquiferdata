@@ -23,10 +23,8 @@ ui_wells <- function(id) {
         h4("Prepare data"),
         p("Filter GWELLs to watershed area and use Lidar or TRIM digital ",
         "elevation models to calculate well elevation"),
-
-        uiOutput(ns("data_warning")),
-        uiOutput(ns("elev_warning")),
-        p(),
+        p(uiOutput(ns("data_warning"), inline = TRUE), br(),
+          uiOutput(ns("elev_warning"), inline = TRUE)),
         fileInput(
           ns("spatial_file"),
           label = paste0("Choose shape file(s) defining a watershed area ",
@@ -63,11 +61,11 @@ server_wells <- function(id, have_data) {
     # warnings -------------------------------------
     output$data_warning <- renderUI({
       if(have_data()) {
-        w <- tagList(icon("check", style = "color:lightgreen;"),
-                     "Wells Data Available")
+        w <- tagList(span(icon("check", style = "color:lightgreen;"),
+                          "Wells Data Available"))
       } else {
-        w <- tagList(icon("x", style = "color:red;"),
-                     "Wells Data Not Available (see Download Data tab)")
+        w <- tagList(span(icon("x", style = "color:red;"),
+                          "Wells Data Not Available (see Download Data tab)"))
       }
       w
     })
@@ -75,11 +73,11 @@ server_wells <- function(id, have_data) {
     output$elev_warning <- renderUI({
       req(input$dem_combo)
       if(stringr::str_detect(input$dem_combo, "_")) {
-        w <- tagList(icon("triangle-exclamation", style = "color:orange;"),
-                     "Multiple Elevation Sources (use caution)")
+        w <- tagList(span(icon("triangle-exclamation", style = "color:orange;"),
+                          "Multiple Elevation Sources (use caution)"))
       } else {
-        w <- tagList(icon("check", style = "color:lightgreen;"),
-                     "Single Elevation Source")
+        w <- tagList(span(icon("check", style = "color:lightgreen;"),
+                          "Single Elevation Source"))
       }
       w
 
