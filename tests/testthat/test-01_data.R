@@ -36,8 +36,8 @@ test_that("wells", {
 
 })
 
-test_that("fix_bottom_layers", {
-  expect_silent(m2 <- fix_bottom_layers(mill_elev))
+test_that("fix_bottom_intervals", {
+  expect_silent(m2 <- fix_bottom_intervals(mill_elev))
   expect_equal(m2$lithology_to_m[m2$flag_int_bottom],
                mill_elev$lithology_to_m[mill_elev$flag_int_bottom] + 1)
   expect_equal(m2$well_depth_m[m2$flag_int_bottom],

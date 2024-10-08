@@ -10,7 +10,7 @@ wells_subset(region, fix_bottom = TRUE, update = FALSE)
 \item{region}{sf simple features object. Shape file of the region of
 interest.}
 
-\item{fix_bottom}{Logical. Whether to add 1m to bottom lithology layers that
+\item{fix_bottom}{Logical. Whether to add 1m to bottom lithology intervals that
 has no thickness (identified by \code{flat_int_bottom}). Default \code{TRUE}.}
 
 \item{update}{Logical. Force update of the data?}

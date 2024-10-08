@@ -37,6 +37,9 @@ ui_wells <- function(id) {
           choiceNames = list("Lidar", span("TRIM", style = "margin-right:150px"),
                              "Lidar with TRIM", "TRIM with Lidar"),
           choiceValues = c("lidar", "trim", "lidar_trim", "trim_lidar")),
+        radioButtons(
+          ns("fix_bottom"), strong("Fix zero-width bottom lithology intervals?"), inline = TRUE,
+          choices = list("Yes" = TRUE, "No" = FALSE)),
         h4("Messages"),
         verbatimTextOutput(ns("messages"), placeholder = TRUE)
       ),
@@ -227,7 +230,7 @@ server_wells <- function(id, have_data) {
 
       withCallingHandlers({
         message("Wells - Start")
-        w <- wells_subset(watershed()) %>%
+        w <- wells_subset(watershed(), fix_bottom = input$fix_bottom) %>%
           wells_elev(dem1(), dem2())
         message("Wells - Done")
       },
@@ -238,7 +241,7 @@ server_wells <- function(id, have_data) {
       removeNotification(id)
       w
     }) %>%
-      bindCache(input$spatial_file, input$dem_combo)
+      bindCache(input$spatial_file, input$dem_combo, input$fix_bottom)
 
     # wells table -------------------------------
     output$wells_table <- DT::renderDataTable({

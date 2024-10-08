@@ -23,3 +23,16 @@ and `elev` to the combined (primary, supplemented with secondary where data is m
 
 In the map, the *primary* source of data is outlined in black to make visual
 comparisons simpler.
+
+**Zero-width bottom lithology intervals**
+
+Occasionally, the lithology record for a well may have a zero-width bottom interval
+which occurs when the drillers hit bedrock, noted what they hit and stopped drilling,
+marking the start and end of the intervals as the same depth 
+(intervals with this problem are identified by `flag_int_bottom = TRUE`).
+
+This can cause problems when trying to use lithology in other software (such as LeapFrog).
+We can fix this by adding 1m to the end depth where this occurs 
+(intervals fixed this way have `fix_int_bottom = TRUE`). 
+
+Note that when exporting to LeapFrog this fix occurs automatically (with a message) as it is a requirement of the software.

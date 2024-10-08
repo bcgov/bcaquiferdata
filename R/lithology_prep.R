@@ -45,7 +45,7 @@ lith_prep <- function(file = NULL) {
     # Find duplicates and log them
     lith_duplicates() %>%
 
-    # Arrange and label layers
+    # Arrange and label intervals
     dplyr::arrange(.data$well_tag_number,
                    .data$lithology_from_m, .data$lithology_to_m) %>%
     dplyr::mutate(n = dplyr::n(),
@@ -157,12 +157,12 @@ lith_flags_interval <- function(lith) {
       .data$rec_no != 1,
     flag_int_gap = .data$flag_int_gap | dplyr::lead(.data$flag_int_gap, default = FALSE),
 
-    # Flag intermediate layers with `from` == 0
+    # Flag intermediate intervals with `from` == 0
     flag_int_shortform = !.data$flag_int_overrun & .data$rec_no != 1 & # .data$rec_no != .data$n &
       !dplyr::lag(.data$flag_int_note, default = FALSE) &
       (.data$lithology_from_m == 0 | is.na(.data$lithology_from_m)),
 
-    # Flag no thickness thick bottom layers
+    # Flag no thickness thick bottom intervals
     flag_int_bottom =
       # Last (bottom) record
       .data$n == .data$rec_no &
