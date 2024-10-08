@@ -43,7 +43,7 @@
             {
               "type": "double",
               "attributes": {},
-              "value": [3.66, 121.92, 3.66, 154.53, 56.39, 74.68, 129.54, 154.53, 1.52, 190.5, 12.19, 190.5, 4.88, 93.57, 15.24, 51.82, 68.58, 93.57, 0.91, 3.66, 12.19, 14.94, 18.59, 19.2, 0.61, 1.07, 6.4, 31.7, 35.66, 7.01, 60.96]
+              "value": [3.66, 121.92, 3.66, 154.53, 56.39, 74.68, 129.54, 155.53, 1.52, 190.5, 12.19, 191.5, 4.88, 93.57, 15.24, 51.82, 68.58, 94.57, 0.91, 3.66, 12.19, 14.94, 18.59, 19.2, 0.61, 1.07, 6.4, 31.7, 35.66, 7.01, 60.96]
             },
             {
               "type": "character",
@@ -53,7 +53,7 @@
             {
               "type": "character",
               "attributes": {},
-              "value": ["overburden  ", "bedrock  ", "brown silty gravel silty gravel", "bedrock  bedrock", "185 feet - 1.5 gpm  ", "245 (m) 1.5 gpm  ", "425 feet 1 3/4 gpm  ", "507 feet 1 3/4 gpm  ", "silty gravel silty gravel", "bedrock solid  bedrock", "1 gpm at 40 feet  ", "1 gpm at 625  ", "silty clay, some gravels silty clay", "bedrock, green  bedrock", "50 feet - 1 gpm  ", "170 feet - 4 gpm  ", "225 feet - 2 gpm  ", "307 feet - 4 gpm  ", "black top soil  ", "grey sand and gravel  ", "fine t0 medium brown sand and gravel wet 3 gpm  ", "brown clay  ", "coarse brown sand and gravel 30 gpm  ", "bedrock  ", "bentonite and soil  ", "concrete  ", "bentonite chips  ", "3.5 feet bentonite to 17 feet of pea gravel  ", "bentonite  ", "sand,clay, silt, gravel  ", "bedrock  "]
+              "value": ["overburden", "bedrock", "brown silty gravel silty gravel", "bedrock bedrock", "185 feet - 1.5 gpm", "245 (m) 1.5 gpm", "425 feet 1 3/4 gpm", "507 feet 1 3/4 gpm", "silty gravel silty gravel", "bedrock solid bedrock", "1 gpm at 40 feet", "1 gpm at 625", "silty clay, some gravels silty clay", "bedrock, green bedrock", "50 feet - 1 gpm", "170 feet - 4 gpm", "225 feet - 2 gpm", "307 feet - 4 gpm", "black top soil", "grey sand and gravel", "fine t0 medium brown sand and gravel wet 3 gpm", "brown clay", "coarse brown sand and gravel 30 gpm", "bedrock", "bentonite and soil", "concrete", "bentonite chips", "3.5 feet bentonite to 17 feet of pea gravel", "bentonite", "sand,clay, silt, gravel", "bedrock"]
             }
           ]
         },
@@ -100,7 +100,7 @@
             {
               "type": "double",
               "attributes": {},
-              "value": [3.66, 121.92, 154.53, 3.66, 154.53, 74.68, 129.54, 56.39, 190.5, 1.52, 190.5, 12.19, 15.24, 51.82, 4.88, 68.58, 93.57, 93.57, 19.2, 3.66, 18.59, 14.94, 12.19, 0.91, 0.61, 35.66, 31.7, 1.07, 6.4, 7.01, 60.96]
+              "value": [3.66, 121.92, 154.53, 3.66, 155.53, 74.68, 129.54, 56.39, 191.5, 1.52, 190.5, 12.19, 15.24, 51.82, 4.88, 68.58, 93.57, 94.57, 19.2, 3.66, 18.59, 14.94, 12.19, 0.91, 0.61, 35.66, 31.7, 1.07, 6.4, 7.01, 60.96]
             },
             {
               "type": "double",
@@ -266,7 +266,7 @@
             {
               "type": "double",
               "attributes": {},
-              "value": [121.9, 121.9, 154.5, 154.5, 154.5, 154.5, 154.5, 154.5, 190.5, 190.5, 190.5, 190.5, 93.6, 93.6, 93.6, 93.6, 93.6, 93.6, 19.2, 19.2, 19.2, 19.2, 19.2, 19.2, "NA", "NA", "NA", "NA", "NA", 61.1, 61.1]
+              "value": [121.9, 121.9, 154.5, 154.5, 154.5, 154.5, 154.5, 155.5, 190.5, 190.5, 190.5, 191.5, 93.6, 93.6, 93.6, 93.6, 93.6, 94.6, 19.2, 19.2, 19.2, 19.2, 19.2, 19.2, "NA", "NA", "NA", "NA", "NA", 61.1, 61.1]
             }
           ]
         },
@@ -365,7 +365,7 @@
             {
               "type": "double",
               "attributes": {},
-              "value": [3.66, 121.92, 3.66, 154.53, 56.39, 74.68, 129.54, 154.53, 1.52, 190.5, 12.19, 190.5, 4.88, 93.57, 15.24, 51.82, 68.58, 93.57, 0.91, 3.66, 12.19, 14.94, 18.59, 19.2, 0.61, 1.07, 6.4, 31.7, 35.66, 7.01, 60.96]
+              "value": [3.66, 121.92, 3.66, 154.53, 56.39, 74.68, 129.54, 155.53, 1.52, 190.5, 12.19, 191.5, 4.88, 93.57, 15.24, 51.82, 68.58, 94.57, 0.91, 3.66, 12.19, 14.94, 18.59, 19.2, 0.61, 1.07, 6.4, 31.7, 35.66, 7.01, 60.96]
             },
             {
               "type": "double",
@@ -442,7 +442,7 @@
             {
               "type": "double",
               "attributes": {},
-              "value": [121.9, 121.9, 154.5, 154.5, 154.5, 154.5, 154.5, 154.5, 190.5, 190.5, 190.5, 190.5, 93.6, 93.6, 93.6, 93.6, 93.6, 93.6, 19.2, 19.2, 19.2, 19.2, 19.2, 19.2, "NA", "NA", "NA", "NA", "NA", 61.1, 61.1]
+              "value": [121.9, 121.9, 154.5, 154.5, 154.5, 154.5, 154.5, 155.5, 190.5, 190.5, 190.5, 191.5, 93.6, 93.6, 93.6, 93.6, 93.6, 94.6, 19.2, 19.2, 19.2, 19.2, 19.2, 19.2, "NA", "NA", "NA", "NA", "NA", 61.1, 61.1]
             }
           ]
         },
@@ -479,7 +479,7 @@
             {
               "type": "double",
               "attributes": {},
-              "value": [3.66, 121.92, 3.66, 154.53, 56.39, 74.68, 129.54, 154.53, 1.52, 190.5, 12.19, 190.5, 4.88, 93.57, 15.24, 51.82, 68.58, 93.57, 0.91, 3.66, 12.19, 14.94, 18.59, 19.2, 0.61, 1.07, 6.4, 31.7, 35.66, 7.01, 60.96]
+              "value": [3.66, 121.92, 3.66, 154.53, 56.39, 74.68, 129.54, 155.53, 1.52, 190.5, 12.19, 191.5, 4.88, 93.57, 15.24, 51.82, 68.58, 94.57, 0.91, 3.66, 12.19, 14.94, 18.59, 19.2, 0.61, 1.07, 6.4, 31.7, 35.66, 7.01, 60.96]
             },
             {
               "type": "character",
@@ -489,7 +489,7 @@
             {
               "type": "character",
               "attributes": {},
-              "value": ["overburden  ", "bedrock  ", "brown silty gravel silty gravel", "bedrock  bedrock", "185 feet - 1.5 gpm  ", "245 (m) 1.5 gpm  ", "425 feet 1 3/4 gpm  ", "507 feet 1 3/4 gpm  ", "silty gravel silty gravel", "bedrock solid  bedrock", "1 gpm at 40 feet  ", "1 gpm at 625  ", "silty clay, some gravels silty clay", "bedrock, green  bedrock", "50 feet - 1 gpm  ", "170 feet - 4 gpm  ", "225 feet - 2 gpm  ", "307 feet - 4 gpm  ", "black top soil  ", "grey sand and gravel  ", "fine t0 medium brown sand and gravel wet 3 gpm  ", "brown clay  ", "coarse brown sand and gravel 30 gpm  ", "bedrock  ", "bentonite and soil  ", "concrete  ", "bentonite chips  ", "3.5 feet bentonite to 17 feet of pea gravel  ", "bentonite  ", "sand,clay, silt, gravel  ", "bedrock  "]
+              "value": ["overburden", "bedrock", "brown silty gravel silty gravel", "bedrock bedrock", "185 feet - 1.5 gpm", "245 (m) 1.5 gpm", "425 feet 1 3/4 gpm", "507 feet 1 3/4 gpm", "silty gravel silty gravel", "bedrock solid bedrock", "1 gpm at 40 feet", "1 gpm at 625", "silty clay, some gravels silty clay", "bedrock, green bedrock", "50 feet - 1 gpm", "170 feet - 4 gpm", "225 feet - 2 gpm", "307 feet - 4 gpm", "black top soil", "grey sand and gravel", "fine t0 medium brown sand and gravel wet 3 gpm", "brown clay", "coarse brown sand and gravel 30 gpm", "bedrock", "bentonite and soil", "concrete", "bentonite chips", "3.5 feet bentonite to 17 feet of pea gravel", "bentonite", "sand,clay, silt, gravel", "bedrock"]
             }
           ]
         }

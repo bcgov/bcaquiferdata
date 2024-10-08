@@ -124,23 +124,34 @@ y <- wells_yield(mill_wells)
 # Small set of wells with lithology
 mill <- sf::st_read("misc/data/MillBayWatershed.shp")
 mill_lidar <- dem_region(mill)
-mill_wells <- wells_subset(mill)
+mill_wells_fixed <- wells_subset(mill)
+mill_wells_unfixed <- wells_subset(mill, fix = FALSE)
 #mill_yield <- wells_yield(mill_elev) # For getting tag numbers
 
-withr::with_seed(
-  111,
-  {
-    mill_elev <- wells_elev(mill_wells, mill_lidar) |>
-      dplyr::filter(well_tag_number %in% c(
-        921, 84493, 84499, 84498, 86675, 94353, 119112)) |>
-      dplyr::mutate(
-        well_tag_number = as.numeric(paste0("99999999999",
-                                            as.numeric(as.factor(well_tag_number)))),
-        utm_northing = jitter(utm_northing),
-        utm_easting = jitter(utm_easting)) |>
-      sf::st_jitter()
-  })
+withr::with_seed(111, {
+  wells_eg_fixed <- wells_elev(mill_wells_fixed, mill_lidar) |>
+    dplyr::filter(well_tag_number %in% c(
+      921, 84493, 84499, 84498, 86675, 94353, 119112)) |>
+    dplyr::mutate(
+      well_tag_number = as.numeric(paste0("99999999999",
+                                          as.numeric(as.factor(well_tag_number)))),
+      utm_northing = jitter(utm_northing),
+      utm_easting = jitter(utm_easting)) |>
+    sf::st_jitter()
+})
 
 
-usethis::use_data(mill_elev, fields_wells, fields_lith_gwells,
-                  overwrite = TRUE, internal = TRUE)
+withr::with_seed(111, {
+  wells_eg_unfixed <- wells_elev(mill_wells_unfixed, mill_lidar) |>
+    dplyr::filter(well_tag_number %in% c(
+      921, 84493, 84499, 84498, 86675, 94353, 119112)) |>
+    dplyr::mutate(
+      well_tag_number = as.numeric(paste0("99999999999",
+                                          as.numeric(as.factor(well_tag_number)))),
+      utm_northing = jitter(utm_northing),
+      utm_easting = jitter(utm_easting)) |>
+  sf::st_jitter()
+})
+
+usethis::use_data(wells_eg_fixed, wells_eg_unfixed, overwrite = TRUE)
+

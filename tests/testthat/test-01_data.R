@@ -37,9 +37,30 @@ test_that("wells", {
 })
 
 test_that("fix_bottom_intervals", {
-  expect_silent(m2 <- fix_bottom_intervals(mill_elev))
-  expect_equal(m2$lithology_to_m[m2$flag_int_bottom],
-               mill_elev$lithology_to_m[mill_elev$flag_int_bottom] + 1)
-  expect_equal(m2$well_depth_m[m2$flag_int_bottom],
-               mill_elev$well_depth_m[mill_elev$flag_int_bottom] + 1)
+  # Unfix examples
+  w <- wells_eg |>
+    dplyr::select("well_tag_number", dplyr::contains("depth"),
+                  dplyr::contains("lith"), dplyr::contains("flag")) |>
+    sf::st_drop_geometry() |>
+    dplyr::mutate(
+      well_depth_m = dplyr::if_else(flag_int_bottom, well_depth_m - 1, well_depth_m),
+      lithology_to_m = dplyr::if_else(flag_int_bottom, lithology_to_m - 1, lithology_to_m))
+
+  # Fix
+  expect_message(w2 <- fix_bottom_intervals(w), "Fixing wells")
+  expect_equal(w2$lithology_to_m[w2$flag_int_bottom],
+               w$lithology_to_m[w$flag_int_bottom] + 1)
+  expect_equal(w2$well_depth_m[w2$flag_int_bottom],
+               w$well_depth_m[w$flag_int_bottom] + 1)
+  expect_true("fix_int_bottom" %in% names(w2))
+  expect_true(all(w2$fix_int_bottom[w2$flag_int_bottom]))
+
+  # Message only
+  expect_message(w2 <- fix_bottom_intervals(w, fix = FALSE), "Some wells have a bottom")
+  expect_equal(w2$lithology_to_m[w2$flag_int_bottom],
+               w$lithology_to_m[w$flag_int_bottom])
+  expect_equal(w2$well_depth_m[w2$flag_int_bottom],
+               w$well_depth_m[w$flag_int_bottom])
+  expect_true("fix_int_bottom" %in% names(w2))
+  expect_true(all(!w2$fix_int_bottom[w2$flag_int_bottom]))
 })
