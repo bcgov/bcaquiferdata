@@ -19,7 +19,7 @@ lith_tbl <- function(d, colour = TRUE) {
   lith_int <- c("lith_primary", "lith_secondary", "lith_tertiary")
   
   d <- d |>
-    select(-flag_missing_cats) |>
+    select(-"flag_cat_missing") |>
     mutate(across(contains("flag_"), ~if_else(.x, "TRUE", ""))) |>
     gt() |>
     tab_spanner(
@@ -40,10 +40,10 @@ lith_tbl <- function(d, colour = TRUE) {
       lith_secondary = md("2°"),
       lith_tertiary = md("3°"),
       lithology_category = md("**Final Category**<br><small>(`lithology_category`)</small>"),
-      flag_bedrock = "bedrock",
-      flag_boulders = "boulders") |>
+      flag_cat_bedrock = "bedrock",
+      flag_cat_boulders = "boulders") |>
     cols_hide(columns = c("lithology_clean", "lithology_extra", "yield_units",
-                          "flag_boulders", "flag_bedrock"))
+                          "flag_cat_boulders", "flag_cat_bedrock"))
   
   if(colour) {
     d <- d |>
@@ -106,7 +106,7 @@ tribble(
   "lith_primary, lith_secondary, lith_tertiary", "Intermediate categories created from `lithology_clean`", "2. Initial categorizing",
   "lithology_extra", "Extra, potentially important descriptors extracted from the lithology description", "3. Final categorizing",
   "lithology_category", "Final categorized lithology", "3. Final categorizing",
-  "flag_bedrock, flag_boulders, flag_missing_cats", "Columns flagging a particular observation as problematic", "3. Final categorizing") |>
+  "flag_cat_bedrock, flag_cat_boulders, flag_cat_missing", "Columns flagging a particular observation as problematic", "3. Final categorizing") |>
   gt() |>
   tab_style(
     style = cell_text(font = system_fonts(name = "monospace-code")),
