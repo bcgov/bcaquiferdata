@@ -45,7 +45,13 @@ flags <- dplyr::tribble(
   "flag_yield_mismatch", paste0("Lithology where there are both depths and yields, ",
                                 "but the number of yield measures do not match up with the number of depth measures ",
                                 "(thus `yield` and `depths` are NA). This only applies to Hydrostratigraphy."), "Check original paper log",
-  "flag_yield_digits", "Lithology with extra digits which were not converted to a yield or depth. This only applies to Hydrostratigraphy.", "Fix in GWELLS"
+  "flag_yield_digits", "Lithology with extra digits which were not converted to a yield or depth. This only applies to Hydrostratigraphy.", "Fix in GWELLS",
+
+  # Well depth
+  "flag_depth_missing",  "Well missing depth", "Check original paper log",
+  "fix_depth_missing",   "Whether the `flag_depth_missing` problem has been fixed or not (i.e. whether or not Well depth has been set to the non-missing depth of the final lithology interval)", "",
+  "flag_depth_mismatch", "Well where the well depth is not equal to the non-missing depth of the final lithology interval", "Check original paper log",
+
 )
 
 usethis::use_data(flags, internal = FALSE, overwrite = TRUE)

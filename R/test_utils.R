@@ -63,7 +63,7 @@ test_lith_flags <- function(type = "all") {
     8, 0, 20, "secondc layer",
     8, 0, 30, "third layer"
   ) %>%
-    dplyr::mutate(n = dplyr::n(), rec_no = dplyr::row_number(), .by = "well_tag_number")
+    dplyr::mutate(lith_n = dplyr::n(), lith_rec = dplyr::row_number(), .by = "well_tag_number")
 
   n <- switch(
     type,

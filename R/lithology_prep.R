@@ -48,16 +48,13 @@ lith_prep <- function(file = NULL) {
     # Arrange and label intervals
     dplyr::arrange(.data$well_tag_number,
                    .data$lithology_from_m, .data$lithology_to_m) %>%
-    dplyr::mutate(n = dplyr::n(),
-                  rec_no = dplyr::row_number(),
+    dplyr::mutate(lith_n = dplyr::n(),
+                  lith_rec = dplyr::row_number(),
                   .by = "well_tag_number") %>%
 
     # Create flags
     lith_flags_interval() %>%
-    lith_flags_well() %>%
-
-    # Cleanup
-    dplyr::select(-"n")
+    lith_flags_well()
 }
 
 
@@ -138,37 +135,38 @@ lith_duplicates <- function(lith) {
 
 lith_flags_interval <- function(lith) {
   message("Flagging problems in lithology intervals")
+
   dplyr::mutate(
     lith,
 
     # Flag individual, possible overruns - No `from` & No `to` when text takes up multiple record slots
-    flag_int_overrun = .data$lithology_from_m == 0 & .data$lithology_to_m == 0 & .data$rec_no != 1,
+    flag_int_overrun = .data$lithology_from_m == 0 & .data$lithology_to_m == 0 & .data$lith_rec != 1,
 
     # Flag notes
-    flag_int_note = .data$lithology_from_m == 0 & .data$lithology_to_m == 0 & .data$rec_no == 1,
+    flag_int_note = .data$lithology_from_m == 0 & .data$lithology_to_m == 0 & .data$lith_rec == 1,
 
     # Flag overlapping intervals - Non-first `from` < preceeding `to`
-    flag_int_overlap = .data$lithology_from_m != 0 & .data$lithology_from_m < dplyr::lag(.data$lithology_to_m, default = -Inf) & .data$rec_no != 1,
+    flag_int_overlap = .data$lithology_from_m != 0 & .data$lithology_from_m < dplyr::lag(.data$lithology_to_m, default = -Inf) & .data$lith_rec != 1,
     flag_int_overlap = .data$flag_int_overlap | dplyr::lead(.data$flag_int_overlap, default = FALSE),
 
     # Flag gaps between intervals - Non-first `from` > preceeding `to`
     flag_int_gap = .data$lithology_from_m != 0 &
       !dplyr::lag(.data$flag_int_overrun, default = FALSE) &
       .data$lithology_from_m > dplyr::lag(.data$lithology_to_m, default = Inf) &
-      .data$rec_no != 1,
+      .data$lith_rec != 1,
     flag_int_gap = .data$flag_int_gap | dplyr::lead(.data$flag_int_gap, default = FALSE),
 
     # Flag intermediate intervals with `from` == 0
-    flag_int_shortform = !.data$flag_int_overrun & .data$rec_no != 1 & # .data$rec_no != .data$n &
+    flag_int_shortform = !.data$flag_int_overrun & .data$lith_rec != 1 & # .data$lith_rec != .data$lith_n &
       !dplyr::lag(.data$flag_int_note, default = FALSE) &
       (.data$lithology_from_m == 0 | is.na(.data$lithology_from_m)),
 
     # Flag no thickness thick bottom intervals
     flag_int_bottom =
       # Last (bottom) record
-      .data$n == .data$rec_no &
+      .data$lith_n == .data$lith_rec &
       # Either only one record, or not missing the 'from'
-      (.data$n > 1 | .data$lithology_from_m != 0) &
+      (.data$lith_n > 1 | .data$lithology_from_m != 0) &
       # And missing the 'to' OR 'to' equivalent to 'from'
       (.data$lithology_to_m == 0 | is.na(.data$lithology_to_m) |
          .data$lithology_from_m == .data$lithology_to_m),

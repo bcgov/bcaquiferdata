@@ -45,7 +45,7 @@ test_that("lith_fix()", {
   # Flags are consistent
   f <- stringr::str_subset(flags$Flag, "flag_cat_")
   expect_true(all(f %in% names(l)))
-  expect_true(all(stringr::str_subset(names(l), "^flag_|^fix_") %in% f))
+  expect_equal(sort(stringr::str_subset(names(l), "^flag_|^fix_")), sort(f))
 
 })
 

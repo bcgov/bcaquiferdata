@@ -33,22 +33,19 @@ test_that("wells", {
 
   # Flags are consistent - Must update local lithology data first!
   expect_true(all(flags$Flag %in% names(wells_yield)))
-  expect_true(all(stringr::str_subset(names(wells_yield), "^flag_|^fix_") %in% flags$Flag))
+  expect_equal(sort(stringr::str_subset(names(wells_yield), "^flag_|^fix_")),
+               sort(flags$Flag))
 
 })
 
 test_that("fix_bottom_intervals", {
   # Unfix examples
-  w <- wells_eg |>
-    dplyr::select("well_tag_number", dplyr::contains("depth"),
-                  dplyr::contains("lith"), dplyr::contains("flag")) |>
-    sf::st_drop_geometry() |>
-    dplyr::mutate(
-      well_depth_m = dplyr::if_else(flag_int_bottom, well_depth_m - 1, well_depth_m),
-      lithology_to_m = dplyr::if_else(flag_int_bottom, lithology_to_m - 1, lithology_to_m))
+  w <- dplyr::select(wells_eg_unfixed, -"fix_int_bottom")
 
   # Fix
   expect_message(w2 <- fix_bottom_intervals(w), "Fixing wells")
+  expect_equal(nrow(w), nrow(w2))
+  expect_equal(sf::st_geometry(w), sf::st_geometry(w2))
   expect_equal(w2$lithology_to_m[w2$flag_int_bottom],
                w$lithology_to_m[w$flag_int_bottom] + 1)
   expect_equal(w2$well_depth_m[w2$flag_int_bottom],
@@ -64,4 +61,25 @@ test_that("fix_bottom_intervals", {
                w$well_depth_m[w$flag_int_bottom])
   expect_true("fix_int_bottom" %in% names(w2))
   expect_true(all(!w2$fix_int_bottom[w2$flag_int_bottom]))
+})
+
+test_that("fix_depth_missing", {
+  w <- dplyr::select(wells_eg_unfixed, -"fix_depth_missing")
+
+  # Fix
+  expect_message(w2 <- fix_depth_missing(w), "Fixing wells")
+  expect_equal(nrow(w), nrow(w2))
+  expect_equal(sf::st_geometry(w), sf::st_geometry(w2))
+  expect_true(all(!is.na(w2$well_depth_m[w2$fix_depth_missing])))
+  expect_equal(w2$well_depth_m[w2$flag_depth_missing & w2$lith_n == w2$lith_rec],
+               w$lithology_to_m[w$flag_depth_missing & w$lith_n == w$lith_rec])
+
+  expect_true("fix_depth_missing" %in% names(w2))
+  expect_true(all(w2$fix_depth_missing[w2$flag_depth_missing]))
+
+  # Message only
+  expect_message(w2 <- fix_depth_missing(w, fix = FALSE), "Some wells are missing well depth")
+  expect_true(all(is.na(w2$well_depth_m[w2$flag_depth_missing])))
+  expect_true("fix_depth_missing" %in% names(w2))
+  expect_true(all(!w2$fix_depth_missing[w2$flag_depth_missing]))
 })

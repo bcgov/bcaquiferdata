@@ -125,7 +125,7 @@ y <- wells_yield(mill_wells)
 mill <- sf::st_read("misc/data/MillBayWatershed.shp")
 mill_lidar <- dem_region(mill)
 mill_wells_fixed <- wells_subset(mill)
-mill_wells_unfixed <- wells_subset(mill, fix = FALSE)
+mill_wells_unfixed <- wells_subset(mill, fix_bottom = FALSE, fix_depth = FALSE)
 #mill_yield <- wells_yield(mill_elev) # For getting tag numbers
 
 withr::with_seed(111, {

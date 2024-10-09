@@ -51,12 +51,13 @@ test_that("lith_flags_interval() flags", {
   # Flags are consistent
   f <- stringr::str_subset(flags$Flag, "flag_int_")
   expect_true(all(f %in% names(l)))
-  expect_true(all(stringr::str_subset(names(l), "^flag_|^fix_") %in% f))
+  expect_equal(sort(stringr::str_subset(names(l), "^flag_|^fix_")), sort(f))
 })
 
 test_that("lith_prep()", {
   f <- system.file("extdata", "test_gwells_lithology.csv", package = "bcaquiferdata")
-  expect_message(l <- lith_prep(f))
+  expect_message(l <- lith_prep(f)) |>
+    suppressMessages()
   expect_s3_class(l, "data.frame")
   expect_true(all(c("lithology_from_m", "lithology_to_m", "lithology_raw_combined") %in%
                     names(l)))

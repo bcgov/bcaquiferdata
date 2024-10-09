@@ -4,7 +4,7 @@
 \alias{wells_subset}
 \title{Subset wells to region}
 \usage{
-wells_subset(region, fix_bottom = TRUE, update = FALSE)
+wells_subset(region, fix_bottom = TRUE, fix_depth = TRUE, update = FALSE)
 }
 \arguments{
 \item{region}{sf simple features object. Shape file of the region of
@@ -12,6 +12,9 @@ interest.}
 
 \item{fix_bottom}{Logical. Whether to add 1m to bottom lithology intervals that
 has no thickness (identified by \code{flat_int_bottom}). Default \code{TRUE}.}
+
+\item{fix_depth}{Logical. Whether to fix missing well depths by making them
+equal to the depth of the final lithology layer. Default \code{TRUE}.}
 
 \item{update}{Logical. Force update of the data?}
 }

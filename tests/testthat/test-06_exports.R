@@ -112,8 +112,9 @@ test_that("wells_export() ArcHydro", {
 test_that("wells_export() Leapfrog", {
 
   # Preview data
-  expect_silent(p <- wells_export(wells_eg_fixed, id = "mill", type = "leapfrog",
-                                  preview = TRUE))
+  expect_message(p <- wells_export(wells_eg_fixed, id = "mill", type = "leapfrog",
+                                   preview = TRUE),
+                 "Fixing wells where depth")
   expect_named(p, c("leapfrog_collars", "leapfrog_intervals"))
 
   expect_s3_class(p[["leapfrog_collars"]], "data.frame")
@@ -130,14 +131,17 @@ test_that("wells_export() Leapfrog", {
   # Save data
   expect_message(
     wells_export(wells_eg_fixed, id = "mill", type = "leapfrog", dir = test_path()),
-    "Writing Leapfrog files")
+    "Writing Leapfrog files") %>%
+    suppressMessages()
   expect_equal(list.files(test_path(), "leapfrog"),
                c("mill_leapfrog_collars.csv", "mill_leapfrog_intervals.csv"))
 
   # Force fix if not fixed
   expect_message(p2 <- wells_export(wells_eg_unfixed, id = "mill", type = "leapfrog",
                               preview = TRUE),
-                 "Fixing wells with a bottom lithology")
+                 "Fixing wells with a bottom lithology") %>%
+    expect_message("Fixing wells missing depth") %>%
+    expect_message("Fixing wells where depth")
   expect_equal(p, p2)
 
   expect_snapshot_value(p, style = "json2")

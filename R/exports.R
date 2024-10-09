@@ -234,8 +234,11 @@ export_archydro <- function(wells_sub, id, dir, preview) {
 
 export_leapfrog <- function(wells_sub, id, dir, preview) {
 
-  # Check for un-fixed zero-width bottom intervals
-  wells_sub <- fix_bottom_intervals(wells_sub, fix = TRUE)
+  # Check for un-fixed problems
+  wells_sub <- wells_sub %>%
+    fix_bottom_intervals() %>%
+    fix_depth_missing() %>%
+    fix_depth_mismatch()
 
   if(!preview) {
     f <- file.path(
