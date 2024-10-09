@@ -308,9 +308,10 @@ wells_yield <- function(wells_sub) {
       "lithology_from_m", "lithology_to_m",
       "well_yield_usgpm", "well_yield_unit_code",
       "fractured", "yield_units",
-      "lithology_raw_combined", dplyr::starts_with("flag")) %>%
+      "lithology_raw_combined",
+      dplyr::starts_with("flag"), dplyr::starts_with("fix")) %>%
     lith_yield() %>%
-    dplyr::mutate(flag_yield = tidyr::replace_na(.data$flag_yield, FALSE))
+    dplyr::mutate(flag_yield_mismatch = tidyr::replace_na(.data$flag_yield_mismatch, FALSE))
 }
 
 

@@ -20,19 +20,26 @@ test_that("clean_wells()", {
 
 test_that("wells", {
   skip_if(!file.exists(m <- test_path("../../misc/data/Clinton_Creek.shp")))
-  creek_sf <- sf::st_read(m, quiet = TRUE)
+  r <- sf::st_read(m, quiet = TRUE)
 
   # Get lidar
-  expect_message(creek_lidar <- dem_region(creek_sf)) |>
+  expect_message(elev <- dem_region(r)) |>
     suppressMessages()
 
   # Subset to region
-  expect_message(creek_wells <- wells_subset(creek_sf)) |>
+  expect_message(wells <- wells_subset(r)) |>
     suppressMessages()
 
   # Add Lidar
-  expect_message(creek_wells <- wells_elev(creek_wells, creek_lidar)) |>
+  expect_message(wells_elev <- wells_elev(wells, elev)) |>
     suppressMessages()
+
+  # Add yield
+  expect_silent(wells_yield <- wells_yield(wells_elev))
+
+  # Flags are consistent - Must update local lithology data first!
+  expect_true(all(flags$Flag %in% names(wells_yield)))
+  expect_true(all(stringr::str_subset(names(wells_yield), "^flag_|^fix_") %in% flags$Flag))
 
 })
 

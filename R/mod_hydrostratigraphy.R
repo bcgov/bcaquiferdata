@@ -31,7 +31,7 @@ ui_hydrostratigraphy <- function(id) {
               selected = "min"
             ),
             markdown(paste0(
-              "**Note:**<br>The `flag_extra_digits` column shows digits ",
+              "**Note:**<br>The `flag_yield_digits` column shows digits ",
               "extracted from raw lithology which could not be converted to ",
               "a yield or depth (see 'Info' tab for more details)."))
             ),
@@ -60,7 +60,7 @@ server_hydrostratigraphy <- function(id, wells) {
         #"well_yield_usgpm", "well_yield_unit_code",
         "depth", "depth_units", "yield", "yield_units")
       if("lith_raw" %in% show) cols <- c(cols, "lithology_raw_combined")
-      if("flags" %in% show) cols <- c(cols, "flag_yield", "flag_extra_digits")
+      if("flags" %in% show) cols <- c(cols, "flag_yield_mismatch", "flag_yield_digits")
 
       wells() %>%
         sf::st_drop_geometry() %>%

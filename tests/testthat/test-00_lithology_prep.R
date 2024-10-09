@@ -15,44 +15,48 @@
 test_that("lith_flags_interval() flags", {
 
   # No problems
-  expect_silent(l <- lith_flags_interval(test_lith_flags("none")))
+  expect_message(l <- lith_flags_interval(test_lith_flags("none")))
   expect_true(all(!dplyr::select(l, dplyr::contains("flag"))))
 
   # Overruns
-  expect_silent(l <- lith_flags_interval(test_lith_flags("overruns")))
+  expect_message(l <- lith_flags_interval(test_lith_flags("overruns")))
   expect_true(all(l$flag_int_overrun[2:3])) # Get overruns
   expect_true(all(!l$flag_int_overlap))     # Do not get overlaps (already marked)
 
   # Overlaps
-  expect_silent(l <- lith_flags_interval(test_lith_flags("overlaps")))
+  expect_message(l <- lith_flags_interval(test_lith_flags("overlaps")))
   expect_true(all(l$flag_int_overlap[1:2]))
 
   # Gaps
-  expect_silent(l <- lith_flags_interval(test_lith_flags("gaps")))
+  expect_message(l <- lith_flags_interval(test_lith_flags("gaps")))
   expect_true(all(l$flag_int_gap[1:2]))
 
   # Shortform
-  expect_silent(l <- lith_flags_interval(test_lith_flags("shortform")))
+  expect_message(l <- lith_flags_interval(test_lith_flags("shortform")))
   expect_true(all(l$flag_int_shortform[2:3]))
 
   # Bottom
-  expect_silent(l <- lith_flags_interval(test_lith_flags("bottom")))
+  expect_message(l <- lith_flags_interval(test_lith_flags("bottom")))
   expect_true(all(l$flag_int_bottom[3]))
 
   # Missing
-  expect_silent(l <- lith_flags_interval(test_lith_flags("missing")))
+  expect_message(l <- lith_flags_interval(test_lith_flags("missing")))
   expect_true(all(l$flag_int_missing[2]))
 
   # More complex
-  expect_silent(l <- lith_flags_interval(test_lith_flags("complex")))
+  expect_message(l <- lith_flags_interval(test_lith_flags("complex")))
   expect_true(all(l$flag_int_note[1]))
   expect_true(all(l$flag_int_shortform[3:4]))
 
+  # Flags are consistent
+  f <- stringr::str_subset(flags$Flag, "flag_int_")
+  expect_true(all(f %in% names(l)))
+  expect_true(all(stringr::str_subset(names(l), "^flag_|^fix_") %in% f))
 })
 
 test_that("lith_prep()", {
   f <- system.file("extdata", "test_gwells_lithology.csv", package = "bcaquiferdata")
-  expect_silent(l <- lith_prep(f))
+  expect_message(l <- lith_prep(f))
   expect_s3_class(l, "data.frame")
   expect_true(all(c("lithology_from_m", "lithology_to_m", "lithology_raw_combined") %in%
                     names(l)))

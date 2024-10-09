@@ -94,7 +94,7 @@ lith_duplicates <- function(lith) {
   dups <- which(duplicated(lith))
   if(length(dups) > 0) {
     dups_tags <- c("Wells with omitted duplicated lithology records: ",
-                   unique(l$well_tag_number[dups]))
+                   unique(lith$well_tag_number[dups]))
     lf <- paste0("log_duplicate_records_", Sys.Date(), ".txt")
     writeLines(dups_tags, lf)
     message("Omitting duplicate lithology records for ",
@@ -137,6 +137,7 @@ lith_duplicates <- function(lith) {
 
 
 lith_flags_interval <- function(lith) {
+  message("Flagging problems in lithology intervals")
   dplyr::mutate(
     lith,
 
@@ -179,23 +180,22 @@ lith_flags_interval <- function(lith) {
 }
 
 lith_flags_well <- function(lith) {
+  message("Flagging problems in lithology records")
 
-  ## Flags by lithology record
-  dplyr::group_by(lith, .data$well_tag_number) %>%
-    dplyr::mutate(
+  # Flags by lithology record
+  dplyr::mutate(
+    lith,
 
-      # Flag lithology where no depths
-      flag_lith_nodepths = all(.data$lithology_from_m == 0) & all(.data$lithology_to_m == 0),
+    # Flag lithology where no depths
+    flag_lith_nodepths = all(.data$lithology_from_m == 0) & all(.data$lithology_to_m == 0),
 
-      # Flag record with overruns (mark the whole record if there are any)
-      flag_lith_overruns = any(.data$flag_int_overrun)
-    ) %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      # Flag any interval related flags
-      flag_lith_intervals = any(dplyr::c_across(dplyr::starts_with("flag_int_")))
-      ) %>%
-    dplyr::ungroup()
+    # Flag record with overruns (mark the whole record if there are any)
+    flag_lith_overruns = any(.data$flag_int_overrun),
 
-  # Final flag_lith_missing is applied in wells_subset() when combining with the wells data
+    # Flag record with any interval related flags
+    flag_lith_intervals = any(dplyr::pick(dplyr::starts_with("flag_int_"))),
+    .by = "well_tag_number"
+  )
+
+  # NOTE: Final flag_lith_missing is applied in wells_subset() when combining with the wells data
 }

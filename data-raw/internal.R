@@ -35,9 +35,5 @@ fields_lith_gwells <- c(
   "water_bearing_estimated_flow_usgpm", # "well_yield_unit_code",
   "lithology_observation")
 
-fields_lith_new <- c(
-  "lithology_from_m", "lithology_to_m",
-  "flag_no_end", "flag_zero_zero", "flag_missing", "flag_bedrock_position", "lith_clean",
-  "lith_primary", "lith_secondary", "lith_tertiary", "lith_flag",
-  "lith_extra", "lith_yield", "lith_category", "bedrock_depth_m",
-  "flag_extra_digits", "flag_yield", "yield", "depth")
+usethis::use_data(fields_wells, fields_lith_gwells,
+                  overwrite = TRUE, internal = TRUE)

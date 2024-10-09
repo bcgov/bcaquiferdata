@@ -31,6 +31,9 @@ test_that("lith_fix()", {
     readr::read_csv(col_types = "cc") %>%
     suppressWarnings()
 
+  expect_silent(l <- lith_fix(t$desc[1])) |>
+    expect_s3_class("data.frame")
+
   for(i in seq(nrow(t))) {
     expect_equal(lith_fix(desc = !!t$desc[i])[["lithology_category"]], !!t$cat[i])
   }
@@ -39,13 +42,18 @@ test_that("lith_fix()", {
   expect_equal(lith_fix(desc = "aquifer data: glacial till")$lithology_extra,
                "")
 
+  # Flags are consistent
+  f <- stringr::str_subset(flags$Flag, "flag_cat_")
+  expect_true(all(f %in% names(l)))
+  expect_true(all(stringr::str_subset(names(l), "^flag_|^fix_") %in% f))
+
 })
 
 
 
 test_that("lith_yield()", {
   t <- dplyr::tribble(
-    ~lithology_raw_combined,   ~yield_units, ~flag_extra_digits, ~flag_yield,~yield, ~depth, ~depth_units,
+    ~lithology_raw_combined,   ~yield_units, ~flag_yield_digits, ~flag_yield_mismatch, ~yield, ~depth, ~depth_units,
     "2 to 3 gpm",     "gpm",  "", FALSE, 2.5,    as.double(), "",
     "50 gpm. and it takes 14 hrs. to recover", "gpm", "14", FALSE, 50, as.double(), "",
     "365' - 2 1/2 gpm  s", "gpm", "", FALSE, 2.5,   365, "ft",
@@ -69,7 +77,7 @@ test_that("lith_yield()", {
     "0.6 gpm at 100meter", "gpm", "", FALSE, 0.6, 100, "m",
     "0.6 gpm at 100 m", "gpm", "", FALSE, 0.6, 100, "m",
   ) %>%
-    dplyr::select("lithology_raw_combined", "flag_extra_digits", "flag_yield",
+    dplyr::select("lithology_raw_combined", "flag_yield_digits", "flag_yield_mismatch",
                   "depth", "depth_units", "yield", "yield_units")
 
   l <- lith_yield(dplyr::select(t, "lithology_raw_combined", "yield_units"))
@@ -77,4 +85,6 @@ test_that("lith_yield()", {
   expect_equal(l, tidyr::unnest(t, c("yield", "depth"), keep_empty = TRUE))
 
 })
+
+
 

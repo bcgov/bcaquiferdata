@@ -514,22 +514,22 @@ lith_yield <- function(lith, flatten = FALSE) {
     dplyr::filter(.data$yield_units != "") %>%
     dplyr::select("lithology_raw_combined") %>%
     dplyr::mutate(
-      flag_extra_digits = stringr::str_squish(.data$lithology_raw_combined),
-      flag_extra_digits = fix_fraction(.data$flag_extra_digits),
-      flag_extra_digits = fix_leading_zero(.data$flag_extra_digits),
+      flag_yield_digits = stringr::str_squish(.data$lithology_raw_combined),
+      flag_yield_digits = fix_fraction(.data$flag_yield_digits),
+      flag_yield_digits = fix_leading_zero(.data$flag_yield_digits),
       yield_chr = stringr::str_extract_all(
-        .data$flag_extra_digits, .env$p_yield),
-      flag_extra_digits = stringr::str_remove_all(
-        .data$flag_extra_digits, .env$p_yield),
+        .data$flag_yield_digits, .env$p_yield),
+      flag_yield_digits = stringr::str_remove_all(
+        .data$flag_yield_digits, .env$p_yield),
       yield_chr = purrr::map(.data$yield_chr,
                              ~stringr::str_remove_all(., .env$p_units_yield)),
-      depth = stringr::str_extract_all(.data$flag_extra_digits, .env$p_depth),
-      flag_extra_digits = stringr::str_remove_all(
-        .data$flag_extra_digits, .env$p_depth),
-      flag_extra_digits = stringr::str_extract_all(
-        .data$flag_extra_digits, "\\d+"),
-      flag_extra_digits = purrr::map_chr(
-        .data$flag_extra_digits, ~paste0(.x, collapse = ";")),
+      depth = stringr::str_extract_all(.data$flag_yield_digits, .env$p_depth),
+      flag_yield_digits = stringr::str_remove_all(
+        .data$flag_yield_digits, .env$p_depth),
+      flag_yield_digits = stringr::str_extract_all(
+        .data$flag_yield_digits, "\\d+"),
+      flag_yield_digits = purrr::map_chr(
+        .data$flag_yield_digits, ~paste0(.x, collapse = ";")),
       depth_units = purrr::map_chr(
         .data$depth,
         ~ stringr::str_extract_all(.x, .env$p_units_depth) %>%
@@ -551,16 +551,16 @@ lith_yield <- function(lith, flatten = FALSE) {
       n_depth = purrr::map_int(.data$depth, length),
       # Flag yields where the depths and yields don't match and there are at
       # least one of each
-      flag_yield = .data$n_yield != .data$n_depth &
+      flag_yield_mismatch = .data$n_yield != .data$n_depth &
         .data$n_yield != 0 & .data$n_depth != 0,
-      yield = replace(.data$yield, .data$flag_yield, NA),
-      depth = replace(.data$depth, .data$flag_yield, NA)) %>%
+      yield = replace(.data$yield, .data$flag_yield_mismatch, NA),
+      depth = replace(.data$depth, .data$flag_yield_mismatch, NA)) %>%
     dplyr::select(-"n_yield", -"n_depth") %>%
     tidyr::unnest(cols = c("yield", "depth"), keep_empty = TRUE)
 
   dplyr::left_join(lith, l, by = "lithology_raw_combined") %>%
     dplyr::relocate("yield_units", .after = "yield") %>%
-    dplyr::relocate("flag_yield", .before = "depth")
+    dplyr::relocate("flag_yield_mismatch", .before = "depth")
 }
 
 #' Get depth to bedrock from lithology
@@ -588,7 +588,7 @@ lith_bedrock <- function(l) {
     dplyr::ungroup() %>%
     dplyr::select("n", "flg", "bedrock_depth_m") %>%
     dplyr::left_join(l, ., by = "n") %>%
-    dplyr::mutate(flag_bedrock_position = tidyr::replace_na(.data$flg, FALSE)) %>%
+    dplyr::mutate(flag_pos_bedrock = tidyr::replace_na(.data$flg, FALSE)) %>%
     dplyr::select(-"n", -"flg")
 }
 
@@ -811,9 +811,9 @@ lith_flag <- function(p, s, t) {
   bedrock <- c("bedrock", "faulted", "fractured", "weathered")
 
   dplyr::tibble(
-    flag_bedrock = any(bedrock %in% c(p, s)) & !all(p %in% bedrock),
-    flag_boulders = "boulders" %in% c(p, s, t) & !all(p == "boulders"),
-    flag_missing_cats = all(is.na(c(p, s, t)))
+    flag_cat_bedrock = any(bedrock %in% c(p, s)) & !all(p %in% bedrock),
+    flag_cat_boulders = "boulders" %in% c(p, s, t) & !all(p == "boulders"),
+    flag_cat_missing = all(is.na(c(p, s, t)))
   )
 }
 
