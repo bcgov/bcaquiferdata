@@ -188,7 +188,7 @@ data_ready <- function() {
   meta <- cache_meta()
   m <- as.character(meta$wells_processed) != "" &
     as.character(meta$lith_processed) != ""
-  v <- meta$bcaquiferdata_version == packageVersion("bcaquiferdata")
+  v <- meta$bcaquiferdata_version == utils::packageVersion("bcaquiferdata")
   f <- file.exists(file.path(cache_dir(),
                              c("wells_nice.rds", "lithology_nice.rds")))
 
