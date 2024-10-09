@@ -32,6 +32,7 @@ data_update()
 source("data-raw/flags.R")
 source("data-raw/tiles.R")
 source("data-raw/internal.R")
+source("data-raw/test_data.R")
 
 # Update citation information!
 citation("bcaquiferdata")
