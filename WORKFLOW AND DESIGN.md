@@ -77,8 +77,11 @@ Here is a summary with links to the relevant sections
 
 - Using region of interest, subset full GWELLS data to wells of interest
 - Join spatially with elevation data
+- Option to use combination of Lidar and TRIM
 - [Code] Subset with `wells_subset()`, add elevation with `wells_elev()`
+    - `dem` is the primary source, `dem_extra` is the optional secondary source
 - [App] Automatically happens once area of interest is selected
+    - toggle whether to use Lidar, TRIM, Lidar with Trim, or TRIM with Lidar
 
 > **Status** - Complete
 
@@ -128,13 +131,7 @@ Here is a summary with links to the relevant sections
  - [App] The Exports tab previews the data in different formats with the option
    to save/download zipped copies of the files.
 
-> **Status** - Partially complete
->
-> **TODO** 
-> 
-> - [App] Should these be downloaded as a zip file or should the user be able to
->   state a diretory and have them saved there?
-> - Test output files to ensure correct exports
+> **Status** - Complete
 
 ### Flagging issues
 
@@ -151,9 +148,7 @@ Here is a summary with links to the relevant sections
 > 
 > - Review flag specifics to ensure correct
 > - Add more flags
-> - What next? Option to export flags in App? 
->   (Note that all datasets in the App can be exported already, only relevant
->    if a special format is required)
+> - Add option to export all 'fixable' flags to promote fixing issues in GWELLS
 
 
 ### R package development
@@ -163,7 +158,6 @@ functions work as expected)
 - Adding documentation (help users use the app and/or functions)
   - Function documentation
   - pkgdown website
-- Move package repository to `bcgov` on GitHub
 
 > **Status** - Incomplete
 > 
