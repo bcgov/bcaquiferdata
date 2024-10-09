@@ -25,9 +25,9 @@
 #'
 #' @noRd
 lith_prep <- function(file = NULL) {
-  if(is.null(file)) file.path(cache_dir(), "GWELLS/lithology.csv")
+  if(is.null(file)) file <- file.path(cache_dir(), "GWELLS/lithology.csv")
 
-  l <- file %>%
+  file %>%
     readr::read_csv(guess_max = Inf, show_col_types = FALSE, progress = FALSE) %>%
     janitor::clean_names() %>%
 
@@ -35,15 +35,15 @@ lith_prep <- function(file = NULL) {
     # TODO: Here treat zeros and NAs the same... Okay?
     dplyr::mutate(dplyr::across(dplyr::matches("from|to"), \(x) tidyr::replace_na(x, 0))) %>%
 
+    # Find duplicates and log them
+    lith_duplicates() %>%
+
     # Convert to metric
     convert_m(cols = c("lithology_from_m" = "lithology_from_ft_bgl",
                        "lithology_to_m" = "lithology_to_ft_bgl"))  %>%
 
    # Collect and combine lithology descriptions
     lith_desc_combine() %>%
-
-    # Find duplicates and log them
-    lith_duplicates() %>%
 
     # Arrange and label intervals
     dplyr::arrange(.data$well_tag_number,

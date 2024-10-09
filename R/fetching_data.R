@@ -53,7 +53,7 @@ data_read <- function(type, update = FALSE, permission = FALSE) {
 
   f <- file.path(cache_dir(), paste0(type, "_nice.rds"))
 
-  if(update || !file.exists(f)) data_update(type = "all")
+  if(update || !file.exists(f) || !data_ready()) data_update(type = "all")
 
   readr::read_rds(f)
 }
@@ -114,6 +114,9 @@ data_update <- function(type = "all", download = TRUE, permission = FALSE) {
     meta$lith_processed <- as.character(Sys.time())
   }
 
+  # Update package version
+  meta$bcaquiferdata_version <- as.character(utils::packageVersion("bcaquiferdata"))
+
   # Save updated metadata
   readr::write_csv(meta, file.path(cache_dir(), "meta.csv"))
 
@@ -159,10 +162,12 @@ clean_wells <- function(file = NULL) {
 }
 
 
-clean_lithology <- function() {
+clean_lithology <- function(file = NULL) {
+
+  if(is.null(file)) file <- file.path(cache_dir(), "GWELLS/lithology.csv")
 
   message("Lithology - Cleaning")
-  l_prep <- lith_prep()
+  l_prep <- lith_prep(file)
 
   message("Lithology - Standardizing")
   l_std <- lith_fix(l_prep$lithology_raw_combined)
@@ -183,9 +188,14 @@ data_ready <- function() {
   meta <- cache_meta()
   m <- as.character(meta$wells_processed) != "" &
     as.character(meta$lith_processed) != ""
+  v <- meta$bcaquiferdata_version == packageVersion("bcaquiferdata")
   f <- file.exists(file.path(cache_dir(),
                              c("wells_nice.rds", "lithology_nice.rds")))
-  all(m & f)
+
+  if(!v) message("Your version of the data was cleaned using a different ",
+                 "version of `bcaquiferdata`.\nUpdating data...")
+
+  all(m & f & v)
 }
 
 
