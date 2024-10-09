@@ -1,4 +1,11 @@
-# Workflow and Design Plan
+---
+title: "Roadmap: Workflow and Design Plan"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Roadmap: Workflow and Design Plan}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
 
 This document compiles the ideas and their implementation discussed around this
 project. Here we describe the various steps, list how they are implemented in

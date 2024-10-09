@@ -3,6 +3,9 @@
 * Fix yield values where no 0 before the decimal and units are metres (#5)
 * Add citation information (#4)
 * Add option to merge Lidar and TRIM elevation data (#3)
+* Use combined `lithology_raw_data`, `lithology_description_code`, and `lithology_material_code`
+* Update flags - Categorize, rename and add new (`flag_int_overlap`, `flag_int_gap`, `flag_int_note`, `flag_int_bottom`, etc.)
+* Add detections for duplicate lithologies
 
 # Version 0.0.3
 * Fix ArcHydro exports
