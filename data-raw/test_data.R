@@ -95,7 +95,11 @@ readr::write_csv(
     "bedrock (first 40' is soft reddish bedrock)", "Bedrock",
     "limestone limestone grey chiefly light grey with thin lenses of dark grey throughout", "Bedrock",
     "sandy and gravel clay brown loose wet", "Sand or Gravel Till or Diamicton",
-    "fractured with green and white traces - medium blue volcanic volcanic vari-coloured medium", "Weathered, Fractured or Faulted Bedrock"
+    "fractured with green and white traces - medium blue volcanic volcanic vari-coloured medium", "Weathered, Fractured or Faulted Bedrock",
+    # Expect no bentonite
+    "bentonite chips", "",
+    "bentonite grout slurry.", "",
+    "shale, bentonite light-coloured grey loose", "Bedrock"
   ),
   file.path("inst", "extdata", "test_lithology_cleaning.csv"))
 

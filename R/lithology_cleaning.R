@@ -115,7 +115,7 @@ lith_fix <- function(desc = NULL) {
 
   terms_good_bedrock <- list(
     "bedrock" = c("andesite", "argillite",
-                  "basalt", "basaltic", "bentonite",
+                  "basalt", "basaltic",
                   "bedrock", "calcite",
                   "claystone", "chert", "coal",
                   "conglomerate",

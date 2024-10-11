@@ -188,8 +188,8 @@ filter(wells_lith, lithology_category == "Compact")
 # Find good examples for testing
 l <- lith_prep()
 
-# TODO Clean out the "nothing entered" first
 dplyr::filter(l, stringr::str_detect(lithology_raw_combined, "nothing"))
+dplyr::filter(l, stringr::str_detect(lithology_raw_combined, "bentonite"))
 
 dplyr::filter(l, lithology_colour_code != "", lithology_material_code != "") |>
   dplyr::select(lithology_raw_combined, lithology_raw_data, lithology_description_code, lithology_material_code, lithology_colour_code, lithology_hardness_code, lithology_observation) |>
