@@ -40,8 +40,6 @@ mod_test("wells")
 mod_test("export_data")
 mod_test("export_data", data = "unfixed")
 
-
-
 # Silver creek -----------------
 
 ws_sf <- st_read("misc/data/SilverdaleCreekWatershed2/SilverdaleCreekWatershed2.shp")

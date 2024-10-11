@@ -423,7 +423,34 @@ fix_depth_missing <- function(wells_sub, fix = TRUE) {
 }
 
 
-# Only used by export leapfrog
+#' Fix the depth of the well if not equal to final lithology
+#'
+#' The `flag_depth_mismatch` flag identifies wells where the depth is not the
+#' same as the depth of the final lithology layer. Fixing these well depths
+#' means replacing the well depth with the depth of the final lithology layer.
+#'
+#' This is done automatically for leapfrog exports, but otherwise not.
+#'
+#' @inheritParams common_docs
+#'
+#' @return Fixed wells_sub data frame
+#' @examplesIf interactive()
+#'
+#' library(sf)
+#'
+#' # Load a shape file defining the region of interest
+#' creek_sf <- st_read("misc/data/Clinton_Creek.shp")
+#'
+#' # Get wells within this region
+#' creek_wells <- wells_subset(creek_sf)
+#'
+#' # Fix well depths
+#' creek_wells_fixed <- fix_depth_mismatch(creek_wells)
+#'
+#' # Explore all fixes
+#' dplyr::select(creek_wells_fixed, dplyr::starts_with("fix"))
+#'
+#' @export
 fix_depth_mismatch <- function(wells_sub) {
 
   if(!"fix_depth_mismatch" %in% names(wells_sub)) wells_sub$fix_depth_mismatch <- FALSE
