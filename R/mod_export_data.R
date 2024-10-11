@@ -28,7 +28,7 @@ ui_export_data <- function(id) {
         shinyDirButton(ns("choose_export_dir"),
                        "Choose output folder",
                        "Choose where to save files"),
-        uiOutput(ns("fix_bottom"))
+        uiOutput(ns("fixes"), inline = TRUE)
       ),
 
       # UI - Strater -------------
@@ -142,19 +142,43 @@ server_export_data <- function(id, wells) {
 
     # Messaging --------------------
 
-    # If any bottoms need to be fixed (and haven't already), let the user know
-    output$fix_bottom <- renderUI({
-      if(any(wells()$flag_int_bottom) & !any(wells()$fix_int_bottom))
-        tagList(
-          p(
-            strong("LeapFrog Export:"), br(),
-            "Forcing thickness of bottom lithology intervals from 0m to 1m in wells:", br(),
+    # If any things need to be fixed (and haven't already), let the user know
+    output$fixes <- renderUI({
+
+      f1 <- any(wells()$flag_int_bottom) & !any(wells()$fix_int_bottom)
+      f2 <- any(wells()$flag_depth_mismatch)
+
+      if(f1 | f2) {
+        t <- tagList(strong("LeapFrog Export:"), br())
+      } else {
+        t <- tagList()
+      }
+
+      if(f1) {
+        t <- tagList(
+          t,
+          p("Forcing thickness of bottom lithology intervals from 0m to 1m in wells:", br(),
             tags$ul(
               lapply(unique(wells()$well_tag_number[wells()$flag_int_bottom]),
                      htmltools::tags$li)
             )
           )
         )
+      }
+
+      if(f2) {
+        t <- tagList(
+          t,
+          p("Forcing well depth to equal depth of the final lithology interval", br(),
+            tags$ul(
+              lapply(unique(wells()$well_tag_number[wells()$flag_depth_mismatch]),
+                     htmltools::tags$li)
+            )
+          )
+        )
+      }
+
+      t
     })
 
     # Setup Directory and File IDs ------------------

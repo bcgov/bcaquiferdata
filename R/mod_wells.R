@@ -35,9 +35,11 @@ ui_wells <- function(id) {
           choiceNames = list("Lidar", span("TRIM", style = "margin-right:150px"),
                              "Lidar with TRIM", "TRIM with Lidar"),
           choiceValues = c("lidar", "trim", "lidar_trim", "trim_lidar")),
-        radioButtons(
-          ns("fix_bottom"), strong("Fix zero-width bottom lithology intervals?"), inline = TRUE,
-          choices = list("Yes" = TRUE, "No" = FALSE)),
+        checkboxGroupInput(
+          ns("fixes"), label = strong("Fix common problems"), inline = TRUE,
+          choices = list("Zero-width bottom lithology intervals" = "fix_bottom",
+                         "Missing well depth" = "fix_depth"),
+          selected = c("fix_bottom", "fix_depth")),
         h4("Messages"),
         verbatimTextOutput(ns("messages"), placeholder = TRUE)
       ),
@@ -82,6 +84,13 @@ server_wells <- function(id, have_data) {
       w
 
     })
+
+    # fixes ---------------------------
+    fixes <- reactive({
+      list("fix_bottom" = "fix_bottom" %in% input$fixes,
+           "fix_depth" = "fix_depth" %in% input$fixes)
+    })
+
 
     # watershed -----------------------------
     watershed <- reactive({
@@ -228,18 +237,20 @@ server_wells <- function(id, have_data) {
 
       withCallingHandlers({
         message("Wells - Start")
-        w <- wells_subset(watershed(), fix_bottom = input$fix_bottom) %>%
+        w <- wells_subset(watershed(),
+                          fix_bottom = fixes()$fix_bottom,
+                          fix_depth = fixes()$fix_depth) %>%
           wells_elev(dem1(), dem2())
         message("Wells - Done")
       },
       message = function(m) {
-        shinyjs::html(id = NS(id, "messages"), html = m$message, add = TRUE)
+        shinyjs::html(id = "messages", html = m$message, add = TRUE)
       })
 
       removeNotification(id)
       w
     }) %>%
-      bindCache(input$spatial_file, input$dem_combo, input$fix_bottom)
+      bindCache(input$spatial_file, input$dem_combo, fixes())
 
     # wells table -------------------------------
     output$wells_table <- DT::renderDataTable({
