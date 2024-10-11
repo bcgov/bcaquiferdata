@@ -54,6 +54,24 @@ test_that("lith_flags_interval() flags", {
   expect_equal(sort(stringr::str_subset(names(l), "^flag_|^fix_")), sort(f))
 })
 
+test_that("lith_desc_combine()", {
+  l <- system.file("extdata", "test_gwells_lithology.csv", package = "bcaquiferdata") |>
+    readr::read_csv(guess_max = Inf, show_col_types = FALSE, progress = FALSE) %>%
+    janitor::clean_names()
+
+  expect_silent(l <- lith_desc_combine(l))
+  expect_equal(l$lithology_raw_combined,
+               paste(l$lithology_raw_data,
+                     l$lithology_description_code,
+                     l$lithology_material_code,
+                     l$lithology_colour_code,
+                     l$lithology_hardness_code,
+                     l$lithology_observation) |>
+                 stringr::str_squish())
+})
+
+
+
 test_that("lith_prep()", {
   f <- system.file("extdata", "test_gwells_lithology.csv", package = "bcaquiferdata")
   expect_message(l <- lith_prep(f)) |>
@@ -61,10 +79,5 @@ test_that("lith_prep()", {
   expect_s3_class(l, "data.frame")
   expect_true(all(c("lithology_from_m", "lithology_to_m", "lithology_raw_combined") %in%
                     names(l)))
-  expect_equal(l$lithology_raw_combined,
-               paste(l$lithology_raw_data,
-                      l$lithology_description_code,
-                      l$lithology_material_code) |>
-                 stringr::str_squish())
 })
 

@@ -380,7 +380,7 @@
             {
               "type": "character",
               "attributes": {},
-              "value": ["overburden", "bedrock", "silty gravel silty gravel", "bedrock", "gpm", "gpm", "gpm", "gpm", "silty gravel silty gravel", "bedrock", "gpm", "gpm", "silty clay with gravel silty clay", "bedrock", "gpm", "gpm", "gpm", "gpm", "organic", "sand & gravel", "sand & gravel wet gpm", "clay", "sand & gravel gpm", "bedrock", "bedrock & organic", "", "bedrock", "bedrock gravel", "bedrock", "sand clay silt gravel", "bedrock"]
+              "value": ["overburden", "bedrock", "brown silty gravel silty gravel", "bedrock bedrock", "185 feet - 1.5 gpm", "245 (m) 1.5 gpm", "425 feet 1 3/4 gpm", "507 feet 1 3/4 gpm", "silty gravel silty gravel", "bedrock solid bedrock", "1 gpm at 40 feet", "1 gpm at 625", "silty clay, some gravels silty clay", "bedrock, green bedrock", "50 feet - 1 gpm", "170 feet - 4 gpm", "225 feet - 2 gpm", "307 feet - 4 gpm", "black top soil", "grey sand and gravel", "fine t0 medium brown sand and gravel wet 3 gpm", "brown clay", "coarse brown sand and gravel 30 gpm", "bedrock", "bentonite and soil", "concrete", "bentonite chips", "3.5 feet bentonite to 17 feet of pea gravel", "bentonite", "sand,clay, silt, gravel", "bedrock"]
             }
           ]
         }

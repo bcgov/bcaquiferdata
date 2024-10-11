@@ -49,8 +49,6 @@ test_that("lith_fix()", {
 
 })
 
-
-
 test_that("lith_yield()", {
   t <- dplyr::tribble(
     ~lithology_raw_combined,   ~yield_units, ~flag_yield_digits, ~flag_yield_mismatch, ~yield, ~depth, ~depth_units,

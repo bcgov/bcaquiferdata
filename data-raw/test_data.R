@@ -88,9 +88,14 @@ readr::write_csv(
     "clay with till", "Medium to Clay Till or Diamicton",
     "silt clay with till", "Medium to Clay Till or Diamicton",
     "blue hardpan, sand and broken gravel", "Medium to Clay Till or Diamicton",
-    # Tests for combined columns (lithology_raw_data, lithology_description_code, lithology_material_code)
+    # Tests for combined columns (lithology_raw_combined)
     "gravel  gravel", "Gravel",
     "sand and silt silty sand", "Sand and Fines",
+    "fine sand with some gravel", "Sand and Gravel (Clean)",
+    "bedrock (first 40' is soft reddish bedrock)", "Bedrock",
+    "limestone limestone grey chiefly light grey with thin lenses of dark grey throughout", "Bedrock",
+    "sandy and gravel clay brown loose wet", "Sand or Gravel Till or Diamicton",
+    "fractured with green and white traces - medium blue volcanic volcanic vari-coloured medium", "Weathered, Fractured or Faulted Bedrock"
   ),
   file.path("inst", "extdata", "test_lithology_cleaning.csv"))
 

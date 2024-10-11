@@ -31,8 +31,7 @@ lith_prep <- function(file = NULL) {
     readr::read_csv(guess_max = Inf, show_col_types = FALSE, progress = FALSE) %>%
     janitor::clean_names() %>%
 
-    # Replace NA with 0 -
-    # TODO: Here treat zeros and NAs the same... Okay?
+    # Replace NA with 0 (very few cases where NA and not 0)
     dplyr::mutate(dplyr::across(dplyr::matches("from|to"), \(x) tidyr::replace_na(x, 0))) %>%
 
     # Find duplicates and log them
@@ -70,18 +69,14 @@ convert_m <- function(data, cols, digits = 2) {
 lith_desc_combine <- function(lith) {
   dplyr::mutate(
     lith,
-    dplyr::across(.cols = c(
-      "lithology_raw_data",
-      "lithology_description_code",
-      "lithology_material_code"),
-      ~ as.character(.x) %>%
-        tidyr::replace_na("") %>%
-        stringr::str_to_lower())) %>%
+    dplyr::across(.cols = dplyr::all_of(.env$fields_lith_combine),
+                  ~ as.character(.x) %>%
+                    tidyr::replace_na("") %>%
+                    stringr::str_to_lower() %>%
+                    stringr::str_replace("^(0 nothing entered)|(nothing provided)$", "")
+    )) %>%
     dplyr::mutate(
-      lithology_raw_combined = paste(
-        .data$lithology_raw_data,
-        .data$lithology_description_code,
-        .data$lithology_material_code),
+      lithology_raw_combined = purrr::pmap(dplyr::pick(dplyr::all_of(.env$fields_lith_combine)), paste),
       lithology_raw_combined = stringr::str_squish(.data$lithology_raw_combined))
 }
 

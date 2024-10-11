@@ -192,7 +192,7 @@ export_archydro <- function(wells_sub, id, dir, preview) {
       BottomElev = .data$LandElev - .data$ToDepth,
       Description = .data$lithology_category,
       HGUName = .data$lithology_category,
-      OriginalLithology = .data$lithology_clean)
+      OriginalLithology = .data$lithology_raw_combined)
 
   f1 <- dplyr::select(w,
                       "HydroID", "HydroCode",

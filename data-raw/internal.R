@@ -12,6 +12,16 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
+# Fields to combine -----------------------------------------------------------
+# GWELLS Lithology fields which are combined into `lithology_raw_combined` by
+# `lith_desc_combine()` in `lith_prep()`
+fields_lith_combine <- c(
+  "lithology_raw_data",
+  "lithology_description_code",
+  "lithology_material_code",
+  "lithology_colour_code",
+  "lithology_hardness_code",
+  "lithology_observation")
 
 # Fields to keep --------------------------------------------------------------
 fields_wells <- c(
@@ -31,9 +41,9 @@ fields_wells <- c(
 fields_lith_gwells <- c(
   "well_tag_number", "lithology_from_ft_bgl", "lithology_to_ft_bgl",
   "lithology_raw_data", "lithology_description_code", "lithology_material_code",
-  "lithology_hardness_code", "lithology_colour_code",
-  "water_bearing_estimated_flow_usgpm", # "well_yield_unit_code",
-  "lithology_observation")
+  "lithology_hardness_code", "lithology_colour_code", "lithology_observation",
+  "water_bearing_estimated_flow_usgpm" # "well_yield_unit_code",
+  )
 
-usethis::use_data(fields_wells, fields_lith_gwells,
+usethis::use_data(fields_lith_combine, fields_wells, fields_lith_gwells,
                   overwrite = TRUE, internal = TRUE)
