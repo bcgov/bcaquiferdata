@@ -426,6 +426,8 @@ fix_depth_missing <- function(wells_sub, fix = TRUE) {
 # Only used by export leapfrog
 fix_depth_mismatch <- function(wells_sub) {
 
+  if(!"fix_depth_mismatch" %in% names(wells_sub)) wells_sub$fix_depth_mismatch <- FALSE
+
   # Which wells are fixable and haven't been?
   w <- wells_sub$well_tag_number[
     wells_sub$flag_depth_mismatch &
@@ -441,6 +443,7 @@ fix_depth_mismatch <- function(wells_sub) {
     dplyr::mutate(
       well_depth_m = .data$lithology_to_m[.data$lith_rec == .data$lith_n],
       finished_well_depth_ft_bgl = .data$lithology_to_ft_bgl[.data$lith_rec == .data$lith_n],
+      fix_depth_mismatch = TRUE,
       .by = "well_tag_number")
 
   if(inherits(wells_sub, "sf")) {

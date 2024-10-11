@@ -83,3 +83,30 @@ test_that("fix_depth_missing", {
   expect_true("fix_depth_missing" %in% names(w2))
   expect_true(all(!w2$fix_depth_missing[w2$flag_depth_missing]))
 })
+
+test_that("multiple fixes don't conflict", {
+  # Fixes are applied in wells_subset(): fix_bottom_intervals() *then* fix_depth_missing()
+  # fix_depth_mismatch() also applied in leapfrog exports
+
+  w <- dplyr::select(wells_eg_unfixed, -dplyr::starts_with("fix"))
+
+  expect_message(w2 <- fix_bottom_intervals(w))
+  expect_message(w3 <- fix_depth_missing(w2))
+  expect_message(w4 <- fix_depth_mismatch(w3))
+
+  # Where no depths fixed, expect well depth = lith int depth
+  fix_b <- w4$fix_int_bottom & !w4$fix_depth_missing & !w4$fix_depth_mismatch &
+    w4$lith_n == w4$lith_rec
+  expect_equal(w$well_depth_m[fix_b], w$lithology_to_m[fix_b])
+  expect_equal(w$well_depth_m[fix_b] + 1, w4$well_depth_m[fix_b]) # because int fixed
+
+  # Where missing fixed, can't have mismatch
+  fix_m <- w4$fix_depth_missing
+  expect_true(all(!w4$fix_depth_mismatch[fix_m]))
+
+  # Where bottom and mismatch - lithology + 1 and lith = depth
+  fix_bm <- w4$fix_int_bottom & w4$fix_depth_mismatch & w4$lith_n == w4$lith_rec
+  expect_equal(w4$well_depth_m[fix_bm], w4$lithology_to_m[fix_bm])
+  expect_equal(w$lithology_to_m[fix_bm] + 1, w4$lithology_to_m[fix_bm])
+})
+
