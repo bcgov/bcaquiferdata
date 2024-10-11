@@ -5,6 +5,8 @@ Authors@R:
    c(person("Steffi", "LaZerte", email = "sel@steffilazerte.ca", role = c("aut", "cre"), 
              comment = c(ORCID = "0000-0002-7690-8360")),
     person("Christine", "Bieber", email = "Christine.Bieber@gov.bc.ca", role = "aut"),
+    person("David", "van Everdingen", email = "David.vanEverdingen@gov.bc.ca", role = "aut"),
+    person("Andarge", "Baye", email = "Andarge.Baye@gov.bc.ca", role = "aut"),
     person("Province of British Columbia", role = "cph"))
 Description: Set of tools for processing BC Aquifer lithology and yield data.
 License: Apache License (>= 2)
