@@ -1,12 +1,12 @@
 url: https://bcgov.github.io/bcaquiferdata/
 template:
   bootstrap: 5
-  bootswatch: cerulean
   bslib:
+    bootswatch: cerulean
     headings-color: "#003366"
     primary: "#003366"
     body-secondary-color: "white"
-    bs-dropdown-link-color: "white"
+    dropdown-link-color: "white"
   #simplex
   #sandstone
   #litera

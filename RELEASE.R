@@ -59,6 +59,8 @@ usethis::use_github_release()
 
 # Preview website - "Real" version run as GitHub action -----------------
 # **BUILD PACKAGE FIRST!!!**
+pkgdown::init_site()
+pkgdown::build_home_index()
 pkgdown::build_site()
 pkgdown::build_site(lazy = TRUE)
 pkgdown::build_article("articles/shiny_apps")
