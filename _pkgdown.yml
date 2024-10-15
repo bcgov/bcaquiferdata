@@ -33,6 +33,7 @@ reference:
   desc: Functions you may not need, but might use for troubleshooting
 - contents:
   - lith_fix
+  - starts_with("fix")
 
 - title: Data
 - contents:
