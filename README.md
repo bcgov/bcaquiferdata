@@ -58,6 +58,12 @@ maturing.
     pak::pkg_install("bcgov/bcgwcat")
     ```
 
+## Development version
+
+If you’re interested in testing out the developmental version of the
+package, you can install it with
+`pak::pkg_install("bcgov/bcgwcat@dev")`.
+
 ## Troubleshooting
 
 If you run into errors right at the start, try **updating all packages

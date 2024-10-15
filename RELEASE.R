@@ -29,7 +29,7 @@ file.edit("CODE_DESIGN.md")
 
 # Update Datasets --------------------------------
 data_update()
-unlink(list.files("log_duplicates", full.names = TRUE))
+unlink(list.files(pattern = "log_duplicate_records", full.names = TRUE))
 source("data-raw/flags.R")
 source("data-raw/tiles.R")
 source("data-raw/internal.R")

@@ -14,7 +14,7 @@ Let's work through a couple of examples (note these examples are presented for i
 the shape files are not included in the package).
 
 
-```r
+``` r
 library(bcaquiferdata)
 library(sf)
 library(ggplot2)
@@ -25,14 +25,14 @@ library(ggspatial)
 
 Load a shape file defining the region of interest
 
-```r
+``` r
 creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 ```
 
 Fetch Lidar DEM (this may take a while the first time)
 
 
-```r
+``` r
 creek_lidar <- dem_region(creek_sf)
 #> Get Lidar data
 #> Saving new tiles to cache directory: ~/.local/share/bcaquiferdata
@@ -47,7 +47,7 @@ creek_lidar <- dem_region(creek_sf)
 
 Plot to double check
 
-```r
+``` r
 plot(creek_lidar)
 #> downsample set to 44
 ```
@@ -57,17 +57,18 @@ plot(creek_lidar)
 Collect wells in this region with added elevation from Lidar
 
 
-```r
+``` r
 creek_wells <- creek_sf |>
   wells_subset() |>        # Subset to region
   wells_elev(creek_lidar)  # Add Lidar
 #> Subset wells
+#> Fixing wells with a bottom lithology interval of zero thickness: 37685
 #> Add elevation
 ```
 
 Plot again to double check
 
-```r
+``` r
 ggplot() +
   geom_sf(data = creek_sf) +
   geom_sf(data = creek_wells, size= 1, aes(colour = elev))
@@ -77,13 +78,19 @@ ggplot() +
 
 Export data for Strater, Voxler, and ArcHydro
 
-```r
+``` r
 wells_export(creek_wells, id = "clinton", type = "strater")
 #> Writing Strater files ./clinton_strater_lith.csv, ./clinton_strater_collars.csv, ./clinton_strater_wls.csv
 #> [1] "./clinton_strater_lith.csv"    "./clinton_strater_collars.csv" "./clinton_strater_wls.csv"
+```
+
+``` r
 wells_export(creek_wells, id = "clinton", type = "voxler")
 #> Writing Voxler file ./clinton_voxler.csv
 #> [1] "./clinton_voxler.csv"
+```
+
+``` r
 wells_export(creek_wells, id = "clinton", type = "archydro")
 #> Writing ArcHydro files ./clinton_archydro_well.csv, ./clinton_archydro_hguid.csv, ./clinton_archydro_bh.csv
 #> [1] "./clinton_archydro_well.csv"  "./clinton_archydro_hguid.csv" "./clinton_archydro_bh.csv"
@@ -93,13 +100,13 @@ wells_export(creek_wells, id = "clinton", type = "archydro")
 
 Load a shape file defining the region of interest
 
-```r
+``` r
 mill_sf <- st_read("misc/data/MillBayWatershed.shp")
 ```
 
 We'll check against some tiles
 
-```r
+``` r
 g <- ggplot() +
   annotation_map_tile(type = "osm", zoomin = -1) +
   geom_sf(data = mill_sf, fill = NA, linewidth = 1.5) +
@@ -112,7 +119,7 @@ g
 Fetch Lidar DEM (this may take a while the first time)
 
 
-```r
+``` r
 mill_lidar <- dem_region(mill_sf)
 #> Get Lidar data
 #> Saving new tiles to cache directory: ~/.local/share/bcaquiferdata
@@ -124,10 +131,13 @@ mill_lidar <- dem_region(mill_sf)
 
 Add to our plot to double check
 
-```r
+``` r
 mill_lidar_sf <- stars::st_downsample(mill_lidar, n = 12) |> # Downsample first
   st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
 #> for stars_proxy objects, downsampling only happens for dimensions x and y
+```
+
+``` r
 
 g + geom_sf(data = mill_lidar_sf, aes(fill = elev), colour = NA)
 #> Zoom: 13
@@ -140,7 +150,7 @@ This can be confirmed by checking the online [LidarBC map](https://governmentofb
 
 Let's take a look our our options using TRIM data.
 
-```r
+``` r
 mill_trim <- dem_region(mill_sf, type = "trim")
 #> Get TRIM data
 #> checking your existing tiles for mapsheet 92b are up to date
@@ -149,7 +159,7 @@ mill_trim <- dem_region(mill_sf, type = "trim")
 
 Add to our plot to double check
 
-```r
+``` r
 mill_trim_sf <- mill_trim |>
   st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
 
@@ -164,17 +174,19 @@ TRIM is at a coarser resolution, but covers our entire area. Let's use it instea
 Collect wells in this region with added elevation from TRIM.
 
 
-```r
+``` r
 mill_wells <- mill_sf |>
   wells_subset() |>
   wells_elev(mill_trim)
 #> Subset wells
+#> Fixing wells with a bottom lithology interval of zero thickness: 8966, 29709, 36777, 37733, 48853, 48941, 55042, 56015, 56016, 68632, 69137, 69139, 69141, 75028, 75042, 84493, 84495, 84496, 84498, 84499, 84503, 84536
+#> Fixing wells missing depth: 80040, 80041, 80043, 81555, 88357, 94353, 94356
 #> Add elevation
 ```
 
 Plot again to double check, see that we now elevation data for all wells.
 
-```r
+``` r
 g +
   geom_sf(data = mill_wells, size = 1, aes(colour = elev)) +
   scale_color_viridis_c(na.value = "red")
@@ -186,13 +198,19 @@ g +
 
 Export data for Strater, Voxler, and ArcHydro
 
-```r
+``` r
 wells_export(mill_wells, id = "mill", type = "strater")
 #> Writing Strater files ./mill_strater_lith.csv, ./mill_strater_collars.csv, ./mill_strater_wls.csv
 #> [1] "./mill_strater_lith.csv"    "./mill_strater_collars.csv" "./mill_strater_wls.csv"
+```
+
+``` r
 wells_export(mill_wells, id = "mill", type = "voxler")
 #> Writing Voxler file ./mill_voxler.csv
 #> [1] "./mill_voxler.csv"
+```
+
+``` r
 wells_export(mill_wells, id = "mill", type = "archydro")
 #> Writing ArcHydro files ./mill_archydro_well.csv, ./mill_archydro_hguid.csv, ./mill_archydro_bh.csv
 #> [1] "./mill_archydro_well.csv"  "./mill_archydro_hguid.csv" "./mill_archydro_bh.csv"
@@ -202,7 +220,7 @@ wells_export(mill_wells, id = "mill", type = "archydro")
 #### Extra tools
 
 
-```r
+``` r
 library(dplyr)
 library(readr)
 ```
@@ -211,41 +229,43 @@ library(readr)
 Load cleaned data (will fetch if doesn't already exist)
 
 
-```r
+``` r
 wells_lith <- data_read("lithology")
 ```
 
 Explore the lithology standardization performed by bcaquiferdata
 
 
-```r
+``` r
 lith_std <- wells_lith |>
   select(well_tag_number, contains("lith")) |>
   arrange(!is.na(lithology_category))
 lith_std
-#> # A tibble: 618,156 × 17
-#>    well_tag_number lithology_from_ft_bgl lithology_to_ft_bgl lithology_raw_data                 lithology_description…¹
-#>              <dbl>                 <dbl>               <dbl> <chr>                              <chr>                  
-#>  1              11                   164                 187 "red ash"                          <NA>                   
-#>  2              13                     1                 120 "\""                               <NA>                   
-#>  3              49                     0                  15  <NA>                              <NA>                   
-#>  4              62                     0                   0 "backfilled to 217 foot deep well" <NA>                   
-#>  5              73                    25                 170 "delimite w/copper ore"            <NA>                   
-#>  6              73                   190                 380 "copper ore w/delimite"            <NA>                   
-#>  7              88                     0                  65  <NA>                              <NA>                   
-#>  8              98                     0                  15  <NA>                              <NA>                   
-#>  9             105                     0                  15  <NA>                              <NA>                   
-#> 10             163                   200                 210 "gray,clean a little coarser"      <NA>                   
-#> # ℹ 618,146 more rows
+#> # A tibble: 624,560 × 23
+#>    well_tag_number lithology_from_ft_bgl lithology_to_ft_bgl lithology_raw_data       lithology_descriptio…¹
+#>              <dbl>                 <dbl>               <dbl> <chr>                    <chr>                 
+#>  1              11                   164                 187 "red ash"                ""                    
+#>  2              13                     1                 120 "\""                     ""                    
+#>  3              49                     0                  15 ""                       ""                    
+#>  4              62                     0                   0 "backfilled to 217 foot… ""                    
+#>  5              73                    25                 170 "delimite w/copper ore"  ""                    
+#>  6              73                   190                 380 "copper ore w/delimite"  ""                    
+#>  7              88                     0                  65 ""                       ""                    
+#>  8              98                     0                  15 ""                       ""                    
+#>  9             105                     0                  15 ""                       ""                    
+#> 10             163                   200                 210 "gray,clean a little co… ""                    
+#> # ℹ 624,550 more rows
 #> # ℹ abbreviated name: ¹​lithology_description_code
-#> # ℹ 12 more variables: lithology_material_code <chr>, lithology_hardness_code <chr>, lithology_colour_code <chr>,
-#> #   lithology_observation <chr>, lithology_from_m <dbl>, lithology_to_m <dbl>, lithology_clean <chr>,
-#> #   lith_primary <chr>, lith_secondary <chr>, lith_tertiary <chr>, lithology_extra <chr>, lithology_category <chr>
+#> # ℹ 18 more variables: lithology_material_code <chr>, lithology_hardness_code <chr>,
+#> #   lithology_colour_code <chr>, lithology_observation <chr>, lithology_from_m <dbl>, lithology_to_m <dbl>,
+#> #   lithology_raw_combined <chr>, lith_n <int>, lith_rec <int>, flag_lith_nodepths <lgl>,
+#> #   flag_lith_overruns <lgl>, flag_lith_intervals <lgl>, lithology_clean <chr>, lith_primary <chr>,
+#> #   lith_secondary <chr>, lith_tertiary <chr>, lithology_extra <chr>, lithology_category <chr>
 ```
 
 Save it to peruse later
 
-```r
+``` r
 write_csv(lith_std, "lith_categorization.csv")
 ```
 
