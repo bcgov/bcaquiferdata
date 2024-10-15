@@ -53,7 +53,7 @@ data_read <- function(type, update = FALSE, permission = FALSE) {
 
   f <- file.path(cache_dir(), paste0(type, "_nice.rds"))
 
-  if(update || !file.exists(f)) data_update(type = "all")
+  if(update || !file.exists(f) || !data_ready()) data_update(type = "all")
 
   readr::read_rds(f)
 }
@@ -114,6 +114,9 @@ data_update <- function(type = "all", download = TRUE, permission = FALSE) {
     meta$lith_processed <- as.character(Sys.time())
   }
 
+  # Update package version
+  meta$bcaquiferdata_version <- as.character(utils::packageVersion("bcaquiferdata"))
+
   # Save updated metadata
   readr::write_csv(meta, file.path(cache_dir(), "meta.csv"))
 
@@ -145,30 +148,33 @@ fetch_gwells <- function() {
   unlink(file.path(cache_dir(), "GWELLS", "gwells.zip"))
 }
 
-clean_wells <- function(file = "GWELLS/well.csv") {
-  readr::read_csv(file.path(cache_dir(), file),
-                  guess_max = Inf, show_col_types = FALSE) %>%
+clean_wells <- function(file = NULL) {
+  if(is.null(file)) file <- file.path(cache_dir(), "GWELLS/well.csv")
+  readr::read_csv(file, guess_max = Inf, show_col_types = FALSE) %>%
     janitor::clean_names() %>%
     dplyr::filter(!is.na(.data$latitude_decdeg),
                   !is.na(.data$longitude_decdeg)) %>%
-    dplyr::mutate(
-      water_depth_m = round(.data$static_water_level_ft_btoc * 0.3048, 1),
-      well_depth_m = round(.data$finished_well_depth_ft_bgl * 0.3048, 1)) %>%
+    # Convert to metric
+    convert_m(cols = c("well_depth_m" = "finished_well_depth_ft_bgl",
+                       "water_depth_m" = "static_water_level_ft_btoc"),
+              digits = 1) %>%
     dplyr::select(dplyr::all_of(fields_wells))
 }
 
 
-clean_lithology <- function(file = "GWELLS/lithology.csv") {
+clean_lithology <- function(file = NULL) {
+
+  if(is.null(file)) file <- file.path(cache_dir(), "GWELLS/lithology.csv")
 
   message("Lithology - Cleaning")
   l_prep <- lith_prep(file)
 
   message("Lithology - Standardizing")
-  l_std <- lith_fix(file)
+  l_std <- lith_fix(l_prep$lithology_raw_combined)
 
   #l_std <- lith_yield(l_std)
 
-  l <- dplyr::left_join(l_prep, l_std, by = "lithology_raw_data")
+  l <- dplyr::left_join(l_prep, l_std, by = "lithology_raw_combined")
   message("Lithology - Calculating depth to bedrock")
   l <- lith_bedrock(l)
 
@@ -182,9 +188,14 @@ data_ready <- function() {
   meta <- cache_meta()
   m <- as.character(meta$wells_processed) != "" &
     as.character(meta$lith_processed) != ""
+  v <- meta$bcaquiferdata_version == utils::packageVersion("bcaquiferdata")
   f <- file.exists(file.path(cache_dir(),
                              c("wells_nice.rds", "lithology_nice.rds")))
-  all(m & f)
+
+  if(!v) message("Your version of the data was cleaned using a different ",
+                 "version of `bcaquiferdata`.\nUpdating data...")
+
+  all(m & f & v)
 }
 
 

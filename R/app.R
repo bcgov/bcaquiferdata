@@ -40,7 +40,8 @@ aq_app <- function() {
       ui_lithology("lithology"),
       ui_hydrostratigraphy("hydrostratigraphy"),
       ui_flags("flags"),
-      ui_export_data("export_data")
+      ui_export_data("export_data"),
+      ui_about("about")
     ),
     shinyjs::useShinyjs()  # Set up shinyjs
   )
@@ -79,7 +80,8 @@ aq_theme <- function() {
 }
 
 
-mod_test <- function(which) {
+mod_test <- function(which, data = "fixed") {
+  if(data == "fixed") wells_eg <- wells_eg_fixed else wells_eg <- wells_eg_unfixed
   ui <- tagList(
     page_navbar(
       title = "BC Aquifer Data",
@@ -95,7 +97,7 @@ mod_test <- function(which) {
     } else if(which == "wells") {
       server_wells("wells", reactive(TRUE))
     } else {
-      wells <- reactive(readr::read_rds("misc/mills.rds"))
+      wells <- reactive(wells_eg)
       get(paste0("server_", which))(which, wells)
     }
   }

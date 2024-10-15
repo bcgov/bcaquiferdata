@@ -1,14 +1,18 @@
-url: http://bcgov.github.io/bcaquiferdata/
+url: https://bcgov.github.io/bcaquiferdata/
 template:
   bootstrap: 5
-  bootswatch: cerulean
   bslib:
+    bootswatch: cerulean
     headings-color: "#003366"
     primary: "#003366"
     body-secondary-color: "white"
+    dropdown-link-color: "white"
   #simplex
   #sandstone
   #litera
+
+development:
+  mode: auto
 
 reference:
 
@@ -32,8 +36,10 @@ reference:
   desc: Functions you may not need, but might use for troubleshooting
 - contents:
   - lith_fix
+  - starts_with("fix")
 
 - title: Data
 - contents:
   - tiles
   - flags
+

@@ -22,6 +22,8 @@ duplicate documentation stays consistent.
 - Use `@noRd` to document internal functions (documentation for developers that
   isn't compiled into the docs)
 
+## Shiny helpers
+- `aq_tt()` is a helper function to create tooltips
 
 ## Data sources
 - TRIM DEM <https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d>

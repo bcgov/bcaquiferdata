@@ -22,16 +22,33 @@ ui_wells <- function(id) {
       sidebar = sidebar(width = "20%",
         h4("Prepare data"),
         p("Filter GWELLs to watershed area and use Lidar or TRIM digital ",
-        "elevation models to calculate well elevation"),
-
-        uiOutput(ns("data_warning")),
+        "elevation models to calculate well elevation."),
+        p(uiOutput(ns("data_warning"), inline = TRUE), br(),
+          uiOutput(ns("elev_warning"), inline = TRUE)),
         fileInput(
           ns("spatial_file"),
-          label = paste0("Choose shape file(s) defining a watershed area ",
-                         "(select multiple files using Ctrl, or use zip)"),
+          label = aq_tt(
+            "Choose shape file(s) defining a watershed",
+            "Select multiple files while holding down the 'Ctrl' button, or select a zipped collection"),
           buttonLabel = "Upload Spatial Data", multiple = TRUE),
-        radioButtons(ns("dem_type"), strong("DEM source"), inline = TRUE,
-                     choices = c("Lidar" = "lidar", "TRIM" = "trim")),
+        radioButtons(
+          ns("dem_combo"), strong("DEM source"), inline = TRUE,
+          choiceNames = list("Lidar", span("TRIM", style = "margin-right:150px"),
+                             "Lidar with TRIM", "TRIM with Lidar"),
+          choiceValues = c("lidar", "trim", "lidar_trim", "trim_lidar")),
+        checkboxGroupInput(
+          ns("fixes"), label = strong("Fix common problems"), inline = TRUE,
+          #choices = list("Zero-width bottom lithology intervals" = "fix_bottom",
+           #              "Missing well depth" = "fix_depth"),
+          choiceNames = list(
+            aq_tt("Zero-width bottom lithology intervals",
+                 "Fixed by adding 1m to both the final lithology depth and the well depth"),
+            aq_tt("Missing well depth",
+                  "Fixed by using the final lithology depth, if it exists")
+          ),
+          choiceValues = list("fix_bottom", "fix_depth"),
+          selected = c("fix_bottom", "fix_depth")),
+
         h4("Messages"),
         verbatimTextOutput(ns("messages"), placeholder = TRUE)
       ),
@@ -39,6 +56,10 @@ ui_wells <- function(id) {
                 plotOutput(ns("map_plot"), height = "650px")),
       nav_panel("Wells Data",
                 DT::dataTableOutput(ns("wells_table"))
+      ),
+      nav_panel("Info", includeMarkdown(
+        system.file("extra_docs", "wells_desc.md",
+                    package = "bcaquiferdata"))
       )
     )
   )
@@ -48,17 +69,49 @@ server_wells <- function(id, have_data) {
 
   moduleServer(id, function(input, output, session) {
 
+    # warnings -------------------------------------
     output$data_warning <- renderUI({
       if(have_data()) {
-        w <- tagList(icon("check", style = "color:lightgreen;"),
-                     "Wells Data Available", p())
+        w <- tagList(
+          aq_tt(span(icon("check", style = "color:lightgreen;"),
+                     "Wells Data Available"),
+                "The GWELLs data has been downloaded and processed")
+        )
       } else {
-        w <- tagList(icon("x", style = "color:red;"),
-                     "Wells Data Not Available (see Download Data tab)",
-                     p())
+        w <- tagList(
+          aq_tt(span(icon("x", style = "color:red;"),
+                     "Wells Data Not Available"),
+                "See the Download Data tab to download the GWELLS data before proceeding")
+        )
       }
       w
     })
+
+    output$elev_warning <- renderUI({
+      req(input$dem_combo)
+      if(stringr::str_detect(input$dem_combo, "_")) {
+        w <- tagList(
+          aq_tt(span(icon("triangle-exclamation", style = "color:orange;"),
+                          "Multiple Elevation Sources"),
+                "Use caution when combining elevation from multiple sources. See the Info pane for more details")
+        )
+      } else {
+        w <- tagList(
+          aq_tt(span(icon("check", style = "color:lightgreen;"),
+                     "Single Elevation Source"),
+                "It is safest to use elevation from a single source")
+        )
+      }
+      w
+
+    })
+
+    # fixes ---------------------------
+    fixes <- reactive({
+      list("fix_bottom" = "fix_bottom" %in% input$fixes,
+           "fix_depth" = "fix_depth" %in% input$fixes)
+    })
+
 
     # watershed -----------------------------
     watershed <- reactive({
@@ -90,50 +143,114 @@ server_wells <- function(id, have_data) {
       sf::st_read(f)
     })
 
+
+    # elevation ----------------------------------
+    dem_lidar <- reactive({
+      req(watershed())
+      dem_region_shiny("lidar", watershed(), session)
+    }) |>
+      bindCache(input$spatial_file)
+
+    dem_trim <- reactive({
+      req(watershed())
+      dem_region_shiny("trim", watershed(), session)
+    }) |>
+      bindCache(input$spatial_file)
+
+    dem_type1 <- reactive({
+      req(input$dem_combo)
+      stringr::str_extract(input$dem_combo, "^[^_]+")
+    })
+
+    dem_type2 <- reactive({
+      req(input$dem_combo)
+      if(stringr::str_detect(input$dem_combo, "_")) {
+        stringr::str_extract(input$dem_combo, "[^_]+$")
+      } else NULL
+    })
+
+    dem1 <- reactive({
+      req(watershed(), dem_type1())
+      if(dem_type1() == "lidar") dem_lidar() else dem_trim()
+    }) |>
+      bindCache(input$spatial_file, dem_type1())
+
+    dem2 <- reactive({
+      req(watershed())
+      if(!is.null(dem_type2())) {
+        if(dem_type2() == "lidar") dem_lidar() else dem_trim()
+      } else NULL
+    }) |>
+      bindCache(input$spatial_file, dem_type2())
+
     # map -----------------------------
+
+    # Down sample and convert to points
+    dem_tiles1 <- reactive({
+      ds <- nrow(dem1()) / 150
+      stars::st_downsample(dem1(), n = ds) %>%
+        sf::st_as_sf(as_points = FALSE)
+    }) %>%
+      bindCache(input$spatial_file, dem_type1())
+
+    dem_tiles2 <- reactive({
+      if(!is.null(dem_type2())) {
+        ds <- nrow(dem2()) / 150
+        stars::st_downsample(dem2(), n = ds) %>%
+          sf::st_as_sf(as_points = FALSE)
+      } else NULL
+    }) %>%
+      bindCache(input$spatial_file, dem_type2())
+
+
     output$map_plot <- renderPlot({
-      req(watershed(), wells(), dem())
+      req(watershed(), wells(), dem1())
 
       id <- showNotification("Plotting data...",
                              duration = NULL, closeButton = FALSE)
 
-      # Down sample
-      ds <- nrow(dem()) / 150
-      temp <- stars::st_downsample(dem(), n = ds) %>%
-        sf::st_as_sf(as_points = FALSE, merge = TRUE)
-
       g <- ggplot2::ggplot() +
         ggthemes::theme_map() +
-        ggplot2::theme(legend.position = "right") +
-        ggplot2::geom_sf(data = temp, ggplot2::aes(fill = .data$elev),
+        ggplot2::theme(legend.position = "right")
+
+      title <- paste("Elevation Data:", dem_type1())
+      if(!is.null(dem_tiles2())) {
+        title <- paste(title, "supplemented with", dem_type2())
+        g <- g +
+          ggplot2::geom_sf(data = dem_tiles2(), ggplot2::aes(fill = .data$elev),
+                           colour = NA)
+      }
+
+      g <- g +
+        ggplot2::geom_sf(data = dem_tiles1(), ggplot2::aes(fill = .data$elev),
                          colour = NA) +
+        ggplot2::geom_sf(data = sf::st_union(dem_tiles1()), colour = "black",
+                         fill = NA, linewidth = 1) +
         ggplot2::geom_sf(data = watershed(), linewidth = 2, fill = NA) +
         ggplot2::geom_sf(data = wells(), size = 1,
                          ggplot2::aes(colour = is.na(.data$elev))) +
         ggplot2::scale_fill_viridis_c(name = "Elevation (m)") +
-        ggplot2::labs(caption = "Note: DEM downsampled for plotting") +
+        ggplot2::labs(caption = paste0(
+          "Note: DEM downsampled for plotting\n",
+          "Source: ", stringr::str_remove(input$spatial_file$name[1], "\\..+$"))) +
         ggplot2::scale_colour_manual(
           name = "",
           labels = c("TRUE" = "Elevation Missing", "FALSE" = "Elevation Present"),
-          values = c("TRUE" = "#CD4071FF", "FALSE" = "#180F3EFF"))
+          values = c("TRUE" = "#CD4071FF", "FALSE" = "#180F3EFF")) +
+        ggplot2::labs(title = tools::toTitleCase(title))
 
       removeNotification(id)
 
       g
     }, res = 100) %>%
-      bindCache(input$spatial_file, input$dem_type)
-
-    dem <- reactive({
-      req(watershed(), input$dem_type)
-      dem_region_shiny(input$dem_type, watershed(), session)
-    })
+      bindCache(input$spatial_file, input$dem_combo)
 
 
     # wells ----------------------------------
     wells <- reactive({
-      req(watershed(), dem())
+      req(watershed(), dem1())
 
-      input$dem_type
+      input$dem_combo
 
       id <- showNotification("Filtering well data...",
                              type = "message",
@@ -141,25 +258,27 @@ server_wells <- function(id, have_data) {
 
       withCallingHandlers({
         message("Wells - Start")
-        w <- wells_subset(watershed()) %>%
-          wells_elev(dem())
+        w <- wells_subset(watershed(),
+                          fix_bottom = fixes()$fix_bottom,
+                          fix_depth = fixes()$fix_depth) %>%
+          wells_elev(dem1(), dem2())
         message("Wells - Done")
       },
       message = function(m) {
-        shinyjs::html(id = NS(id, "messages"), html = m$message, add = TRUE)
+        shinyjs::html(id = "messages", html = m$message, add = TRUE)
       })
 
       removeNotification(id)
       w
     }) %>%
-      bindCache(input$spatial_file, input$dem_type)
+      bindCache(input$spatial_file, input$dem_combo, fixes())
 
     # wells table -------------------------------
     output$wells_table <- DT::renderDataTable({
       wells() %>%
         sf::st_drop_geometry() %>%
-        aq_dt()
-    })
+        aq_dt(filename = "wells")
+    }, server = FALSE)
 
     # Outputs
     wells

@@ -22,7 +22,7 @@
 #'   "archydro", "leapfrog", or "surfer" (case-insensitive).
 #' @param preview Logical. Whether to preview the exports (`TRUE`, return a list
 #'   of data frames) or to actually export the data (`FALSE`, write the
-#'   necessary files to the `dir` folder.
+#'   necessary files to the `dir` folder, default).
 #'
 #' @return If `preview = FALSE`, a vector of file names, if `preview = TRUE`,
 #'   a list of data frames.
@@ -108,7 +108,7 @@ export_strater <- function(wells_sub, id, dir, preview) {
                   "From" = "lithology_from_m",
                   "To" = "lithology_to_m",
                   "Lithology_Keyword" = "lithology_category",
-                  "Lithology_Description" = "lithology_raw_data")
+                  "Lithology_Description" = "lithology_raw_combined")
 
   # Strater Collars
   f2 <- wells_sub %>%
@@ -149,8 +149,10 @@ export_voxler <- function(wells_sub, id, dir, preview) {
                   Component = 0) %>%
     dplyr::filter(!is.na(.data$Water_Elevation)) %>%
     dplyr::select("well_tag_number",
-                  "Easting_Albers" = "X", "Northing_Albers" = "Y",
-                  "Water_Elevation", "Component") %>%
+                  "Easting_Albers" = "X",
+                  "Northing_Albers" = "Y",
+                  "Water_Elevation",
+                  "Component") %>%
     dplyr::distinct()
 
   f1 <- voxler %>%
@@ -181,8 +183,8 @@ export_archydro <- function(wells_sub, id, dir, preview) {
       HydroID = .data$well_tag_number,
       HydroCode = paste0("w", .data$well_tag_number),
       LandElev = .data$elev,
-      X = .data$utm_easting,
-      Y = .data$utm_northing,
+      X = .data$X,
+      Y = .data$Y,
       WellDepth = .data$well_depth_m,
       FromDepth = .data$lithology_from_m,
       ToDepth = .data$lithology_to_m,
@@ -190,7 +192,7 @@ export_archydro <- function(wells_sub, id, dir, preview) {
       BottomElev = .data$LandElev - .data$ToDepth,
       Description = .data$lithology_category,
       HGUName = .data$lithology_category,
-      OriginalLithology = .data$lithology_clean)
+      OriginalLithology = .data$lithology_raw_combined)
 
   f1 <- dplyr::select(w,
                       "HydroID", "HydroCode",
@@ -232,6 +234,12 @@ export_archydro <- function(wells_sub, id, dir, preview) {
 
 export_leapfrog <- function(wells_sub, id, dir, preview) {
 
+  # Check for un-fixed problems
+  wells_sub <- wells_sub %>%
+    fix_bottom_intervals() %>%
+    fix_depth_missing() %>%
+    fix_depth_mismatch()
+
   if(!preview) {
     f <- file.path(
       dir,
@@ -249,7 +257,8 @@ export_leapfrog <- function(wells_sub, id, dir, preview) {
     dplyr::select("Hole ID" = "well_tag_number",
                   "From" = "lithology_from_m",
                   "To" = "lithology_to_m",
-                  "Lithology" = "lithology_category") %>%
+                  "Lithology" = "lithology_category",
+                  "Lithology Raw" = "lithology_raw_combined") %>%
     dplyr::distinct()
 
   if(preview) {

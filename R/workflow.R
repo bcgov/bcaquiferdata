@@ -75,8 +75,7 @@
 #' creek_trim <- dem_region(creek_sf, type = "trim")
 #'
 #' plot(creek_trim)
-#'
-#'
+
 dem_region <- function(region, type = "lidar", buffer = 1,
                        lidar_dir = NULL, only_new = TRUE,
                        progress = httr::progress()) {
@@ -119,6 +118,10 @@ dem_region <- function(region, type = "lidar", buffer = 1,
 #'
 #' Filter the GWELLS data returning only wells within the provided shapefile.
 #'
+#' @param fix_bottom Logical. Whether to add 1m to bottom lithology intervals that
+#'   has no thickness (identified by `flat_int_bottom`). Default `TRUE`.
+#' @param fix_depth Logical. Whether to fix missing well depths by making them
+#'   equal to the depth of the final lithology layer. Default `TRUE`.
 #' @inheritParams common_docs
 #'
 #' @examplesIf interactive()
@@ -132,7 +135,7 @@ dem_region <- function(region, type = "lidar", buffer = 1,
 #' creek_wells <- wells_subset(creek_sf)
 #'
 #' @export
-wells_subset <- function(region, update = FALSE) {
+wells_subset <- function(region, fix_bottom = TRUE, fix_depth = TRUE, update = FALSE) {
 
   if(!"sf" %in% class(region)) {
     stop("'region' must be an sf spatial object (see examples)",
@@ -146,7 +149,28 @@ wells_subset <- function(region, update = FALSE) {
     sf::st_filter(region) %>%
     dplyr::left_join(
       data_read("lithology") |> dplyr::select(-"well_yield_unit_code"),
-      by = "well_tag_number") #by = c("well_tag_number", "well_yield_unit_code"))
+      by = "well_tag_number") |>
+    dplyr::mutate(flag_lith_missing = dplyr::if_else(is.na(.data$lithology_from_m), TRUE, FALSE)) |>
+
+    # Additional flags
+    # TODO: Consider joining in cleaning stage and putting these there...
+    #  however, that makes the initial data much bigger and time consuming to filter...
+    #  Could join in just the flag
+
+    dplyr::mutate(
+      flag_depth_missing = is.na(.data$well_depth_m),
+      flag_depth_mismatch = .data$well_depth_m != .data$lithology_to_m) |>
+    dplyr::mutate(
+      # Only applies to final lith depth interval
+      flag_depth_mismatch = .data$flag_depth_mismatch[.data$lith_rec == .data$lith_n],
+      .by = "well_tag_number") |>
+
+    # All missing flags are NA
+    dplyr::mutate(dplyr::across(dplyr::starts_with("flag_"), \(x) tidyr::replace_na(x, FALSE))) |>
+
+    # Fix problems
+    fix_bottom_intervals(fix = fix_bottom) |>
+    fix_depth_missing(fix = fix_depth)
 }
 
 
@@ -156,7 +180,23 @@ wells_subset <- function(region, update = FALSE) {
 #' `dem_region()`), subsets the wells data (from GWELLS) to this region and adds
 #' the elevation data.
 #'
-#' @param dem stars simple features object. Output of `dem_region()`.
+#' @param dem stars simple features object. Output of `dem_region()`. Primary
+#'   source of elevation data.
+#' @param dem_extra stars simple features object. Output of `dem_region()`.
+#'   Optional secondary source of elevation data. Useful in situations where the
+#'   primary source is incomplete. **Use with caution: Combining elevations
+#'   measured though different techniques may introduce artifacts (See
+#'   Details)**.
+#'
+#' @details
+#' Because combining elevation data measured from different sources can
+#' introduce artifacts, if two sources of elevation are provided (i.e. both
+#' `dem` and `dem_extra`), the data will contain extra columns for assessment.
+#' Specifically, there will be three elevation columns, rather than just one.
+#' `elev1` contains elevations from the primary source (`dem`), `elev2` contains
+#' elevations from the secondary source (`dem_extra`), `elev` contains the
+#' combined elevation data, `elev1` unless missing, then `elev2`.
+#'
 #'
 #' @inheritParams common_docs
 #'
@@ -198,7 +238,19 @@ wells_subset <- function(region, update = FALSE) {
 #'           fill = "NA", show.legend = FALSE) +
 #'  coord_sf(datum = st_crs(3005)) # BC Albers
 #'
-wells_elev <- function(wells_sub, dem, update = FALSE) {
+#' # Dealing with missing data
+#' mill_sf <- st_read("misc/data/MillBayWatershed.shp")
+#' mill_wells <- wells_subset(mill_sf)
+#'
+#' mill_lidar <- dem_region(mill_sf)
+#' mill_trim <- dem_region(mill_sf, type = "trim")
+#'
+#' mill_wells <- wells_elev(mill_wells, dem = mill_lidar, dem_extra = mill_trim)
+#'
+#' # See how the elevation data is combined, `dem` (elev1) is the primary source.
+#' select(mill_wells, well_tag_number, elev1, elev2, elev)
+#'
+wells_elev <- function(wells_sub, dem, dem_extra = NULL, update = FALSE) {
 
   # Checks
   if(!"sf" %in% class(wells_sub)) {
@@ -217,10 +269,28 @@ wells_elev <- function(wells_sub, dem, update = FALSE) {
   }
 
   message("Add elevation")
-  wells_sub <- wells_sub %>%
-    sf::st_transform(sf::st_crs(dem)) %>%
+  e1 <- wells_sub %>%
+    sf::st_transform(sf::st_crs(dem)) %>%  # Faster to transform wells than dem
     dplyr::mutate(elev = round(stars::st_extract(dem, .)[[1]], 2)) %>%
     sf::st_transform(crs = 3005) # Transform to BC albers
+
+  if(!is.null(dem_extra)) {
+    warning("Combining elevations measured through different techniques may ",
+            "introduce artifacts into your measure of elevation. ",
+            "Use with caution.", call. = FALSE)
+
+    e2 <- wells_sub %>%
+      dplyr::select("well_tag_number", "geometry") %>%
+      sf::st_transform(sf::st_crs(dem_extra)) %>%
+      dplyr::mutate(elev2 = round(stars::st_extract(dem_extra, .)[[1]], 2)) %>%
+      sf::st_drop_geometry()
+
+    e1 <- e1 %>%
+      dplyr::rename(elev1 = "elev") %>%
+      dplyr::left_join(e2, by = "well_tag_number") |>
+      dplyr::mutate(elev = dplyr::coalesce(.data[["elev1"]], .data[["elev2"]]))
+  }
+  e1
 }
 
 
@@ -258,8 +328,158 @@ wells_yield <- function(wells_sub) {
       "lithology_from_m", "lithology_to_m",
       "well_yield_usgpm", "well_yield_unit_code",
       "fractured", "yield_units",
-      "lithology_raw_data", dplyr::starts_with("flag")) %>%
+      "lithology_raw_combined",
+      dplyr::starts_with("flag"), dplyr::starts_with("fix")) %>%
     lith_yield() %>%
-    dplyr::mutate(flag_yield = tidyr::replace_na(.data$flag_yield, FALSE))
+    dplyr::mutate(flag_yield_mismatch = tidyr::replace_na(.data$flag_yield_mismatch, FALSE))
 }
 
+
+
+#' Fix the depth of the final interval if missing
+#'
+#' The `flag_int_bottom` flag identifies the bottom interval if it is depthless,
+#' but otherwise okay. Fixing these intervals means adding 1m to them and to the
+#' final depth of the well.
+#'
+#' @param wells_sub The subsetted wells data frame (combined with lithology)
+#'
+#' @return Fixed wells_sub data frame
+#' @noRd
+fix_bottom_intervals <- function(wells_sub, fix = TRUE) {
+
+  if(!"fix_int_bottom" %in% names(wells_sub)) wells_sub$fix_int_bottom <- FALSE
+
+  # Which wells need to be fixed and haven't been?
+  w <- which(wells_sub$flag_int_bottom & !wells_sub$fix_int_bottom)
+  w_pretty <- unique(wells_sub$well_tag_number[w]) |> paste0(collapse = ", ")
+
+  if(length(w) > 0) {
+    if(fix) {
+      message("Fixing wells with a bottom lithology interval of zero thickness: ",
+              w_pretty)
+
+      wells_sub$lithology_to_m[w] <- wells_sub$lithology_to_m[w] + 1
+      wells_sub$lithology_to_ft_bgl[w] <- wells_sub$lithology_to_ft_bgl[w] + 3.28084
+      wells_sub$well_depth_m[w] <- wells_sub$well_depth_m[w] + 1
+      wells_sub$finished_well_depth_ft_bgl[w] <- wells_sub$finished_well_depth_ft_bgl[w] + 3.28084
+      wells_sub$fix_int_bottom[w] <- TRUE
+
+    } else {
+      message("Some wells have a bottom lithology interval of zero thickness.\n",
+              "Consider either using `fix_bottom = TRUE` in `wells_subset()` or ",
+              "fixing the original record in GWELLS\n",
+              "Wells: ", w_pretty)
+    }
+  }
+
+  wells_sub
+}
+
+
+fix_depth_missing <- function(wells_sub, fix = TRUE) {
+
+  if(!"fix_depth_missing" %in% names(wells_sub)) wells_sub$fix_depth_missing <- FALSE
+
+  # Which wells are fixable and haven't been?
+  w <- wells_sub$well_tag_number[
+    wells_sub$flag_depth_missing &
+      !wells_sub$flag_lith_missing &
+      !wells_sub$fix_depth_missing] |>
+    unique()
+  w_pretty <- paste0(w, collapse = ", ")
+
+  if(length(w) > 0) {
+    if(fix) {
+      message("Fixing wells missing depth: ", w_pretty)
+
+      w <- wells_sub %>%
+        sf::st_drop_geometry() %>%
+        dplyr::filter(.data$well_tag_number %in% .env$w) %>%
+        dplyr::mutate(
+          well_depth_m = .data$lithology_to_m[.data$lith_rec == .data$lith_n],
+          finished_well_depth_ft_bgl = .data$lithology_to_ft_bgl[.data$lith_rec == .data$lith_n],
+          fix_depth_missing = TRUE,
+          .by = "well_tag_number")
+
+      if(inherits(wells_sub, "sf")) {
+        wells_sub <- dplyr::as_tibble(wells_sub) %>%
+          dplyr::rows_upsert(w, by = c("well_tag_number", "lith_rec")) %>%
+          sf::st_as_sf()
+      } else {
+        wells_sub <- dplyr::rows_upsert(wells_sub, w, by = c("well_tag_number", "lith_rec"))
+      }
+
+    } else {
+      message("Some wells are missing well depth. ",
+              "Consider either using `fix_depth_missing = TRUE` in `wells_subset()` or ",
+              "fixing the original record in GWELLS\n",
+              "Wells: ", w_pretty)
+    }
+  }
+
+  wells_sub
+
+}
+
+
+#' Fix the depth of the well if not equal to final lithology
+#'
+#' The `flag_depth_mismatch` flag identifies wells where the depth is not the
+#' same as the depth of the final lithology layer. Fixing these well depths
+#' means replacing the well depth with the depth of the final lithology layer.
+#'
+#' This is done automatically for leapfrog exports, but otherwise not.
+#'
+#' @inheritParams common_docs
+#'
+#' @return Fixed wells_sub data frame
+#' @examplesIf interactive()
+#'
+#' library(sf)
+#'
+#' # Load a shape file defining the region of interest
+#' creek_sf <- st_read("misc/data/Clinton_Creek.shp")
+#'
+#' # Get wells within this region
+#' creek_wells <- wells_subset(creek_sf)
+#'
+#' # Fix well depths
+#' creek_wells_fixed <- fix_depth_mismatch(creek_wells)
+#'
+#' # Explore all fixes
+#' dplyr::select(creek_wells_fixed, dplyr::starts_with("fix"))
+#'
+#' @export
+fix_depth_mismatch <- function(wells_sub) {
+
+  if(!"fix_depth_mismatch" %in% names(wells_sub)) wells_sub$fix_depth_mismatch <- FALSE
+
+  # Which wells are fixable and haven't been?
+  w <- wells_sub$well_tag_number[
+    wells_sub$flag_depth_mismatch &
+      !wells_sub$flag_lith_missing] |>
+    unique()
+  w_pretty <- paste0(w, collapse = ", ")
+
+  message("Fixing wells where depth is not equal to final lithology layer: ", w_pretty)
+
+  w <- wells_sub %>%
+    sf::st_drop_geometry() %>%
+    dplyr::filter(.data$well_tag_number %in% .env$w) %>%
+    dplyr::mutate(
+      well_depth_m = .data$lithology_to_m[.data$lith_rec == .data$lith_n],
+      finished_well_depth_ft_bgl = .data$lithology_to_ft_bgl[.data$lith_rec == .data$lith_n],
+      fix_depth_mismatch = TRUE,
+      .by = "well_tag_number")
+
+  if(inherits(wells_sub, "sf")) {
+    wells_sub <- dplyr::as_tibble(wells_sub) %>%
+      dplyr::rows_upsert(w, by = c("well_tag_number", "lith_rec")) %>%
+      sf::st_as_sf()
+  } else {
+    wells_sub <- dplyr::rows_upsert(wells_sub, w, by = c("well_tag_number", "lith_rec"))
+  }
+
+  wells_sub
+}

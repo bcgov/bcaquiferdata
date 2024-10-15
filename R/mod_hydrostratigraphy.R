@@ -24,14 +24,15 @@ ui_hydrostratigraphy <- function(id) {
         layout_sidebar(
           sidebar = sidebar(
             checkboxGroupInput(
-              ns("hydrostratigraphy_columns"), label = h4("Columns"),
+              ns("hydrostratigraphy_columns"),
+              label = h4(aq_tt("Columns", "Which types of columns to display")),
               choices = list("Basic" = "min",
                              "Raw lithology" = "lith_raw",
                              "Flags" = "flags"),
               selected = "min"
             ),
             markdown(paste0(
-              "**Note:**<br>The `flag_extra_digits` column shows digits ",
+              "**Note:**<br>The `flag_yield_digits` column shows digits ",
               "extracted from raw lithology which could not be converted to ",
               "a yield or depth (see 'Info' tab for more details)."))
             ),
@@ -59,15 +60,15 @@ server_hydrostratigraphy <- function(id, wells) {
         "elev", "well_depth_m", "lithology_from_m", "lithology_to_m",
         #"well_yield_usgpm", "well_yield_unit_code",
         "depth", "depth_units", "yield", "yield_units")
-      if("lith_raw" %in% show) cols <- c(cols, "lithology_raw_data")
-      if("flags" %in% show) cols <- c(cols, "flag_yield", "flag_extra_digits")
+      if("lith_raw" %in% show) cols <- c(cols, "lithology_raw_combined")
+      if("flags" %in% show) cols <- c(cols, "flag_yield_mismatch", "flag_yield_digits")
 
       wells() %>%
         sf::st_drop_geometry() %>%
         wells_yield() %>%
         dplyr::select(dplyr::all_of(cols)) %>%
-        aq_dt()
-    })
+        aq_dt(filename = "hydrostratigraphy")
+    }, server = FALSE)
 
   })
 

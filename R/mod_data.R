@@ -31,7 +31,9 @@ ui_data <- function(id) {
             card_body(fillable = FALSE, uiOutput(ns("data_status"))),
             card_body(
               fillable = FALSE,
-              strong("Cache directories"), br(),
+              aq_tt(strong("Cache directories"),
+                    "Where the GWELLS and map files are/will be stored, respectively"),
+              br(),
               uiOutput(ns("cache_status")),
               actionButton(ns("data_download"), "Fetch/Update GWELLS data",
                            class = "btn-success m-2"),

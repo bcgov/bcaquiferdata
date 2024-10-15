@@ -20,14 +20,18 @@ ui_export_data <- function(id) {
     title = "Exports",
     navset_card_pill(
       sidebar = sidebar(
-        textInput(ns("export_id"), h4("ID for export files"), value = "xxx"),
+        textInput(
+          ns("export_id"),
+          h4(aq_tt("File ID", "Prefix for the files to be exported")),
+          value = "xxx"),
         p(),
-        h4("Output folder"),
+        h4(aq_tt("Output folder", "Where should the exported files be saved?")),
         textOutput(ns("export_dir")),
         p(),
         shinyDirButton(ns("choose_export_dir"),
                        "Choose output folder",
-                       "Choose where to save files")
+                       "Choose where to save files"),
+        uiOutput(ns("fixes"), inline = TRUE)
       ),
 
       # UI - Strater -------------
@@ -138,6 +142,47 @@ server_export_data <- function(id, wells) {
         bindEvent(input[[paste0("export_", type)]], export_dir(), ignoreInit = TRUE)
     }
 
+
+    # Messaging --------------------
+
+    # If any things need to be fixed (and haven't already), let the user know
+    output$fixes <- renderUI({
+
+      f1 <- any(wells()$flag_int_bottom) & !any(wells()$fix_int_bottom)
+      f2 <- any(wells()$flag_depth_mismatch)
+
+      if(f1 | f2) {
+        t <- tagList(strong("LeapFrog Export:"), br())
+      } else {
+        t <- tagList()
+      }
+
+      if(f1) {
+        t <- tagList(
+          t,
+          p("Forcing thickness of bottom lithology intervals from 0m to 1m in wells:", br(),
+            tags$ul(
+              lapply(unique(wells()$well_tag_number[wells()$flag_int_bottom]),
+                     htmltools::tags$li)
+            )
+          )
+        )
+      }
+
+      if(f2) {
+        t <- tagList(
+          t,
+          p("Forcing well depth to equal depth of the final lithology interval", br(),
+            tags$ul(
+              lapply(unique(wells()$well_tag_number[wells()$flag_depth_mismatch]),
+                     htmltools::tags$li)
+            )
+          )
+        )
+      }
+
+      t
+    })
 
     # Setup Directory and File IDs ------------------
     export_id <- reactive(janitor::make_clean_names(input$export_id))

@@ -13,20 +13,30 @@
 # limitations under the License.
 
 
-
-
-# Check version        ---------------------------
+# Check version -------------------------------
 
 # Update the app helpfiles -----------------------
 # - inst/extra_docs/lithology_desc.md
 
 # Update NEWS ------------------------------------
+file.edit("NEWS.md")
+
+# Update WORKFLOW AND DESIGN
+file.edit("vignettes/roadmap.Rmd")
+
+# Update CODE_DESIGN
+file.edit("CODE_DESIGN.md")
 
 # Update Datasets --------------------------------
 data_update()
+unlink(list.files(pattern = "log_duplicate_records", full.names = TRUE))
 source("data-raw/flags.R")
 source("data-raw/tiles.R")
 source("data-raw/internal.R")
+source("data-raw/test_data.R")
+
+# Update citation information!
+citation("bcaquiferdata")
 
 # Compile README ---------------------------------
 unlink("README_files", recursive = TRUE)
@@ -48,10 +58,14 @@ usethis::use_github_release()
 
 
 # Preview website - "Real" version run as GitHub action -----------------
+# **BUILD PACKAGE FIRST!!!**
+pkgdown::init_site()
+pkgdown::build_home_index()
 pkgdown::build_site()
 pkgdown::build_site(lazy = TRUE)
 pkgdown::build_article("articles/shiny_apps")
 pkgdown::build_article("bcaquiferdata")
+pkgdown::build_article("flags")
 
 # Preview app -----------------------------------------------------------
 aq_app()

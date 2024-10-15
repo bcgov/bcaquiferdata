@@ -83,6 +83,5 @@ plot(creek_lidar)
 creek_trim <- dem_region(creek_sf, type = "trim")
 
 plot(creek_trim)
-
 \dontshow{\}) # examplesIf}
 }

@@ -23,7 +23,8 @@ ui_lithology <- function(id) {
                 layout_sidebar(
                   sidebar = sidebar(
                     checkboxGroupInput(
-                      ns("lith_columns"), label = h4("Columns"),
+                      ns("lith_columns"),
+                      label = h4(aq_tt("Columns", "Which types of columns to display")),
                       choices = list("Basic" = "min",
                                      "Extra" = "extra",
                                      "All from GWELLS" = "gwells",
@@ -56,7 +57,7 @@ server_lithology <- function(id, wells) {
 
       if("min" %in% show) cols <- c(cols,
                                     "lithology_from_m", "lithology_to_m",
-                                    "lithology_raw_data",
+                                    "lithology_raw_combined",
                                     "lithology_clean", "lithology_category",
                                     "bedrock_depth_m")
       if("extra" %in% show) cols <- c(cols, "lithology_extra")
@@ -70,8 +71,8 @@ server_lithology <- function(id, wells) {
       wells() %>%
         dplyr::select(dplyr::all_of(cols)) %>%
         sf::st_drop_geometry() %>%
-        aq_dt()
-    })
+        aq_dt(filename = "lithology")
+    }, server = FALSE)
 
   })
 }

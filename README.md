@@ -18,7 +18,9 @@ The Shiny app (a graphical user interface), provides a tool for data
 exploration and exporting.
 
 We’re still actively refining and adding to this tool, but it is
-maturing.
+maturing. See the [bcaquiferdata
+website](https://bcgov.github.io/bcaquiferdata) for tutorials and
+documentation.
 
 ## Quick Start
 
@@ -51,20 +53,29 @@ maturing.
     pkgbuild::check_build_tools()
     ```
 
-6.  **Install bcgwcat** In the console type the following and hit enter
-    (be sure to install all updates if prompted!)
+6.  **Install bcaquiferdata** In the console type the following and hit
+    enter (be sure to install all updates if prompted!)
 
     ``` r
-    pak::pkg_install("bcgov/bcgwcat")
+    pak::pkg_install("bcgov/bcaquiferdata")
     ```
+
+## Development version
+
+If you’re interested in testing out the developmental version of the
+package, you can install it with
+
+``` r
+pak::pkg_install("bcgov/bcaquiferdata@dev")
+```
 
 ## Troubleshooting
 
 If you run into errors right at the start, try **updating all packages
-required by bcgwcat**
+required by bcaquiferdata**
 
 ``` r
-pak::pkg_install("bcgov/bcgwcat", upgrade = TRUE)
+pak::pkg_install("bcgov/bcaquiferdata", upgrade = TRUE)
 ```
 
 ## Shiny User-Interface
@@ -80,10 +91,13 @@ bcaquiferdata::aq_app() # Launch the app
 [tutorial](https://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.html)
 for a more in-depth look at how to use the User Interface**
 
-## Vignette/Tutorials
+## Citing `bcaquiferdata`
 
-See more details on the [bcaquiferdata
-website](https://bcgov.github.io/bcaquiferdata)
+You can cite this software as follows:
+
+LaZerte S, Bieber C, Province of British Columbia (2024). *BC Aquifer
+Data Tools*. R package version 0.0.3.9000,
+<http://bcgov.github.io/bcaquiferdata/>.
 
 ## License
 

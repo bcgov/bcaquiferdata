@@ -1,0 +1,12 @@
+bibentry(
+  key      = "bcaquiferdata",
+  bibtype  = "Manual",
+  title    = "BC Aquifer Data Tools",
+  author   = c(person("Steffi", "LaZerte"), person("Christine", "Bieber"),
+               person("Province of British Columbia")),
+  url      = "http://bcgov.github.io/bcaquiferdata/",
+
+  # To be updated as needed
+  year     = "2024",
+  note     = paste("R package version", packageVersion("bcaquiferdata"))
+)

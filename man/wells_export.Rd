@@ -19,7 +19,7 @@ to working directory.}
 
 \item{preview}{Logical. Whether to preview the exports (\code{TRUE}, return a list
 of data frames) or to actually export the data (\code{FALSE}, write the
-necessary files to the \code{dir} folder.}
+necessary files to the \code{dir} folder, default).}
 }
 \value{
 If \code{preview = FALSE}, a vector of file names, if \code{preview = TRUE},

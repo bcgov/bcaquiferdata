@@ -12,45 +12,6 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-lith_prep <- function(file = "GWELLS/lithology.csv") {
-
-  readr::read_csv(file.path(cache_dir(), file),
-                  guess_max = Inf, show_col_types = FALSE) %>%
-    janitor::clean_names() %>%
-
-    # Convert to metric
-    dplyr::mutate(
-      lithology_from_m = round(.data$lithology_from_ft_bgl * 0.3048, 2),
-      lithology_to_m = round(.data$lithology_to_ft_bgl * 0.3048, 2),
-      lithology_raw_data = stringr::str_to_lower(.data$lithology_raw_data)) %>%
-
-    # Check for flags
-    dplyr::group_by(.data$well_tag_number) %>%
-    dplyr::arrange(.data$well_tag_number,
-                   .data$lithology_from_m, .data$lithology_to_m) %>%
-    dplyr::mutate(
-
-      n = dplyr::n(),
-
-      # Flag lithology where no depths
-      flag_no_depths = all(.data$lithology_from_m == 0 & .data$lithology_to_m == 0),
-
-      # Flag where possible overruns
-      flag_overruns = any(.data$lithology_from_m == 0 & .data$lithology_to_m == 0),
-
-      # Flag where show bottom unit
-      flag_bottom_unit = .data$n > 1 & all(.data$lithology_from_m == 0),
-
-      # Flag overflow lithology (zero to zero)
-      flag_zero_zero = .data$lithology_from_m == 0 & .data$lithology_to_m == 0,
-
-      # Flag missing lithology
-      flag_missing = is.na(.data$lithology_raw_data) |
-        .data$lithology_raw_data == "") |>
-    dplyr::ungroup()
-}
-
-
 #' Fix lithology descriptions
 #'
 #' Clean and categorize lithology descriptions into primary, secondary, tertiary
@@ -60,41 +21,30 @@ lith_prep <- function(file = "GWELLS/lithology.csv") {
 #' However statements can be tested directly with this function to see how it
 #' works and for troubleshooting.
 #'
-#' @param file Character. Lithology file name stored in cache
-#' @param desc Character. Text string to convert (overrides `file`).
+#' @param desc Character. Text string to convert/fix.
 #'
 #' @return Data frame of lithology categorizations
 #' @export
 #'
 #' @examples
 #'
-#' lith_fix(desc = "sandy gravel")
+#' lith_fix("sandy gravel")
 #'
 #' # basic spell checks
-#' lith_fix(desc = "saandy gravel")
+#' lith_fix("saandy gravel")
 #'
-lith_fix <- function(file = "lithology.csv", desc = NULL) {
-
-  # File or text
-  if(is.null(desc)) {
-    lith_desc <- readr::read_csv(file.path(cache_dir(), file),
-                                 guess_max = Inf, show_col_types = FALSE) %>%
-      janitor::clean_names()
-  } else {
-    lith_desc <- data.frame(lithology_raw_data = desc)
-  }
+lith_fix <- function(desc = NULL) {
 
   # Initial cleanup -----------------------------------------------------------
-  lith_desc <- lith_desc %>%
-    # Convert to metric
+  lith_desc <- dplyr::tibble(lithology_raw_combined = desc) %>%
     dplyr::mutate(
-      lithology_raw_data = stringr::str_to_lower(.data$lithology_raw_data),
-      lithology_raw_data = stringr::str_remove(.data$lithology_raw_data,
-                                               "^aquifer data(:)*")) %>%
-    dplyr::select("lithology_raw_data") %>%
+      lithology_raw_combined = stringr::str_to_lower(.data$lithology_raw_combined),
+      lithology_raw_combined = stringr::str_remove(.data$lithology_raw_combined,
+                                                   "^aquifer data(:)*")) %>%
+    dplyr::select("lithology_raw_combined") %>%
     dplyr::distinct() %>%
     dplyr::mutate(
-      lith_clean = .data$lithology_raw_data,
+      lith_clean = .data$lithology_raw_combined,
       # omit numbers and quotes
       lith_clean = stringr::str_remove_all(.data$lith_clean, "\\d"),
       # clean punctuation
@@ -165,7 +115,7 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
 
   terms_good_bedrock <- list(
     "bedrock" = c("andesite", "argillite",
-                  "basalt", "basaltic", "bentonite",
+                  "basalt", "basaltic",
                   "bedrock", "calcite",
                   "claystone", "chert", "coal",
                   "conglomerate",
@@ -420,9 +370,9 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
 
   terms_omit <- list(
     "purple", "red", "orange", "yellow", "green", "blue", "white",
-            "black", "grey", "brown", "tan", "turquoise", "rust", "brick",
-            "pink") %>%
-              append(., paste0(., "ish")) %>%
+    "black", "grey", "brown", "tan", "turquoise", "rust", "brick",
+    "pink") %>%
+    append(., paste0(., "ish")) %>%
     append(list(
       "colour", "dark", "light", "pale", "hard", "soft", "softer", "heavily",
       "fine", "small", "medium", "med", "large", "coarse",
@@ -529,7 +479,7 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
       lithology_category = purrr::pmap_chr(list(.data$primary,
                                                 .data$secondary,
                                                 .data$tertiary),
-                                      lith_categorize)) %>%
+                                           lith_categorize)) %>%
     tidyr::unnest("flags")
 
   # For comparing
@@ -543,7 +493,7 @@ lith_fix <- function(file = "lithology.csv", desc = NULL) {
       lithology_extra = purrr::map_chr(.data$extra, collapse_nested),
       yield_units = purrr::map_chr(.data$yield, collapse_nested)) %>%
     # Bind to lithology data and return
-    dplyr::select("lithology_raw_data", "lithology_clean" = "lith_clean",
+    dplyr::select("lithology_raw_combined", "lithology_clean" = "lith_clean",
                   "lith_primary", "lith_secondary", "lith_tertiary",
                   "lithology_extra", "lithology_category", "yield_units",
                   dplyr::starts_with("flag_"))
@@ -553,7 +503,7 @@ lith_yield <- function(lith, flatten = FALSE) {
 
   p_units_yield <- "( )?(gpm|gph)"
   p_units_depth_ft <- "'|ft|feet"
-  p_units_depth_m <- "(m|meters|metres)\\b"
+  p_units_depth_m <- "(m|meters|metres|meter|metre)\\b"
   p_units_depth <- paste0("( )?(", p_units_depth_ft, "|", p_units_depth_m, ")")
 
   p_yield <- paste0("(", p_range(), "|", p_dbl(), ")", p_units_yield)
@@ -562,23 +512,24 @@ lith_yield <- function(lith, flatten = FALSE) {
   l <- lith %>%
     sf::st_drop_geometry() %>%
     dplyr::filter(.data$yield_units != "") %>%
-    dplyr::select("lithology_raw_data") %>%
+    dplyr::select("lithology_raw_combined") %>%
     dplyr::mutate(
-      flag_extra_digits = stringr::str_squish(.data$lithology_raw_data),
-      flag_extra_digits = fix_fraction(.data$flag_extra_digits),
+      flag_yield_digits = stringr::str_squish(.data$lithology_raw_combined),
+      flag_yield_digits = fix_fraction(.data$flag_yield_digits),
+      flag_yield_digits = fix_leading_zero(.data$flag_yield_digits),
       yield_chr = stringr::str_extract_all(
-        .data$flag_extra_digits, .env$p_yield),
-      flag_extra_digits = stringr::str_remove_all(
-        .data$flag_extra_digits, .env$p_yield),
+        .data$flag_yield_digits, .env$p_yield),
+      flag_yield_digits = stringr::str_remove_all(
+        .data$flag_yield_digits, .env$p_yield),
       yield_chr = purrr::map(.data$yield_chr,
                              ~stringr::str_remove_all(., .env$p_units_yield)),
-      depth = stringr::str_extract_all(.data$flag_extra_digits, .env$p_depth),
-      flag_extra_digits = stringr::str_remove_all(
-        .data$flag_extra_digits, .env$p_depth),
-      flag_extra_digits = stringr::str_extract_all(
-        .data$flag_extra_digits, "\\d+"),
-      flag_extra_digits = purrr::map_chr(
-        .data$flag_extra_digits, ~paste0(.x, collapse = ";")),
+      depth = stringr::str_extract_all(.data$flag_yield_digits, .env$p_depth),
+      flag_yield_digits = stringr::str_remove_all(
+        .data$flag_yield_digits, .env$p_depth),
+      flag_yield_digits = stringr::str_extract_all(
+        .data$flag_yield_digits, "\\d+"),
+      flag_yield_digits = purrr::map_chr(
+        .data$flag_yield_digits, ~paste0(.x, collapse = ";")),
       depth_units = purrr::map_chr(
         .data$depth,
         ~ stringr::str_extract_all(.x, .env$p_units_depth) %>%
@@ -600,16 +551,16 @@ lith_yield <- function(lith, flatten = FALSE) {
       n_depth = purrr::map_int(.data$depth, length),
       # Flag yields where the depths and yields don't match and there are at
       # least one of each
-      flag_yield = .data$n_yield != .data$n_depth &
+      flag_yield_mismatch = .data$n_yield != .data$n_depth &
         .data$n_yield != 0 & .data$n_depth != 0,
-      yield = replace(.data$yield, .data$flag_yield, NA),
-      depth = replace(.data$depth, .data$flag_yield, NA)) %>%
+      yield = replace(.data$yield, .data$flag_yield_mismatch, NA),
+      depth = replace(.data$depth, .data$flag_yield_mismatch, NA)) %>%
     dplyr::select(-"n_yield", -"n_depth") %>%
     tidyr::unnest(cols = c("yield", "depth"), keep_empty = TRUE)
 
-  dplyr::left_join(lith, l, by = "lithology_raw_data") %>%
+  dplyr::left_join(lith, l, by = "lithology_raw_combined") %>%
     dplyr::relocate("yield_units", .after = "yield") %>%
-    dplyr::relocate("flag_yield", .before = "depth")
+    dplyr::relocate("flag_yield_mismatch", .before = "depth")
 }
 
 #' Get depth to bedrock from lithology
@@ -637,7 +588,7 @@ lith_bedrock <- function(l) {
     dplyr::ungroup() %>%
     dplyr::select("n", "flg", "bedrock_depth_m") %>%
     dplyr::left_join(l, ., by = "n") %>%
-    dplyr::mutate(flag_bedrock_position = tidyr::replace_na(.data$flg, FALSE)) %>%
+    dplyr::mutate(flag_pos_bedrock = tidyr::replace_na(.data$flg, FALSE)) %>%
     dplyr::select(-"n", -"flg")
 }
 
@@ -734,15 +685,15 @@ lith_secondary <- function(terms, terms_to_use) {
   with <- names(terms_to_use) %>%
     paste0("(?<=with )", .) %>%   # Must have a 'with ' right before the term
     lith_prep_regex(noname = TRUE)
-#
-#   # Create regex for matching bedrock terms
-#   desc <- names(terms_good_bedrock) %>%
-#     lith_prep_regex(noname = TRUE)
-#
-#   # Grab descriptive terms that appear before the bedrock term
-#   desc <- names(terms_good_bedrock_desc) %>%
-#     stringr::str_c(collapse = "|") %>%
-#     stringr::str_c("(", ., ")(?= (", desc, "))")
+  #
+  #   # Create regex for matching bedrock terms
+  #   desc <- names(terms_good_bedrock) %>%
+  #     lith_prep_regex(noname = TRUE)
+  #
+  #   # Grab descriptive terms that appear before the bedrock term
+  #   desc <- names(terms_good_bedrock_desc) %>%
+  #     stringr::str_c(collapse = "|") %>%
+  #     stringr::str_c("(", ., ")(?= (", desc, "))")
 
   stringr::str_extract_all(terms, pattern = paste0("(", with, ")"))
 }
@@ -783,13 +734,13 @@ lith_categorize <- function(p, s, t) {
   } else if(any(c(p, s, t) %in% "bedrock")) {
     cat <- "Bedrock"
 
-  # Sand and Gravel
+    # Sand and Gravel
   } else if(("sand" %in% p & "gravel" %in% c(p, s, t) & dirty) |
             ("gravel" %in% p & "sand" %in% c(p, s, t) & dirty) |
             (all(c("sand", "gravel") %in% p) & any(c("silt", "clay") %in% p))) {
     cat <- "Sand and Gravel (Dirty)"
 
-  # Sand or Gravel Till or Diamicton
+    # Sand or Gravel Till or Diamicton
   } else if(
     sg_till |
     (any(p %in% c("till", "clay")) & (any_sand | any_gravel)) |
@@ -797,23 +748,23 @@ lith_categorize <- function(p, s, t) {
     ("compact" %in% p & (any(c("sand", "gravel") %in% c(p, s))))) {
     cat <- "Sand or Gravel Till or Diamicton"
 
-  # Silty clay
+    # Silty clay
   } else if(
     ((length(t) == 1 && t == "silt") ||
-    (length(s) == 1 && s == "silt")) &&
+     (length(s) == 1 && s == "silt")) &&
     length(p) == 1 && p == "clay") {
     cat <- "Clay"
 
-  # Clay and Till
+    # Clay and Till
   } else if(
     any(p %in% c("till", "hardpan", "hard earth")) |
     (any(c("silt", "clay") %in% p) & "till" %in% c(s, t)) |
     ("compact" %in% p & any(c("silt", "clay") %in% c(p, s, t))) |
     all(c("silt", "clay") %in% unique(c(p, t, s)))
-    ) {
+  ) {
     cat <- "Medium to Clay Till or Diamicton"
 
-  # Sand and Fines
+    # Sand and Fines
   } else if((any(p %in% "sand") & dirty) |
             all(c("sand", "silt") %in% p)) {
     cat <- "Sand and Fines"
@@ -860,14 +811,14 @@ lith_flag <- function(p, s, t) {
   bedrock <- c("bedrock", "faulted", "fractured", "weathered")
 
   dplyr::tibble(
-    flag_bedrock = any(bedrock %in% c(p, s)) & !all(p %in% bedrock),
-    flag_boulders = "boulders" %in% c(p, s, t) & !all(p == "boulders"),
-    flag_missing_cats = all(is.na(c(p, s, t)))
+    flag_cat_bedrock = any(bedrock %in% c(p, s)) & !all(p %in% bedrock),
+    flag_cat_boulders = "boulders" %in% c(p, s, t) & !all(p == "boulders"),
+    flag_cat_missing = all(is.na(c(p, s, t)))
   )
 }
 
 collapse_nested <- function(x) {
-  if(length(x) > 0) paste0(x, collapse = ", ") else ""
+  if(length(x) > 0) paste0(unique(x), collapse = ", ") else ""
 }
 
 

@@ -1,7 +1,8 @@
 #### Lithology
 
 Lithology categories (`lithology_category`) are created by cleaning and categorizing the 
-lithology descriptions from GWELLs data (`lithology_raw_data`).
+lithology descriptions from GWELLs data (`lithology_raw_combined`, which 
+combines `lithology_raw_data`, `lithology_description_code` and `lithology_material_code`).
 
 For more details on how lithology is categorized, please see the
 documentation regarding <a href="http://bcgov.github.io/bcaquiferdata/articles/lithology_categorization.html" target="_blank">Lithology Cleaning and Categorizing</a>.
@@ -9,7 +10,7 @@ documentation regarding <a href="http://bcgov.github.io/bcaquiferdata/articles/l
 Adding "Basic" columns means including relevant lithology measures such as
 - `well_tag_number`
 - `lithology_from_m` / `lithology_to_m` -> Start and end of the depth being described in meters
-- `lithology_raw_data` -> Original lithology description from GWELLS
+- `lithology_raw_combined` -> Combined original lithology descriptions from GWELLS
 - `lithology_clean` -> Cleaned lithology description (see below)
 - `lithology_category` -> Categorized lithology (see below)
 - `bedrock_depth_m` -> Depth to bedrock in meters (if bedrock appears in the record) 
