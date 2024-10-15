@@ -52,7 +52,7 @@ plot(creek_lidar)
 #> downsample set to 44
 ```
 
-![plot of chunk unnamed-chunk-5](vignettes/articles/figures/workflow-unnamed-chunk-5-1.png)
+![plot of chunk unnamed-chunk-5](figures/workflow-unnamed-chunk-5-1.png)
 
 Collect wells in this region with added elevation from Lidar
 
@@ -74,7 +74,7 @@ ggplot() +
   geom_sf(data = creek_wells, size= 1, aes(colour = elev))
 ```
 
-![plot of chunk unnamed-chunk-7](vignettes/articles/figures/workflow-unnamed-chunk-7-1.png)
+![plot of chunk unnamed-chunk-7](figures/workflow-unnamed-chunk-7-1.png)
 
 Export data for Strater, Voxler, and ArcHydro
 
@@ -114,7 +114,7 @@ g <- ggplot() +
 g
 ```
 
-![plot of chunk unnamed-chunk-10](vignettes/articles/figures/workflow-unnamed-chunk-10-1.png)
+![plot of chunk unnamed-chunk-10](figures/workflow-unnamed-chunk-10-1.png)
 
 Fetch Lidar DEM (this may take a while the first time)
 
@@ -143,7 +143,7 @@ g + geom_sf(data = mill_lidar_sf, aes(fill = elev), colour = NA)
 #> Zoom: 13
 ```
 
-![plot of chunk unnamed-chunk-12](vignettes/articles/figures/workflow-unnamed-chunk-12-1.png)
+![plot of chunk unnamed-chunk-12](figures/workflow-unnamed-chunk-12-1.png)
 
 Looks like we don't have elevation data for the whole region. 
 This can be confirmed by checking the online [LidarBC map](https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03)
@@ -167,7 +167,7 @@ g + geom_sf(data = mill_trim_sf, aes(fill = elev), colour = NA)
 #> Zoom: 13
 ```
 
-![plot of chunk unnamed-chunk-14](vignettes/articles/figures/workflow-unnamed-chunk-14-1.png)
+![plot of chunk unnamed-chunk-14](figures/workflow-unnamed-chunk-14-1.png)
 
 TRIM is at a coarser resolution, but covers our entire area. Let's use it instead.
 
@@ -193,7 +193,7 @@ g +
 #> Zoom: 13
 ```
 
-![plot of chunk unnamed-chunk-16](vignettes/articles/figures/workflow-unnamed-chunk-16-1.png)
+![plot of chunk unnamed-chunk-16](figures/workflow-unnamed-chunk-16-1.png)
 
 
 Export data for Strater, Voxler, and ArcHydro
@@ -242,24 +242,23 @@ lith_std <- wells_lith |>
   arrange(!is.na(lithology_category))
 lith_std
 #> # A tibble: 624,560 × 23
-#>    well_tag_number lithology_from_ft_bgl lithology_to_ft_bgl lithology_raw_data       lithology_descriptio…¹
-#>              <dbl>                 <dbl>               <dbl> <chr>                    <chr>                 
-#>  1              11                   164                 187 "red ash"                ""                    
-#>  2              13                     1                 120 "\""                     ""                    
-#>  3              49                     0                  15 ""                       ""                    
-#>  4              62                     0                   0 "backfilled to 217 foot… ""                    
-#>  5              73                    25                 170 "delimite w/copper ore"  ""                    
-#>  6              73                   190                 380 "copper ore w/delimite"  ""                    
-#>  7              88                     0                  65 ""                       ""                    
-#>  8              98                     0                  15 ""                       ""                    
-#>  9             105                     0                  15 ""                       ""                    
-#> 10             163                   200                 210 "gray,clean a little co… ""                    
+#>    well_tag_number lithology_from_ft_bgl lithology_to_ft_bgl lithology_raw_data        lithology_descriptio…¹ lithology_material_c…²
+#>              <dbl>                 <dbl>               <dbl> <chr>                     <chr>                  <chr>                 
+#>  1              11                   164                 187 "red ash"                 ""                     ""                    
+#>  2              13                     1                 120 "\""                      ""                     ""                    
+#>  3              49                     0                  15 ""                        ""                     ""                    
+#>  4              62                     0                   0 "backfilled to 217 foot … ""                     ""                    
+#>  5              73                    25                 170 "delimite w/copper ore"   ""                     ""                    
+#>  6              73                   190                 380 "copper ore w/delimite"   ""                     ""                    
+#>  7              88                     0                  65 ""                        ""                     ""                    
+#>  8              98                     0                  15 ""                        ""                     ""                    
+#>  9             105                     0                  15 ""                        ""                     ""                    
+#> 10             163                   200                 210 "gray,clean a little coa… ""                     ""                    
 #> # ℹ 624,550 more rows
-#> # ℹ abbreviated name: ¹​lithology_description_code
-#> # ℹ 18 more variables: lithology_material_code <chr>, lithology_hardness_code <chr>,
-#> #   lithology_colour_code <chr>, lithology_observation <chr>, lithology_from_m <dbl>, lithology_to_m <dbl>,
-#> #   lithology_raw_combined <chr>, lith_n <int>, lith_rec <int>, flag_lith_nodepths <lgl>,
-#> #   flag_lith_overruns <lgl>, flag_lith_intervals <lgl>, lithology_clean <chr>, lith_primary <chr>,
+#> # ℹ abbreviated names: ¹​lithology_description_code, ²​lithology_material_code
+#> # ℹ 17 more variables: lithology_hardness_code <chr>, lithology_colour_code <chr>, lithology_observation <chr>,
+#> #   lithology_from_m <dbl>, lithology_to_m <dbl>, lithology_raw_combined <chr>, lith_n <int>, lith_rec <int>,
+#> #   flag_lith_nodepths <lgl>, flag_lith_overruns <lgl>, flag_lith_intervals <lgl>, lithology_clean <chr>, lith_primary <chr>,
 #> #   lith_secondary <chr>, lith_tertiary <chr>, lithology_extra <chr>, lithology_category <chr>
 ```
 

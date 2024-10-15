@@ -48,12 +48,12 @@
             {
               "type": "character",
               "attributes": {},
-              "value": ["Overburden", "Bedrock", "Gravel (Dirty)", "Bedrock", null, null, null, null, "Gravel (Dirty)", "Bedrock", null, null, "Sand or Gravel Till or Diamicton", "Bedrock", null, null, null, null, "Organics", "Sand and Gravel (Clean)", "Sand and Gravel (Clean)", "Clay", "Sand and Gravel (Clean)", "Bedrock", "Bedrock", null, "Bedrock", "Bedrock", "Bedrock", "Sand and Gravel (Dirty)", "Bedrock"]
+              "value": ["Overburden", "Bedrock", "Gravel (Dirty)", "Bedrock", null, null, null, null, "Gravel (Dirty)", "Bedrock", null, null, "Sand or Gravel Till or Diamicton", "Bedrock", null, null, null, null, "Organics", "Sand and Gravel (Clean)", "Sand and Gravel (Clean)", "Clay", "Sand and Gravel (Clean)", "Bedrock", "Organics", null, null, "Gravel", null, "Sand and Gravel (Dirty)", "Bedrock"]
             },
             {
               "type": "character",
               "attributes": {},
-              "value": ["overburden", "bedrock", "brown silty gravel silty gravel", "bedrock bedrock", "185 feet - 1.5 gpm", "245 (m) 1.5 gpm", "425 feet 1 3/4 gpm", "507 feet 1 3/4 gpm", "silty gravel silty gravel", "bedrock solid bedrock", "1 gpm at 40 feet", "1 gpm at 625", "silty clay, some gravels silty clay", "bedrock, green bedrock", "50 feet - 1 gpm", "170 feet - 4 gpm", "225 feet - 2 gpm", "307 feet - 4 gpm", "black top soil", "grey sand and gravel", "fine t0 medium brown sand and gravel wet 3 gpm", "brown clay", "coarse brown sand and gravel 30 gpm", "bedrock", "bentonite and soil", "concrete", "bentonite chips", "3.5 feet bentonite to 17 feet of pea gravel", "bentonite", "sand,clay, silt, gravel", "bedrock"]
+              "value": ["overburden", "bedrock", "brown silty gravel silty gravel brown", "bedrock bedrock", "185 feet - 1.5 gpm", "245 (m) 1.5 gpm", "425 feet 1 3/4 gpm", "507 feet 1 3/4 gpm", "silty gravel silty gravel", "bedrock solid bedrock solid", "1 gpm at 40 feet", "1 gpm at 625", "silty clay, some gravels silty clay some gravel", "bedrock, green bedrock green", "50 feet - 1 gpm", "170 feet - 4 gpm", "225 feet - 2 gpm", "307 feet - 4 gpm", "black top soil", "grey sand and gravel", "fine t0 medium brown sand and gravel wet 3 gpm", "brown clay", "coarse brown sand and gravel 30 gpm", "bedrock", "bentonite and soil", "concrete", "bentonite chips", "3.5 feet bentonite to 17 feet of pea gravel", "bentonite", "sand,clay, silt, gravel brown dense", "bedrock grey at 172'; some chunks between 30-40'"]
             }
           ]
         },
@@ -281,7 +281,7 @@
             "row.names": {
               "type": "integer",
               "attributes": {},
-              "value": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+              "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             },
             "class": {
               "type": "character",
@@ -293,22 +293,22 @@
             {
               "type": "integer",
               "attributes": {},
-              "value": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+              "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             },
             {
               "type": "integer",
               "attributes": {},
-              "value": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+              "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             },
             {
               "type": "character",
               "attributes": {},
-              "value": ["Overburden", "Bedrock", "Gravel (Dirty)", null, "Sand or Gravel Till or Diamicton", "Organics", "Sand and Gravel (Clean)", "Clay", "Sand and Gravel (Dirty)"]
+              "value": ["Overburden", "Bedrock", "Gravel (Dirty)", null, "Sand or Gravel Till or Diamicton", "Organics", "Sand and Gravel (Clean)", "Clay", "Gravel", "Sand and Gravel (Dirty)"]
             },
             {
               "type": "character",
               "attributes": {},
-              "value": ["Overburden", "Bedrock", "Gravel (Dirty)", null, "Sand or Gravel Till or Diamicton", "Organics", "Sand and Gravel (Clean)", "Clay", "Sand and Gravel (Dirty)"]
+              "value": ["Overburden", "Bedrock", "Gravel (Dirty)", null, "Sand or Gravel Till or Diamicton", "Organics", "Sand and Gravel (Clean)", "Clay", "Gravel", "Sand and Gravel (Dirty)"]
             }
           ]
         },
@@ -345,12 +345,12 @@
             {
               "type": "character",
               "attributes": {},
-              "value": ["Overburden", "Bedrock", "Gravel (Dirty)", "Bedrock", null, null, null, null, "Gravel (Dirty)", "Bedrock", null, null, "Sand or Gravel Till or Diamicton", "Bedrock", null, null, null, null, "Organics", "Sand and Gravel (Clean)", "Sand and Gravel (Clean)", "Clay", "Sand and Gravel (Clean)", "Bedrock", "Bedrock", null, "Bedrock", "Bedrock", "Bedrock", "Sand and Gravel (Dirty)", "Bedrock"]
+              "value": ["Overburden", "Bedrock", "Gravel (Dirty)", "Bedrock", null, null, null, null, "Gravel (Dirty)", "Bedrock", null, null, "Sand or Gravel Till or Diamicton", "Bedrock", null, null, null, null, "Organics", "Sand and Gravel (Clean)", "Sand and Gravel (Clean)", "Clay", "Sand and Gravel (Clean)", "Bedrock", "Organics", null, null, "Gravel", null, "Sand and Gravel (Dirty)", "Bedrock"]
             },
             {
               "type": "integer",
               "attributes": {},
-              "value": [1, 2, 3, 2, 4, 4, 4, 4, 3, 2, 4, 4, 5, 2, 4, 4, 4, 4, 6, 7, 7, 8, 7, 2, 2, 4, 2, 2, 2, 9, 2]
+              "value": [1, 2, 3, 2, 4, 4, 4, 4, 3, 2, 4, 4, 5, 2, 4, 4, 4, 4, 6, 7, 7, 8, 7, 2, 6, 4, 4, 9, 4, 10, 2]
             },
             {
               "type": "double",
@@ -380,7 +380,7 @@
             {
               "type": "character",
               "attributes": {},
-              "value": ["overburden", "bedrock", "brown silty gravel silty gravel", "bedrock bedrock", "185 feet - 1.5 gpm", "245 (m) 1.5 gpm", "425 feet 1 3/4 gpm", "507 feet 1 3/4 gpm", "silty gravel silty gravel", "bedrock solid bedrock", "1 gpm at 40 feet", "1 gpm at 625", "silty clay, some gravels silty clay", "bedrock, green bedrock", "50 feet - 1 gpm", "170 feet - 4 gpm", "225 feet - 2 gpm", "307 feet - 4 gpm", "black top soil", "grey sand and gravel", "fine t0 medium brown sand and gravel wet 3 gpm", "brown clay", "coarse brown sand and gravel 30 gpm", "bedrock", "bentonite and soil", "concrete", "bentonite chips", "3.5 feet bentonite to 17 feet of pea gravel", "bentonite", "sand,clay, silt, gravel", "bedrock"]
+              "value": ["overburden", "bedrock", "brown silty gravel silty gravel brown", "bedrock bedrock", "185 feet - 1.5 gpm", "245 (m) 1.5 gpm", "425 feet 1 3/4 gpm", "507 feet 1 3/4 gpm", "silty gravel silty gravel", "bedrock solid bedrock solid", "1 gpm at 40 feet", "1 gpm at 625", "silty clay, some gravels silty clay some gravel", "bedrock, green bedrock green", "50 feet - 1 gpm", "170 feet - 4 gpm", "225 feet - 2 gpm", "307 feet - 4 gpm", "black top soil", "grey sand and gravel", "fine t0 medium brown sand and gravel wet 3 gpm", "brown clay", "coarse brown sand and gravel 30 gpm", "bedrock", "bentonite and soil", "concrete", "bentonite chips", "3.5 feet bentonite to 17 feet of pea gravel", "bentonite", "sand,clay, silt, gravel brown dense", "bedrock grey at 172'; some chunks between 30-40'"]
             }
           ]
         }
@@ -484,12 +484,12 @@
             {
               "type": "character",
               "attributes": {},
-              "value": ["Overburden", "Bedrock", "Gravel (Dirty)", "Bedrock", null, null, null, null, "Gravel (Dirty)", "Bedrock", null, null, "Sand or Gravel Till or Diamicton", "Bedrock", null, null, null, null, "Organics", "Sand and Gravel (Clean)", "Sand and Gravel (Clean)", "Clay", "Sand and Gravel (Clean)", "Bedrock", "Bedrock", null, "Bedrock", "Bedrock", "Bedrock", "Sand and Gravel (Dirty)", "Bedrock"]
+              "value": ["Overburden", "Bedrock", "Gravel (Dirty)", "Bedrock", null, null, null, null, "Gravel (Dirty)", "Bedrock", null, null, "Sand or Gravel Till or Diamicton", "Bedrock", null, null, null, null, "Organics", "Sand and Gravel (Clean)", "Sand and Gravel (Clean)", "Clay", "Sand and Gravel (Clean)", "Bedrock", "Organics", null, null, "Gravel", null, "Sand and Gravel (Dirty)", "Bedrock"]
             },
             {
               "type": "character",
               "attributes": {},
-              "value": ["overburden", "bedrock", "brown silty gravel silty gravel", "bedrock bedrock", "185 feet - 1.5 gpm", "245 (m) 1.5 gpm", "425 feet 1 3/4 gpm", "507 feet 1 3/4 gpm", "silty gravel silty gravel", "bedrock solid bedrock", "1 gpm at 40 feet", "1 gpm at 625", "silty clay, some gravels silty clay", "bedrock, green bedrock", "50 feet - 1 gpm", "170 feet - 4 gpm", "225 feet - 2 gpm", "307 feet - 4 gpm", "black top soil", "grey sand and gravel", "fine t0 medium brown sand and gravel wet 3 gpm", "brown clay", "coarse brown sand and gravel 30 gpm", "bedrock", "bentonite and soil", "concrete", "bentonite chips", "3.5 feet bentonite to 17 feet of pea gravel", "bentonite", "sand,clay, silt, gravel", "bedrock"]
+              "value": ["overburden", "bedrock", "brown silty gravel silty gravel brown", "bedrock bedrock", "185 feet - 1.5 gpm", "245 (m) 1.5 gpm", "425 feet 1 3/4 gpm", "507 feet 1 3/4 gpm", "silty gravel silty gravel", "bedrock solid bedrock solid", "1 gpm at 40 feet", "1 gpm at 625", "silty clay, some gravels silty clay some gravel", "bedrock, green bedrock green", "50 feet - 1 gpm", "170 feet - 4 gpm", "225 feet - 2 gpm", "307 feet - 4 gpm", "black top soil", "grey sand and gravel", "fine t0 medium brown sand and gravel wet 3 gpm", "brown clay", "coarse brown sand and gravel 30 gpm", "bedrock", "bentonite and soil", "concrete", "bentonite chips", "3.5 feet bentonite to 17 feet of pea gravel", "bentonite", "sand,clay, silt, gravel brown dense", "bedrock grey at 172'; some chunks between 30-40'"]
             }
           ]
         }
@@ -546,7 +546,7 @@
             {
               "type": "double",
               "attributes": {},
-              "value": [3.66, 3.66, 3.66, 3.66, 3.66, 3.66, 3.66, 3.66, 1.52, 1.52, 1.52, 1.52, 4.88, 4.88, 4.88, 4.88, 4.88, 4.88, 18.59, 18.59, 18.59, 18.59, 18.59, 18.59, 0, 0, 0, 0, 0, 7.01, 7.01]
+              "value": [3.66, 3.66, 3.66, 3.66, 3.66, 3.66, 3.66, 3.66, 1.52, 1.52, 1.52, 1.52, 4.88, 4.88, 4.88, 4.88, 4.88, 4.88, 18.59, 18.59, 18.59, 18.59, 18.59, 18.59, "NA", "NA", "NA", "NA", "NA", 7.01, 7.01]
             },
             {
               "type": "double",

@@ -6,6 +6,7 @@ template:
     headings-color: "#003366"
     primary: "#003366"
     body-secondary-color: "white"
+    bs-dropdown-link-color: "white"
   #simplex
   #sandstone
   #litera
