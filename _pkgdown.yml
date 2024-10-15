@@ -10,7 +10,9 @@ template:
   #sandstone
   #litera
 
-mode: auto
+development:
+  mode: auto
+
 reference:
 
 - title: Shiny App
