@@ -78,7 +78,7 @@ Here is a summary with links to the relevant sections
 >
 > **TODO**
 > 
-> - Add option for user to supply their own spatial elevation data
+> - Add option for user to supply their own spatial elevation data ([Issue #18](https://github.com/bcgov/bcaquiferdata/issues/18))
 
 ### Adding elevation data
 
@@ -94,7 +94,7 @@ Here is a summary with links to the relevant sections
 
 ### Adding spatial data layers
 
-> Spatial data trimmed to match the extent of the area of interst. 
+> Spatial data trimmed to match the extent of the area of interest. 
 
 - Bedrock geology: https://catalogue.data.gov.bc.ca/dataset/bedrock-geology
 - Faults:  https://catalogue.data.gov.bc.ca/dataset/geology-faults
@@ -108,6 +108,7 @@ Here is a summary with links to the relevant sections
 >
 > **TODO**
 > 
+> - [Issue #19](https://github.com/bcgov/bcaquiferdata/issues/18)
 > - Is this necessary or desired?
 > - If so, what should it look like in the App?
 

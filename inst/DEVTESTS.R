@@ -39,6 +39,7 @@ mod_test("wells")
 
 mod_test("export_data")
 mod_test("export_data", data = "unfixed")
+mod_test("flags")
 
 # Silver creek -----------------
 

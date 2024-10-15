@@ -22,7 +22,7 @@
 file.edit("NEWS.md")
 
 # Update WORKFLOW AND DESIGN
-file.edit("WORKFLOW AND DESIGN.md")
+file.edit("vignettes/roadmap.Rmd")
 
 # Update CODE_DESIGN
 file.edit("CODE_DESIGN.md")

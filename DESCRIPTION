@@ -50,5 +50,5 @@ Suggests:
     testthat (>= 3.0.0)
 LazyData: true
 Config/testthat/edition: 3
-URL: http://bcgov.github.io/bcaquiferdata/, https://github.com/bcgov/bcaquiferdata
+URL: https://bcgov.github.io/bcaquiferdata/, https://github.com/bcgov/bcaquiferdata
 VignetteBuilder: knitr
