@@ -1,90 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/404.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/CODE_DESIGN.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/CODE_OF_CONDUCT.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/CONTRIBUTING.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/WORKFLOW AND DESIGN.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/articles/Workflow-examples.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/articles/flags.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/articles/lithology_categorization.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/articles/shiny_apps.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/authors.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/index.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/news/index.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/aq_app.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/cache_clean.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/common_docs.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/data_read.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/data_update.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/dem_region.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/flags.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/lith_fix.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/tiles.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/wells_elev.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/wells_export.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/wells_subset.html</loc>
-  </url>
-  <url>
-    <loc>http://bcgov.github.io/bcaquiferdata/reference/wells_yield.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://bcgov.github.io/bcaquiferdata/404.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/CODE_DESIGN.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/CONTRIBUTING.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/LICENSE-text.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/articles/Workflow-examples.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/articles/flags.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/articles/index.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/articles/lithology_categorization.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/articles/roadmap.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/articles/shiny_apps.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/authors.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/index.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/news/index.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/aq_app.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/cache_clean.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/common_docs.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/data_read.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/data_update.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/dem_region.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/fix_depth_mismatch.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/flags.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/index.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/lith_fix.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/tiles.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/wells_eg_fixed.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/wells_eg_unfixed.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/wells_elev.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/wells_export.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/wells_subset.html</loc></url>
+<url><loc>https://bcgov.github.io/bcaquiferdata/reference/wells_yield.html</loc></url>
 </urlset>
+

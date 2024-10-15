@@ -1,14 +1,14 @@
-pandoc: 2.19.2
-pkgdown: 2.0.7
+pandoc: 3.1.11
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
-  Workflow-examples: Workflow-examples.html
-  shiny_apps: shiny_apps.html
   bcaquiferdata: bcaquiferdata.html
   flags: flags.html
   lithology_categorization: lithology_categorization.html
-last_built: 2024-02-19T23:49Z
+  roadmap: roadmap.html
+  articles/shiny_apps: shiny_apps.html
+  articles/Workflow-examples: Workflow-examples.html
+last_built: 2024-10-15T16:50Z
 urls:
-  reference: http://bcgov.github.io/bcaquiferdata/reference
-  article: http://bcgov.github.io/bcaquiferdata/articles
-
+  reference: https://bcgov.github.io/bcaquiferdata/reference
+  article: https://bcgov.github.io/bcaquiferdata/articles
