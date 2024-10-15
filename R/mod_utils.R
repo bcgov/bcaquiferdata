@@ -1,4 +1,4 @@
-aq_tt <- function(trigger, ..., alt = "tooltip") {
+aq_tt <- function(trigger, ..., alt = "More information") {
   bslib::tooltip(
     htmltools::span(
       trigger,

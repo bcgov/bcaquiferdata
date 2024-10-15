@@ -42,11 +42,9 @@ ui_wells <- function(id) {
            #              "Missing well depth" = "fix_depth"),
           choiceNames = list(
             aq_tt("Zero-width bottom lithology intervals",
-                 "Fixed by adding 1m to both the final lithology depth and the well depth",
-                 alt = "Fix details"),
+                 "Fixed by adding 1m to both the final lithology depth and the well depth"),
             aq_tt("Missing well depth",
-                  "Fixed by using the final lithology depth, if it exists",
-                  alt = "Fix details")
+                  "Fixed by using the final lithology depth, if it exists")
           ),
           choiceValues = list("fix_bottom", "fix_depth"),
           selected = c("fix_bottom", "fix_depth")),
