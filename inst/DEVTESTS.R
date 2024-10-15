@@ -189,7 +189,8 @@ filter(wells_lith, lithology_category == "Compact")
 l <- lith_prep()
 
 dplyr::filter(l, stringr::str_detect(lithology_raw_combined, "nothing"))
-dplyr::filter(l, stringr::str_detect(lithology_raw_combined, "bentonite"))
+dplyr::filter(l, stringr::str_detect(lithology_raw_combined, "bentonite")) |>
+  dplyr::select(lithology_raw_combined, lithology_raw_data, lithology_description_code, lithology_material_code, lithology_colour_code, lithology_hardness_code, lithology_observation)
 
 dplyr::filter(l, lithology_colour_code != "", lithology_material_code != "") |>
   dplyr::select(lithology_raw_combined, lithology_raw_data, lithology_description_code, lithology_material_code, lithology_colour_code, lithology_hardness_code, lithology_observation) |>
