@@ -1,4 +1,4 @@
-url: http://bcgov.github.io/bcaquiferdata/
+url: https://bcgov.github.io/bcaquiferdata/
 template:
   bootstrap: 5
   bootswatch: cerulean
@@ -10,6 +10,7 @@ template:
   #sandstone
   #litera
 
+mode: auto
 reference:
 
 - title: Shiny App
@@ -37,3 +38,4 @@ reference:
 - contents:
   - tiles
   - flags
+
