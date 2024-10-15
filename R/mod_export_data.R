@@ -20,9 +20,12 @@ ui_export_data <- function(id) {
     title = "Exports",
     navset_card_pill(
       sidebar = sidebar(
-        textInput(ns("export_id"), h4("ID for export files"), value = "xxx"),
+        textInput(
+          ns("export_id"),
+          h4(aq_tt("File ID", "Prefix for the files to be exported")),
+          value = "xxx"),
         p(),
-        h4("Output folder"),
+        h4(aq_tt("Output folder", "Where should the exported files be saved?")),
         textOutput(ns("export_dir")),
         p(),
         shinyDirButton(ns("choose_export_dir"),

@@ -23,7 +23,8 @@ ui_lithology <- function(id) {
                 layout_sidebar(
                   sidebar = sidebar(
                     checkboxGroupInput(
-                      ns("lith_columns"), label = h4("Columns"),
+                      ns("lith_columns"),
+                      label = h4(aq_tt("Columns", "Which types of columns to display")),
                       choices = list("Basic" = "min",
                                      "Extra" = "extra",
                                      "All from GWELLS" = "gwells",

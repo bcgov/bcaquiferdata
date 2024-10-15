@@ -24,7 +24,8 @@ ui_hydrostratigraphy <- function(id) {
         layout_sidebar(
           sidebar = sidebar(
             checkboxGroupInput(
-              ns("hydrostratigraphy_columns"), label = h4("Columns"),
+              ns("hydrostratigraphy_columns"),
+              label = h4(aq_tt("Columns", "Which types of columns to display")),
               choices = list("Basic" = "min",
                              "Raw lithology" = "lith_raw",
                              "Flags" = "flags"),

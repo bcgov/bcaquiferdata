@@ -22,13 +22,14 @@ ui_wells <- function(id) {
       sidebar = sidebar(width = "20%",
         h4("Prepare data"),
         p("Filter GWELLs to watershed area and use Lidar or TRIM digital ",
-        "elevation models to calculate well elevation"),
+        "elevation models to calculate well elevation."),
         p(uiOutput(ns("data_warning"), inline = TRUE), br(),
           uiOutput(ns("elev_warning"), inline = TRUE)),
         fileInput(
           ns("spatial_file"),
-          label = paste0("Choose shape file(s) defining a watershed area ",
-                         "(select multiple files using Ctrl, or use zip)"),
+          label = aq_tt(
+            "Choose shape file(s) defining a watershed",
+            "Select multiple files while holding down the 'Ctrl' button, or select a zipped collection"),
           buttonLabel = "Upload Spatial Data", multiple = TRUE),
         radioButtons(
           ns("dem_combo"), strong("DEM source"), inline = TRUE,
@@ -37,9 +38,19 @@ ui_wells <- function(id) {
           choiceValues = c("lidar", "trim", "lidar_trim", "trim_lidar")),
         checkboxGroupInput(
           ns("fixes"), label = strong("Fix common problems"), inline = TRUE,
-          choices = list("Zero-width bottom lithology intervals" = "fix_bottom",
-                         "Missing well depth" = "fix_depth"),
+          #choices = list("Zero-width bottom lithology intervals" = "fix_bottom",
+           #              "Missing well depth" = "fix_depth"),
+          choiceNames = list(
+            aq_tt("Zero-width bottom lithology intervals",
+                 "Fixed by adding 1m to both the final lithology depth and the well depth",
+                 alt = "Fix details"),
+            aq_tt("Missing well depth",
+                  "Fixed by using the final lithology depth, if it exists",
+                  alt = "Fix details")
+          ),
+          choiceValues = list("fix_bottom", "fix_depth"),
           selected = c("fix_bottom", "fix_depth")),
+
         h4("Messages"),
         verbatimTextOutput(ns("messages"), placeholder = TRUE)
       ),
@@ -63,11 +74,17 @@ server_wells <- function(id, have_data) {
     # warnings -------------------------------------
     output$data_warning <- renderUI({
       if(have_data()) {
-        w <- tagList(span(icon("check", style = "color:lightgreen;"),
-                          "Wells Data Available"))
+        w <- tagList(
+          aq_tt(span(icon("check", style = "color:lightgreen;"),
+                     "Wells Data Available"),
+                "The GWELLs data has been downloaded and processed")
+        )
       } else {
-        w <- tagList(span(icon("x", style = "color:red;"),
-                          "Wells Data Not Available (see Download Data tab)"))
+        w <- tagList(
+          aq_tt(span(icon("x", style = "color:red;"),
+                     "Wells Data Not Available"),
+                "See the Download Data tab to download the GWELLS data before proceeding")
+        )
       }
       w
     })
@@ -75,11 +92,17 @@ server_wells <- function(id, have_data) {
     output$elev_warning <- renderUI({
       req(input$dem_combo)
       if(stringr::str_detect(input$dem_combo, "_")) {
-        w <- tagList(span(icon("triangle-exclamation", style = "color:orange;"),
-                          "Multiple Elevation Sources (use caution)"))
+        w <- tagList(
+          aq_tt(span(icon("triangle-exclamation", style = "color:orange;"),
+                          "Multiple Elevation Sources"),
+                "Use caution when combining elevation from multiple sources. See the Info pane for more details")
+        )
       } else {
-        w <- tagList(span(icon("check", style = "color:lightgreen;"),
-                          "Single Elevation Source"))
+        w <- tagList(
+          aq_tt(span(icon("check", style = "color:lightgreen;"),
+                     "Single Elevation Source"),
+                "It is safest to use elevation from a single source")
+        )
       }
       w
 

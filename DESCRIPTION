@@ -40,7 +40,8 @@ Imports:
     htmltools (>= 0.5.7),
     markdown,
     rmarkdown,
-    wk (>= 0.9.1)
+    wk (>= 0.9.1),
+    bsicons (>= 0.1.2)
 Depends: 
     R (>= 4.0)
 Suggests: 
