@@ -105,7 +105,7 @@ package).</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">creek_lidar</span><span class="op">)</span></span>
 <span><span class="co">#&gt; downsample set to 44</span></span></code></pre></div>
 <div class="float">
-<img src="articles/articles/figures/workflow-unnamed-chunk-5-1.png" alt="plot of chunk unnamed-chunk-5"><div class="figcaption">plot of chunk unnamed-chunk-5</div>
+<img src="figures%2Fworkflow-unnamed-chunk-5-1.png" alt="plot of chunk unnamed-chunk-5"><div class="figcaption">plot of chunk unnamed-chunk-5</div>
 </div>
 <p>Collect wells in this region with added elevation from Lidar</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -121,7 +121,7 @@ package).</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">creek_sf</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">creek_wells</span>, size<span class="op">=</span> <span class="fl">1</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">elev</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="articles/articles/figures/workflow-unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7"><div class="figcaption">plot of chunk unnamed-chunk-7</div>
+<img src="figures%2Fworkflow-unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7"><div class="figcaption">plot of chunk unnamed-chunk-7</div>
 </div>
 <p>Export data for Strater, Voxler, and ArcHydro</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -148,7 +148,7 @@ package).</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="st">"Data from OpenStreet Map"</span><span class="op">)</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <div class="float">
-<img src="articles/articles/figures/workflow-unnamed-chunk-10-1.png" alt="plot of chunk unnamed-chunk-10"><div class="figcaption">plot of chunk unnamed-chunk-10</div>
+<img src="figures%2Fworkflow-unnamed-chunk-10-1.png" alt="plot of chunk unnamed-chunk-10"><div class="figcaption">plot of chunk unnamed-chunk-10</div>
 </div>
 <p>Fetch Lidar DEM (this may take a while the first time)</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -169,7 +169,7 @@ package).</p>
 <span><span class="va">g</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">mill_lidar_sf</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">elev</span><span class="op">)</span>, colour <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Zoom: 13</span></span></code></pre></div>
 <div class="float">
-<img src="articles/articles/figures/workflow-unnamed-chunk-12-1.png" alt="plot of chunk unnamed-chunk-12"><div class="figcaption">plot of chunk unnamed-chunk-12</div>
+<img src="figures%2Fworkflow-unnamed-chunk-12-1.png" alt="plot of chunk unnamed-chunk-12"><div class="figcaption">plot of chunk unnamed-chunk-12</div>
 </div>
 <p>Looks like we don’t have elevation data for the whole region. This
 can be confirmed by checking the online <a href="https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03" class="external-link">LidarBC
@@ -188,7 +188,7 @@ map</a></p>
 <span><span class="va">g</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">mill_trim_sf</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">elev</span><span class="op">)</span>, colour <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Zoom: 13</span></span></code></pre></div>
 <div class="float">
-<img src="articles/articles/figures/workflow-unnamed-chunk-14-1.png" alt="plot of chunk unnamed-chunk-14"><div class="figcaption">plot of chunk unnamed-chunk-14</div>
+<img src="figures%2Fworkflow-unnamed-chunk-14-1.png" alt="plot of chunk unnamed-chunk-14"><div class="figcaption">plot of chunk unnamed-chunk-14</div>
 </div>
 <p>TRIM is at a coarser resolution, but covers our entire area. Let’s
 use it instead.</p>
@@ -209,7 +209,7 @@ wells.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_color_viridis_c</a></span><span class="op">(</span>na.value <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Zoom: 13</span></span></code></pre></div>
 <div class="float">
-<img src="articles/articles/figures/workflow-unnamed-chunk-16-1.png" alt="plot of chunk unnamed-chunk-16"><div class="figcaption">plot of chunk unnamed-chunk-16</div>
+<img src="figures%2Fworkflow-unnamed-chunk-16-1.png" alt="plot of chunk unnamed-chunk-16"><div class="figcaption">plot of chunk unnamed-chunk-16</div>
 </div>
 <p>Export data for Strater, Voxler, and ArcHydro</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
@@ -240,24 +240,23 @@ wells.</p>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">lithology_category</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">lith_std</span></span>
 <span><span class="co">#&gt; # A tibble: 624,560 × 23</span></span>
-<span><span class="co">#&gt;    well_tag_number lithology_from_ft_bgl lithology_to_ft_bgl lithology_raw_data       lithology_descriptio…¹</span></span>
-<span><span class="co">#&gt;              &lt;dbl&gt;                 &lt;dbl&gt;               &lt;dbl&gt; &lt;chr&gt;                    &lt;chr&gt;                 </span></span>
-<span><span class="co">#&gt;  1              11                   164                 187 "red ash"                ""                    </span></span>
-<span><span class="co">#&gt;  2              13                     1                 120 "\""                     ""                    </span></span>
-<span><span class="co">#&gt;  3              49                     0                  15 ""                       ""                    </span></span>
-<span><span class="co">#&gt;  4              62                     0                   0 "backfilled to 217 foot… ""                    </span></span>
-<span><span class="co">#&gt;  5              73                    25                 170 "delimite w/copper ore"  ""                    </span></span>
-<span><span class="co">#&gt;  6              73                   190                 380 "copper ore w/delimite"  ""                    </span></span>
-<span><span class="co">#&gt;  7              88                     0                  65 ""                       ""                    </span></span>
-<span><span class="co">#&gt;  8              98                     0                  15 ""                       ""                    </span></span>
-<span><span class="co">#&gt;  9             105                     0                  15 ""                       ""                    </span></span>
-<span><span class="co">#&gt; 10             163                   200                 210 "gray,clean a little co… ""                    </span></span>
+<span><span class="co">#&gt;    well_tag_number lithology_from_ft_bgl lithology_to_ft_bgl lithology_raw_data        lithology_descriptio…¹ lithology_material_c…²</span></span>
+<span><span class="co">#&gt;              &lt;dbl&gt;                 &lt;dbl&gt;               &lt;dbl&gt; &lt;chr&gt;                     &lt;chr&gt;                  &lt;chr&gt;                 </span></span>
+<span><span class="co">#&gt;  1              11                   164                 187 "red ash"                 ""                     ""                    </span></span>
+<span><span class="co">#&gt;  2              13                     1                 120 "\""                      ""                     ""                    </span></span>
+<span><span class="co">#&gt;  3              49                     0                  15 ""                        ""                     ""                    </span></span>
+<span><span class="co">#&gt;  4              62                     0                   0 "backfilled to 217 foot … ""                     ""                    </span></span>
+<span><span class="co">#&gt;  5              73                    25                 170 "delimite w/copper ore"   ""                     ""                    </span></span>
+<span><span class="co">#&gt;  6              73                   190                 380 "copper ore w/delimite"   ""                     ""                    </span></span>
+<span><span class="co">#&gt;  7              88                     0                  65 ""                        ""                     ""                    </span></span>
+<span><span class="co">#&gt;  8              98                     0                  15 ""                        ""                     ""                    </span></span>
+<span><span class="co">#&gt;  9             105                     0                  15 ""                        ""                     ""                    </span></span>
+<span><span class="co">#&gt; 10             163                   200                 210 "gray,clean a little coa… ""                     ""                    </span></span>
 <span><span class="co">#&gt; # ℹ 624,550 more rows</span></span>
-<span><span class="co">#&gt; # ℹ abbreviated name: ¹​lithology_description_code</span></span>
-<span><span class="co">#&gt; # ℹ 18 more variables: lithology_material_code &lt;chr&gt;, lithology_hardness_code &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   lithology_colour_code &lt;chr&gt;, lithology_observation &lt;chr&gt;, lithology_from_m &lt;dbl&gt;, lithology_to_m &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   lithology_raw_combined &lt;chr&gt;, lith_n &lt;int&gt;, lith_rec &lt;int&gt;, flag_lith_nodepths &lt;lgl&gt;,</span></span>
-<span><span class="co">#&gt; #   flag_lith_overruns &lt;lgl&gt;, flag_lith_intervals &lt;lgl&gt;, lithology_clean &lt;chr&gt;, lith_primary &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; # ℹ abbreviated names: ¹​lithology_description_code, ²​lithology_material_code</span></span>
+<span><span class="co">#&gt; # ℹ 17 more variables: lithology_hardness_code &lt;chr&gt;, lithology_colour_code &lt;chr&gt;, lithology_observation &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   lithology_from_m &lt;dbl&gt;, lithology_to_m &lt;dbl&gt;, lithology_raw_combined &lt;chr&gt;, lith_n &lt;int&gt;, lith_rec &lt;int&gt;,</span></span>
+<span><span class="co">#&gt; #   flag_lith_nodepths &lt;lgl&gt;, flag_lith_overruns &lt;lgl&gt;, flag_lith_intervals &lt;lgl&gt;, lithology_clean &lt;chr&gt;, lith_primary &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   lith_secondary &lt;chr&gt;, lith_tertiary &lt;chr&gt;, lithology_extra &lt;chr&gt;, lithology_category &lt;chr&gt;</span></span></code></pre></div>
 <p>Save it to peruse later</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
