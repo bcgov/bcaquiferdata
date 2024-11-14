@@ -6,7 +6,7 @@ clay,Clay
 clay/silty,Clay
 gravel (cemented),Sand or Gravel Till or Diamicton
 gravel/silty,Gravel (Dirty)
-"grey & some quartz, bedrock",Bedrock
+"grey & some quartz, bedrock",Intrusive
 grey clay,Clay
 hard earth,Medium to Clay Till or Diamicton
 pea gravel,Gravel
@@ -38,13 +38,13 @@ tilly silt,Medium to Clay Till or Diamicton
 silt till,Medium to Clay Till or Diamicton
 tilly clay,Medium to Clay Till or Diamicton
 silt hard packed,Medium to Clay Till or Diamicton
-sand & granite,Bedrock
+sand & granite,Intrusive
 sandy,Sand
 silty,Silt
 clayey,Clay
 clay and silt,Medium to Clay Till or Diamicton
 silt silty clay,Medium to Clay Till or Diamicton
-med. to hard granite,Bedrock
+med. to hard granite,Intrusive
 aquifer data: glacial till,Medium to Clay Till or Diamicton
 dirty gravel with some sandy seams,Sand and Gravel (Dirty)
 gravelly sand,Sand and Gravel (Clean)
@@ -62,9 +62,20 @@ gravel  gravel,Gravel
 sand and silt silty sand,Sand and Fines
 fine sand with some gravel,Sand and Gravel (Clean)
 bedrock (first 40' is soft reddish bedrock),Bedrock
-limestone limestone grey chiefly light grey with thin lenses of dark grey throughout,Bedrock
+limestone limestone grey chiefly light grey with thin lenses of dark grey throughout,Carbonate Sedimentary
 sandy and gravel clay brown loose wet,Sand or Gravel Till or Diamicton
-fractured with green and white traces - medium blue volcanic volcanic vari-coloured medium,"Weathered, Fractured or Faulted Bedrock"
+fractured with green and white traces - medium blue volcanic volcanic vari-coloured medium,"Weathered, Fractured or Faulted Volcanic"
 bentonite chips,
 bentonite grout slurry.,
-"shale, bentonite light-coloured grey loose",Bedrock
+"shale, bentonite light-coloured grey loose",Shale
+shale bedrock,Shale
+fractured marble,"Weathered, Fractured or Faulted Carbonate Sedimentary"
+shattered Andesite,"Weathered, Fractured or Faulted Volcanic"
+Crystalline Fault,"Weathered, Fractured or Faulted Intrusive"
+rotten coal,"Weathered, Fractured or Faulted Coal"
+caving sandstn,"Weathered, Fractured or Faulted Sandstone"
+fragments of conglomerate,"Weathered, Fractured or Faulted Conglomerate"
+cracks in greenstone,"Weathered, Fractured or Faulted Metamorphic"
+FRACS gneiss,"Weathered, Fractured or Faulted Metamorphic"
+Faulty Mudstone,"Weathered, Fractured or Faulted Siltstone or Claystone"
+fragmented Argilite,"Weathered, Fractured or Faulted Siltstone or Claystone"

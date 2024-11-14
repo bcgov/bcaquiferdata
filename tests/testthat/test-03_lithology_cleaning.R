@@ -22,7 +22,7 @@ test_that("lith_categorize()", {
 })
 
 
-# To add tests, modify data-raw/test_data.R
+# To add/modify tests, modify data-raw/test_data.R
 # file.edit("data-raw/test_data.R")
 test_that("lith_fix()", {
 

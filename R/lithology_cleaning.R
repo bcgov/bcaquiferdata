@@ -54,137 +54,10 @@ lith_fix <- function(desc = NULL) {
       lith_clean = stringr::str_squish(.data$lith_clean))
 
 
-  # Define 'good' terms ---------------------
-  # Add terms to keep here, lists are of the main term plus all the other terms
-  # that will be consolidated into the main term.
-  #
-  # This means that the names(terms_good_XXX) represent the actual 'good' terms
-  # the other terms are real terms (acronyms or short forms but not spelling
-  # mistakes) that we will consolidate into the main good term
-  #
-  # NOTE: This is not a place to fix spelling! That happens later.
-
-  # ASK: bands, stratified
-
-  terms_good_joins <- list(# ONLY here allowed spelling alts.
-    "&" = c("and", "aand", "andj", "ans", "anda", "anf"),
-    "with" = c("w(?!.b.)",  # Do not match ".b." ahead of w (w.b. are waterbearing)
-               "lots of", "some", "streaks of",
-               "layered", "layerd", "layers of", "layers in", "layer of",
-               "bands of", "lenses of", "intermittent", "swith", "withj",
-               "jwith", "withs"),
-    "traces" = c("trace of", "traces of", "trace", "traces"),
-    "layers" = c("layers", "lenses"), # To fix later (in Categorization)
-    "seams" = "seams",                # To fix in Compound terms
-    "seams of" = "seams of")          # To fix in Compound terms
-
-  # Terms that need to be pulled out before the main ones
-  terms_good_first <- list("bedrock" = c("rock", "solid rock")) # Otherwise becomes gravel
-
-  terms_good_main <- list("clay" = "clay",
-                          "silt" = c("muck", "mud"),
-                          "sand" = "sand",
-                          "gravel" = c("stone", "cobble", "pebble",
-                                       "rocks", "stones", "cobbles", "pebbles",
-                                       "grav", "grvl", "cobl", "peagravel",
-                                       # Broken is not bedrock when with gravel
-                                       "pea gravel", "broken gravel"),
-                          "till" = c("blue clay", "blue c"),
-                          "sgtill" = "sgtill",
-                          "boulders" = c("boulder", "bldrs"))
-
-  terms_good_main_y <- list(
-    "clayey" = "clayish",
-    "silty" = c("mucky", "muddy", "dirty", "silted"),
-    "sandy" = "sandy",
-    "gravely" = c("rocky", "stoney", "cobbly", "pebbly", "gravelly", "graveled"),
-    "tilly" = "tilly",
-    "bouldery" = "bouldery")
-
-  terms_good_org <- list(
-    "organic" = c(
-      "soil", "loam", "topsoil", "dirt",  # Soils
-      "organic", "vegetation", "vegetable matter", "veg matter",
-      "roots", "rootlets", "stump",
-      "peat", "wood"))
-
-  terms_good_sgtill <- list(
-    "sgtill" = "sgtill",
-    "compact" = c("cemented", "compact", "compacted", "hardpacked", "packed"),
-    "hardpan" = c("hardpan", "hard pan"))
-
-  terms_good_bedrock <- list(
-    "bedrock" = c("andesite", "argillite",
-                  "basalt", "basaltic",
-                  "bedrock", "calcite",
-                  "claystone", "chert", "coal",
-                  "conglomerate",
-                  "dolomite", "feldspar",
-                  "gneiss", "granite","greenstone", "igneous",
-                  "lava", "limestone", "marl", "mudstone", "porphry",
-                  "sandstone", "schist", "sedimentary", "shale", "siltstone",
-                  "slate", "soapstone",
-                  "quartz", "quartzite",
-                  "volcanic"))
-  names(terms_good_bedrock)[names(terms_good_bedrock) == ""] <-
-    terms_good_bedrock[names(terms_good_bedrock) == ""] # Names where none
-
-  terms_good_bedrock_desc <- list(
-    "weathered" = "weathered",
-    "fractured" = c("broken", "fracturing", "fracs", "fracture", "fractures",
-                    "fragments", "fragmented", "rotten", "caving",
-                    "shattered"),
-    "faulted" = c("fault", "faulty", "cracks"))
-
-  # Catch for other, non-main lithology terms
-  terms_good_other <- list("shells" = c("seashell", "clamshell"),
-                           "overburden" = "overburden",
-                           "hard earth" = "hard earth")
-
-  # Relevant terms related to Aquifers, but not for lithology
-  terms_good_extra <- list(
-    "aquifer" = "aquifer",
-    "waterbearing" = c("wb", "w\\.b\\."), # 'water bearing' dealt with `terms_multi` below
-    "flow" = c("flowing", "stream of water", "water"),
-    "trickle" = "trickle",
-    "seepage" = "seepage",
-    "wet" = "wet",
-    "saturated" = "saturated",
-    "artesian" = "artesian",
-    "reservoir" = "reservoir")
-
-
-  terms_good_yield <- list("gpm" = c("usgpm", "us gmp", "i gpm"),
-                           "gph" = c("usgph", "us gph"))
-
-
-  # These become Primary category
-  terms_good <- c(
-    # Joins
-    terms_good_joins,  #'&' included again (below) because symbol, not a word
-    # need to be first
-    terms_good_first,
-    # main terms
-    terms_good_main,
-    # -y terms
-    terms_good_main_y,
-    # special
-    terms_good_sgtill,
-    # organics
-    terms_good_org,
-    # bedrock
-    terms_good_bedrock,
-    # bedrock descriptors
-    terms_good_bedrock_desc,
-    # other
-    terms_good_other,
-    # extra water/aquifer-related terms
-    terms_good_extra,
-    # yield-related terms
-    terms_good_yield # Too small to check spelling
-  )
-
-  # Get terms
+  # Get terms -----------------------------
+  terms_good <- lith_define_terms()
+  list2env(terms_good, envir = rlang::current_env())
+  terms_good <- purrr::list_flatten(terms_good, name_spec = "{inner}")
   lith_terms <- lith_get_terms(lith_desc$lith_clean, not = names(terms_good))
 
   # First Round - BASIC -----------
@@ -237,6 +110,7 @@ lith_fix <- function(desc = NULL) {
     # Specific spelling fixes
     merge_lists(list("fractures" = c("fracutres", "fractues"),
                      "sandstone" = c("sandst", "sandsto", "sandsome", "sandstn"),
+                     "argillite" = "arglite",
                      "schist" = "shst"
     )) %>%
     lith_prep_regex()
@@ -266,6 +140,7 @@ lith_fix <- function(desc = NULL) {
 
   ## Missing spaces in basic terms -----
   # fix known multi-term problems (i.e. where terms should be split or combined)
+  # Reminder, left hand side is good term to keep, right hand side is term to fix
 
   terms_multi <- c(names(terms_good_main),
                    names(terms_good_main_y),
@@ -499,6 +374,145 @@ lith_fix <- function(desc = NULL) {
                   dplyr::starts_with("flag_"))
 }
 
+lith_define_terms <- function() {
+
+  # Define 'good' terms
+
+  # Add terms to keep here, lists are of the main term plus all the other terms
+  # that will be consolidated into the main term.
+  #
+  # This means that the names(terms_good_XXX) represent the actual 'good' terms
+  # the other terms are real terms (acronyms or short forms but not spelling
+  # mistakes) that we will consolidate into the main good term
+  #
+  # NOTE: This is not a place to fix spelling! That happens in the "spelling" rounds of `lith_fix()`.
+
+  # TODO: bands, stratified
+
+  terms_good_joins <- list(# ONLY here allowed spelling alts.
+    "&" = c("and", "aand", "andj", "ans", "anda", "anf"),
+    "with" = c("w(?!.b.)",  # Do not match ".b." ahead of w (w.b. are waterbearing)
+               "lots of", "some", "streaks of",
+               "layered", "layerd", "layers of", "layers in", "layer of",
+               "bands of", "lenses of", "intermittent", "swith", "withj",
+               "jwith", "withs"),
+    "traces" = c("trace of", "traces of", "trace", "traces"),
+    "layers" = c("layers", "lenses"), # To fix later (in Categorization)
+    "seams" = "seams",                # To fix in Compound terms
+    "seams of" = "seams of")          # To fix in Compound terms
+
+  # Terms that need to be pulled out before the main ones
+  terms_good_first <- list("bedrock" = c("rock", "solid rock")) # Otherwise becomes gravel
+
+  terms_good_main <- list("clay" = "clay",
+                          "silt" = c("muck", "mud"),
+                          "sand" = "sand",
+                          "gravel" = c("stone", "cobble", "pebble",
+                                       "rocks", "stones", "cobbles", "pebbles",
+                                       "grav", "grvl", "cobl", "peagravel",
+                                       # Broken is not bedrock when with gravel
+                                       "pea gravel", "broken gravel"),
+                          "till" = c("blue clay", "blue c"),
+                          "sgtill" = "sgtill",
+                          "boulders" = c("boulder", "bldrs"))
+
+  terms_good_main_y <- list(
+    "clayey" = "clayish",
+    "silty" = c("mucky", "muddy", "dirty", "silted"),
+    "sandy" = "sandy",
+    "gravely" = c("rocky", "stoney", "cobbly", "pebbly", "gravelly", "graveled"),
+    "tilly" = "tilly",
+    "bouldery" = "bouldery")
+
+  terms_good_org <- list(
+    "organic" = c(
+      "soil", "loam", "topsoil", "dirt",  # Soils
+      "organic", "vegetation", "vegetable matter", "veg matter",
+      "roots", "rootlets", "stump",
+      "peat", "wood"))
+
+  terms_good_sgtill <- list(
+    "sgtill" = "sgtill",
+    "compact" = c("cemented", "compact", "compacted", "hardpacked", "packed"),
+    "hardpan" = c("hardpan", "hard pan"))
+
+  terms_good_bedrock <- list(
+    "bedrock" = c("bedrock"),  # Also "rock", "solid rock" (pulled out above to avoid being grouped w/ "gravel")
+    #"feldspar", "porphry"
+    "volcanic" = c("andesite", "basalt", "basaltic", "lava", "volcanic"),
+    "intrusive" = c("intrusive", "igneous", "granite", "quartz","quartzite", "crystalline"),
+    "sandstone" = "sanstone",
+    "coal" = "coal",
+    "conglomerate" = "conglomerate",
+    # Siltstone or Claystone, but fix in lith_categorize()
+    "siltstone" = c("mudstone", "claystone", "siltstone", "argillite"),
+    "shale" = "shale",
+    "sedimentary" = "sedimentary",
+    # "Carbonate Sedimentary, but use "carbonate" for now so don't get caught in "sedimentary"
+    # fix in lith_categorize()
+    "carbonate" = c("limestone", "chert", "calcite", "dolomite", "marl", "karst", "marble"),
+    "metamorphic" = c("metamorphic", "schist", "slate", "greenstone", "gneiss", "soapstone")
+  )
+  names(terms_good_bedrock)[names(terms_good_bedrock) == ""] <-
+    terms_good_bedrock[names(terms_good_bedrock) == ""] # Names where none
+
+  terms_good_bedrock_desc <- list(
+    "weathered" = "weathered",
+    "fractured" = c("broken", "fracturing", "fracs", "fracture", "fractures",
+                    "fragments", "fragmented", "rotten", "caving",
+                    "shattered"),
+    "faulted" = c("fault", "faulty", "cracks"))
+
+  # Catch for other, non-main lithology terms
+  terms_good_other <- list("shells" = c("seashell", "clamshell"),
+                           "overburden" = "overburden",
+                           "hard earth" = "hard earth")
+
+  # Relevant terms related to Aquifers, but not for lithology
+  terms_good_extra <- list(
+    "aquifer" = "aquifer",
+    "waterbearing" = c("wb", "w\\.b\\."), # 'water bearing' dealt with `terms_multi` below
+    "flow" = c("flowing", "stream of water", "water"),
+    "trickle" = "trickle",
+    "seepage" = "seepage",
+    "wet" = "wet",
+    "saturated" = "saturated",
+    "artesian" = "artesian",
+    "reservoir" = "reservoir")
+
+
+  terms_good_yield <- list("gpm" = c("usgpm", "us gmp", "i gpm"),
+                           "gph" = c("usgph", "us gph"))
+
+
+  # These become Primary category
+  mget(c(
+    # Joins
+    "terms_good_joins",  #'&' included again (below) because symbol, not a word
+    # need to be first
+    "terms_good_first",
+    # main terms
+    "terms_good_main",
+    # -y terms
+    "terms_good_main_y",
+    # special
+    "terms_good_sgtill",
+    # organics
+    "terms_good_org",
+    # bedrock
+    "terms_good_bedrock",
+    # bedrock descriptors
+    "terms_good_bedrock_desc",
+    # other
+    "terms_good_other",
+    # extra water/aquifer-related terms
+    "terms_good_extra",
+    # yield-related terms
+    "terms_good_yield" # Too small to check spelling
+  )
+  )
+}
+
 lith_yield <- function(lith, flatten = FALSE) {
 
   p_units_yield <- "( )?(gpm|gph)"
@@ -728,11 +742,23 @@ lith_categorize <- function(p, s, t) {
 
   cat <- NA_character_
 
-  # Bedrock
-  if(any(c(p, s, t) %in% c("weathered", "fractured", "faulted"))) {
+  # Bedrock etc. - Contains bedrock and (optionally) weathered/fractured/faulted
+  if(any(wch <- c(p, s, t) %in% names(lith_define_terms()$terms_good_bedrock))) {
+    cat <- unique(stringr::str_to_title(c(p, s, t)[wch]))
+    if(length(cat) > 1) cat <- cat[cat != "Bedrock"]
+    cat <- dplyr::case_match(
+      cat,
+      "Carbonate" ~ "Carbonate Sedimentary",
+      "Siltstone" ~ "Siltstone or Claystone",
+      .default = cat
+    )
+
+    if(any(c(p, s, t) %in% c("weathered", "fractured", "faulted"))) {
+      cat <- paste0("Weathered, Fractured or Faulted ", cat)
+    }
+    s# If no bedrock terms, but still weathered/fractured/faulted
+  } else if(any(c(p, s, t) %in% c("weathered", "fractured", "faulted"))) {
     cat <- "Weathered, Fractured or Faulted Bedrock"
-  } else if(any(c(p, s, t) %in% "bedrock")) {
-    cat <- "Bedrock"
 
     # Sand and Gravel
   } else if(("sand" %in% p & "gravel" %in% c(p, s, t) & dirty) |
@@ -798,6 +824,8 @@ lith_categorize <- function(p, s, t) {
             any(c("gravel", "silt", "sand", "clay") %in% c(p, s, t))) {
     cat <- stringr::str_to_title(unique(c(p, s, t)))
   }
+
+  if(length(cat) > 1) stop("Multiple categorizations", call. = FALSE)
 
   # Fix formatting
   if(!is.na(cat) && cat == "Sgtill") cat <- "SG Till"
