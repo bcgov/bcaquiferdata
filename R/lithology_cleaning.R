@@ -437,10 +437,10 @@ lith_define_terms <- function() {
     "hardpan" = c("hardpan", "hard pan"))
 
   terms_good_bedrock <- list(
-    "bedrock" = c("bedrock"),  # Also "rock", "solid rock" (pulled out above to avoid being grouped w/ "gravel")
-    #"feldspar", "porphry"
+    "bedrock" = c("bedrock", "feldspar"),  # Also "rock", "solid rock" (pulled out above to avoid being grouped w/ "gravel")
     "volcanic" = c("andesite", "basalt", "basaltic", "lava", "volcanic"),
-    "intrusive" = c("intrusive", "igneous", "granite", "quartz","quartzite", "crystalline"),
+    "intrusive" = c("intrusive", "igneous", "granite", "quartz", "quartzite",
+                    "crystalline", "porphry"),
     "sandstone" = "sanstone",
     "coal" = "coal",
     "conglomerate" = "conglomerate",

@@ -112,6 +112,9 @@ readr::write_csv(
     "FRACS gneiss", "Weathered, Fractured or Faulted Metamorphic",
     "Faulty Mudstone", "Weathered, Fractured or Faulted Siltstone or Claystone",
     "fragmented Argilite", "Weathered, Fractured or Faulted Siltstone or Claystone",
+    "porphry", "Intrusive",
+    "Quartz", "Intrusive",
+    "shattered feldspar", "Weathered, Fractured or Faulted Bedrock"
   ),
   file.path("inst", "extdata", "test_lithology_cleaning.csv"))
 
