@@ -25,6 +25,13 @@ ui_flags <- function(id) {
                 DT::dataTableOutput(ns("flags_table"))
       ),
       nav_panel("Glossary",
+                h5("Flags"),
+                "The Flags table contains all lithology records which have been flagged as problematic for one reason or another. The flag definitions are listed below. ",
+                br(),
+                "You can click on the CSV or Excel buttons to export this table and use it as a reference for fixing problems in GWELLS.",
+                br(),
+
+                h5("Definitions"),
                 includeMarkdown(system.file("extra_docs", "flags.md",
                                             package = "bcaquiferdata")),
                 tableOutput(ns("flags_glossary"))
