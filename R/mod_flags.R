@@ -18,19 +18,17 @@ ui_flags <- function(id) {
 
   nav_panel(
     title = "Check Flags",
-    card(
-      full_screen = TRUE,
-      # Data table with flags,
-      DT::dataTableOutput(ns("flags_table"))
-    ),
-    card(
-      card_header("Glossary"),
-      max_height = "25%",
-      full_screen = TRUE,
-      includeMarkdown(system.file("extra_docs", "flags.md",
-                                  package = "bcaquiferdata")),
-      tableOutput(ns("flags_glossary"))
-
+    navset_card_pill(
+      nav_panel("Flags",
+                full_screen = TRUE,
+                # Data table with flags,
+                DT::dataTableOutput(ns("flags_table"))
+      ),
+      nav_panel("Glossary",
+                includeMarkdown(system.file("extra_docs", "flags.md",
+                                            package = "bcaquiferdata")),
+                tableOutput(ns("flags_glossary"))
+      )
     )
   )
 }
