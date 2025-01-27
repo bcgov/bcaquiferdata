@@ -9,11 +9,11 @@ documentation regarding <a href="http://bcgov.github.io/bcaquiferdata/articles/l
 
 Adding "Basic" columns means including relevant lithology measures such as
 - `well_tag_number`
-- `lithology_from_m` / `lithology_to_m` -> Start and end of the depth being described in meters
+- `lithology_from_m` / `lithology_to_m` -> Start and end of the depth being described in metres
 - `lithology_raw_combined` -> Combined original lithology descriptions from GWELLS
 - `lithology_clean` -> Cleaned lithology description (see below)
 - `lithology_category` -> Categorized lithology (see below)
-- `bedrock_depth_m` -> Depth to bedrock in meters (if bedrock appears in the record) 
+- `bedrock_depth_m` -> Depth to bedrock in metres (if bedrock appears in the record) 
 
 Adding "Extra" columns means including `lithology_extra` which captures 
 extra potentially important descriptors (such as `wet`, `flow`, `seepage`).

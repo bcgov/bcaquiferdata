@@ -4,7 +4,11 @@
 \alias{data_update}
 \title{Update cached data}
 \usage{
-data_update(type = "all", download = TRUE, permission = FALSE)
+data_update(
+  type = c("wells", "lithology"),
+  download = TRUE,
+  permission = FALSE
+)
 }
 \arguments{
 \item{type}{Character. Type of data to update. One of "all", "wells",
