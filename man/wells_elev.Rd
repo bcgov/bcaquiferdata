@@ -85,5 +85,18 @@ mill_wells <- wells_elev(mill_wells, dem = mill_lidar, dem_extra = mill_trim)
 
 # See how the elevation data is combined, `dem` (elev1) is the primary source.
 select(mill_wells, well_tag_number, elev1, elev2, elev)
+
+# Use local DEM
+koksilah_sf <- st_read("misc/data/Koksilah_watershed4/Koksilah_watershed4.shp")
+koksilah_wells <- wells_subset(koksilah_sf)
+koksilah_dem <- dem_region(
+  koksilah_sf, source = "misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif")
+koksilah_wells <- wells_elev(koksilah_wells, dem = koksilah_dem)
+
+# Plot
+p <- koksilah_wells \%>\%
+  st_transform(crs = st_crs(koksilah_dem))
+plot(koksilah_dem, reset = FALSE, key.pos = NULL)
+plot(p["elev"], add = TRUE, pal = viridisLite::viridis, pch = 20)
 \dontshow{\}) # examplesIf}
 }

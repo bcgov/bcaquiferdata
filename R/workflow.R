@@ -24,16 +24,16 @@
 #' Lidar tiles are the newest tile available. If you have reason to need a
 #' historical file, contact the team to discuss your use case.
 #'
-#' @param type Character. Type of DEM to download, either "lidar" or "trim". Use
-#'  Lidar unless unavailable.
+#' @param source Character. Source of DEM, "lidar", "trim" or a file path (or
+#'   vector of file paths) to a custom DEM file. See Details.
 #' @param buffer Numeric. Percent buffer to apply to the `region` spatial file
 #'   before cropping the DEM data to match. Increase this value if you find
 #'   that wells on the edge of your area aren't been matched to elevations when
 #'   using `wells_elev()`.
 #' @param lidar_dir Character. File path of where Lidar tiles should be stored.
-#'   Defaults to the cache directory. Only applies when `type = "lidar"`.
+#'   Defaults to the cache directory. Only applies when `source = "lidar"`.
 #' @param only_new Logical. Whether to download all Lidar tiles, or only new
-#'   tiles that don't exist locally. Defaults to TRUE. Only apples when `type =
+#'   tiles that don't exist locally. Defaults to TRUE. Only apples when `source =
 #'   "lidar"`.
 
 #' @param progress Function. Progress bar to use. Generally leave as is.
@@ -55,7 +55,11 @@
 #' TRIM data is obtained via the `bcmaps` package from the BC government
 #' [Data Catalogue](https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d)
 #' based on overlap between map tiles and the provided shapefile (`region`).
-
+#'
+#' If a file path or vector of file paths are provided, a local DEM is
+#' loaded with `stars` and combined with `stars::st_mosaic()`. Note that it is
+#' assumed the data is elevation in metres.
+#'
 #' @return stars spatiotemporal array object
 #' @export
 #'
@@ -72,31 +76,46 @@
 #' plot(creek_lidar)
 #'
 #' # Fetch TRIM DEM
-#' creek_trim <- dem_region(creek_sf, type = "trim")
+#' creek_trim <- dem_region(creek_sf, source = "trim")
 #'
 #' plot(creek_trim)
+#'
+#' # Use local DEM
+#' koksilah_sf <- st_read("misc/data/Koksilah_watershed4/Koksilah_watershed4.shp")
+#' koksilah_dem <- dem_region(
+#'   koksilah_sf, source = "misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif")
 
-dem_region <- function(region, type = "lidar", buffer = 1,
+dem_region <- function(region, source = "lidar", buffer = 1,
                        lidar_dir = NULL, only_new = TRUE,
-                       progress = httr::progress()) {
+                       progress = httr::progress(), type) {
 
-  type <- tolower(type)
-  if(!type %in% c("lidar", "trim")) {
-    stop("`type` must be one of 'lidar' or 'trim'", call. = FALSE)
+  if(!missing(type)) {
+    warning("`type` is deprecated, please use `source` instead", call. = FALSE)
+    source <- type
+  }
+
+  if(tolower(source) %in% c("lidar", "trim")) source <- tolower(source)
+  if(!source %in% c("lidar", "trim") & !fs::file_exists(source)) {
+    stop("`source` must be one of 'lidar', 'trim', or a path to local DEM",
+         call. = FALSE)
   }
 
   # Add Buffer
   region <- sf::st_buffer(region, sqrt(sf::st_area(region)) * buffer/100)
 
   # Load DEM raster as combined (mosaic)
-  if(type == "lidar") {
+  if(source == "lidar") {
     message("Get Lidar data")
     dem  <- lidar_fetch(region, out_dir = lidar_dir, progress = progress) %>%
       dplyr::pull(.data$out_file)
 
-  } else if(type == "trim") {
+  } else if(source == "trim") {
     message("Get TRIM data")
     dem <- bcmaps::cded(region, ask = FALSE)
+
+  } else {
+    message("Load local DEM")
+    dem <- source
   }
 
   dem <- dem %>%
@@ -250,6 +269,19 @@ wells_subset <- function(region, fix_bottom = TRUE, fix_depth = TRUE, update = F
 #' # See how the elevation data is combined, `dem` (elev1) is the primary source.
 #' select(mill_wells, well_tag_number, elev1, elev2, elev)
 #'
+#' # Use local DEM
+#' koksilah_sf <- st_read("misc/data/Koksilah_watershed4/Koksilah_watershed4.shp")
+#' koksilah_wells <- wells_subset(koksilah_sf)
+#' koksilah_dem <- dem_region(
+#'   koksilah_sf, source = "misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif")
+#' koksilah_wells <- wells_elev(koksilah_wells, dem = koksilah_dem)
+#'
+#' # Plot
+#' p <- koksilah_wells %>%
+#'   st_transform(crs = st_crs(koksilah_dem))
+#' plot(koksilah_dem, reset = FALSE, key.pos = NULL)
+#' plot(p["elev"], add = TRUE, pal = viridisLite::viridis, pch = 20)
+
 wells_elev <- function(wells_sub, dem, dem_extra = NULL, update = FALSE) {
 
   # Checks
@@ -272,7 +304,7 @@ wells_elev <- function(wells_sub, dem, dem_extra = NULL, update = FALSE) {
   e1 <- wells_sub %>%
     sf::st_transform(sf::st_crs(dem)) %>%  # Faster to transform wells than dem
     dplyr::mutate(elev = round(stars::st_extract(dem, .)[[1]], 2)) %>%
-    sf::st_transform(crs = 3005) # Transform to BC albers
+    sf::st_transform(crs = 3005) # Transform wells back to BC albers
 
   if(!is.null(dem_extra)) {
     warning("Combining elevations measured through different techniques may ",

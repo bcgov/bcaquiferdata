@@ -25,17 +25,35 @@ ui_wells <- function(id) {
         "elevation models to calculate well elevation."),
         p(uiOutput(ns("data_warning"), inline = TRUE), br(),
           uiOutput(ns("elev_warning"), inline = TRUE)),
+
+        # Shape file
         fileInput(
           ns("spatial_file"),
           label = aq_tt(
             "Choose shape file(s) defining a watershed",
             "Select multiple files while holding down the 'Ctrl' button, or select a zipped collection"),
           buttonLabel = "Upload Spatial Data", multiple = TRUE),
+
+        # Elevation
         radioButtons(
           ns("dem_combo"), strong("DEM source"), inline = TRUE,
           choiceNames = list("Lidar", span("TRIM", style = "margin-right:150px"),
-                             "Lidar with TRIM", "TRIM with Lidar"),
-          choiceValues = c("lidar", "trim", "lidar_trim", "trim_lidar")),
+                             "Lidar with TRIM", "TRIM with Lidar", "Custom DEM"),
+          choiceValues = c("lidar", "trim", "lidar_trim", "trim_lidar", "custom"),
+          selected = character(0)),
+        conditionalPanel(
+          condition = "input.dem_combo == 'custom'",
+          aq_tt(
+            "Choose DEM file(s) supplying elevation for your watershed",
+            "Select multiple files while holding down the 'Ctrl' button"),
+          shinyFiles::shinyFilesButton(
+            ns("dem_file"),
+            label = "Upload Custom DEM",
+            title = "Choose DEM files(s)", multiple = TRUE),
+          ns = NS(id)
+        ),
+
+        # Fixes
         checkboxGroupInput(
           ns("fixes"), label = strong("Fix common problems"), inline = TRUE,
           #choices = list("Zero-width bottom lithology intervals" = "fix_bottom",
@@ -106,6 +124,10 @@ server_wells <- function(id, have_data) {
 
     })
 
+    # UI -------------------------------
+    shinyFiles::shinyFileChoose(input, "dem_file", root=c(root='.'))
+
+
     # fixes ---------------------------
     fixes <- reactive({
       list("fix_bottom" = "fix_bottom" %in% input$fixes,
@@ -138,13 +160,12 @@ server_wells <- function(id, have_data) {
                  "shp, shx, prj, and dbf file (can be zipped or multiple selected)")
           }))
       }
-
       removeNotification(id)
       sf::st_read(f)
     })
 
 
-    # elevation ----------------------------------
+    # dem elevation ----------------------------------
     dem_lidar <- reactive({
       req(watershed())
       dem_region_shiny("lidar", watershed(), session)
@@ -157,12 +178,19 @@ server_wells <- function(id, have_data) {
     }) |>
       bindCache(input$spatial_file)
 
-    dem_type1 <- reactive({
+    dem_custom <- reactive({
+      req(watershed(), input$dem_file)
+      p <- shinyFiles::parseFilePaths(roots = c(root = "."), input$dem_file)
+      dem_region_shiny(p$datapath, watershed(), session)
+    })# |>
+      #bindCache(input$spatial_file, input$dem_file)
+
+    dem_source1 <- reactive({
       req(input$dem_combo)
       stringr::str_extract(input$dem_combo, "^[^_]+")
     })
 
-    dem_type2 <- reactive({
+    dem_source2 <- reactive({
       req(input$dem_combo)
       if(stringr::str_detect(input$dem_combo, "_")) {
         stringr::str_extract(input$dem_combo, "[^_]+$")
@@ -170,18 +198,22 @@ server_wells <- function(id, have_data) {
     })
 
     dem1 <- reactive({
-      req(watershed(), dem_type1())
-      if(dem_type1() == "lidar") dem_lidar() else dem_trim()
-    }) |>
-      bindCache(input$spatial_file, dem_type1())
+      req(watershed(), dem_source1())
+      if(dem_source1() == "lidar") {
+        dem_lidar()
+      } else if(dem_source1() == "trim") {
+        dem_trim()
+      } else if(dem_source1() == "custom") {
+        dem_custom()
+      }
+    })
 
     dem2 <- reactive({
       req(watershed())
-      if(!is.null(dem_type2())) {
-        if(dem_type2() == "lidar") dem_lidar() else dem_trim()
+      if(!is.null(dem_source2())) {
+        if(dem_source2() == "lidar") dem_lidar() else dem_trim()
       } else NULL
-    }) |>
-      bindCache(input$spatial_file, dem_type2())
+    })
 
     # map -----------------------------
 
@@ -191,16 +223,16 @@ server_wells <- function(id, have_data) {
       stars::st_downsample(dem1(), n = ds) %>%
         sf::st_as_sf(as_points = FALSE)
     }) %>%
-      bindCache(input$spatial_file, dem_type1())
+      bindCache(input$spatial_file, dem_source1())
 
     dem_tiles2 <- reactive({
-      if(!is.null(dem_type2())) {
+      if(!is.null(dem_source2())) {
         ds <- nrow(dem2()) / 150
         stars::st_downsample(dem2(), n = ds) %>%
           sf::st_as_sf(as_points = FALSE)
       } else NULL
     }) %>%
-      bindCache(input$spatial_file, dem_type2())
+      bindCache(input$spatial_file, dem_source2())
 
 
     output$map_plot <- renderPlot({
@@ -213,9 +245,9 @@ server_wells <- function(id, have_data) {
         ggthemes::theme_map() +
         ggplot2::theme(legend.position = "right")
 
-      title <- paste("Elevation Data:", dem_type1())
+      title <- paste("Elevation Data:", dem_source1())
       if(!is.null(dem_tiles2())) {
-        title <- paste(title, "supplemented with", dem_type2())
+        title <- paste(title, "supplemented with", dem_source2())
         g <- g +
           ggplot2::geom_sf(data = dem_tiles2(), ggplot2::aes(fill = .data$elev),
                            colour = NA)
@@ -243,7 +275,7 @@ server_wells <- function(id, have_data) {
 
       g
     }, res = 100) %>%
-      bindCache(input$spatial_file, input$dem_combo)
+      bindCache(input$spatial_file, input$dem_combo, input$dem_file)
 
 
     # wells ----------------------------------
@@ -271,7 +303,7 @@ server_wells <- function(id, have_data) {
       removeNotification(id)
       w
     }) %>%
-      bindCache(input$spatial_file, input$dem_combo, fixes())
+      bindCache(input$spatial_file, input$dem_combo, input$dem_file, fixes())
 
     # wells table -------------------------------
     output$wells_table <- DT::renderDataTable({
@@ -285,28 +317,29 @@ server_wells <- function(id, have_data) {
   })
 }
 
-dem_region_shiny <- function(type, watershed, session) {
+dem_region_shiny <- function(source, watershed, session) {
 
-  id <- showNotification(paste0("Fetching ", type, " data..."),
+
+  id <- showNotification(paste0("Fetching ", source, " data..."),
                          duration = NULL, closeButton = FALSE)
 
   withCallingHandlers({
-    message(stringr::str_to_title(type), " - Start")
+    message(stringr::str_to_title(source), " - Start")
 
     # Catch errors if have issues and try again
-    l <- try(dem_region(watershed, type = type), silent = TRUE)
+    l <- try(dem_region(watershed, source = source), silent = TRUE)
     #l <- try(stop("testing"), silent = TRUE)
     if(inherits(l, "try-error")) {
-      message("  Problem with ", type, " tiles, trying again...")
+      message("  Problem with ", source, ", trying again...")
       l <- tryCatch(
-        dem_region(watershed, type = type),
+        dem_region(watershed, source = source),
         #stop("testing2"),
         error = function(cond) {
-          message("  Problem fetching ", type, " tiles\n",
+          message("  Problem fetching ", source, "\n",
                   "  Error message: ", cond$message)
         })
     }
-    message(stringr::str_to_title(type), " - Done")
+    message(stringr::str_to_title(source), " - Done")
   },
   message = function(m) {
     shinyjs::html(id = "messages", html = m$message, add = TRUE)

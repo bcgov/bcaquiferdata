@@ -6,19 +6,20 @@
 \usage{
 dem_region(
   region,
-  type = "lidar",
+  source = "lidar",
   buffer = 1,
   lidar_dir = NULL,
   only_new = TRUE,
-  progress = httr::progress()
+  progress = httr::progress(),
+  type
 )
 }
 \arguments{
 \item{region}{sf simple features object. Shape file of the region of
 interest.}
 
-\item{type}{Character. Type of DEM to download, either "lidar" or "trim". Use
-Lidar unless unavailable.}
+\item{source}{Character. Source of DEM, "lidar", "trim" or a file path (or
+vector of file paths) to a custom DEM file. See Details.}
 
 \item{buffer}{Numeric. Percent buffer to apply to the \code{region} spatial file
 before cropping the DEM data to match. Increase this value if you find
@@ -26,10 +27,10 @@ that wells on the edge of your area aren't been matched to elevations when
 using \code{wells_elev()}.}
 
 \item{lidar_dir}{Character. File path of where Lidar tiles should be stored.
-Defaults to the cache directory. Only applies when \code{type = "lidar"}.}
+Defaults to the cache directory. Only applies when \code{source = "lidar"}.}
 
 \item{only_new}{Logical. Whether to download all Lidar tiles, or only new
-tiles that don't exist locally. Defaults to TRUE. Only apples when \code{type = "lidar"}.}
+tiles that don't exist locally. Defaults to TRUE. Only apples when \code{source = "lidar"}.}
 
 \item{progress}{Function. Progress bar to use. Generally leave as is.}
 }
@@ -64,6 +65,10 @@ The grid of map tiles is obtained from the BC Data Catalogue,
 TRIM data is obtained via the \code{bcmaps} package from the BC government
 \href{https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d}{Data Catalogue}
 based on overlap between map tiles and the provided shapefile (\code{region}).
+
+If a file path or vector of file paths are provided, a local DEM is
+loaded with \code{stars} and combined with \code{stars::st_mosaic()}. Note that it is
+assumed the data is elevation in metres.
 }
 
 \examples{
@@ -80,8 +85,13 @@ creek_lidar <- dem_region(creek_sf)
 plot(creek_lidar)
 
 # Fetch TRIM DEM
-creek_trim <- dem_region(creek_sf, type = "trim")
+creek_trim <- dem_region(creek_sf, source = "trim")
 
 plot(creek_trim)
+
+# Use local DEM
+koksilah_sf <- st_read("misc/data/Koksilah_watershed4/Koksilah_watershed4.shp")
+koksilah_dem <- dem_region(
+  koksilah_sf, source = "misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif")
 \dontshow{\}) # examplesIf}
 }
