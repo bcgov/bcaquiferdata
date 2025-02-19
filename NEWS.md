@@ -11,6 +11,7 @@
 * Add fixes for missing well depth and zero-width bottom lithology intervals (#11, #14)
 * Add tooltips (#17)
 * ArcHydro exports coordinates in BC Albers projection (#8)
+* Add option to use custom DEM file (#20)
 
 # Version 0.0.3
 * Fix ArcHydro exports
