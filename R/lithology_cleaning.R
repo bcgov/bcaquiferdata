@@ -753,10 +753,12 @@ lith_categorize <- function(p, s, t) {
       .default = cat
     )
 
+    if(length(cat) > 1) cat <- paste0("Bedrock (", paste0(cat, collapse = " and "), ")")
+
     if(any(c(p, s, t) %in% c("weathered", "fractured", "faulted"))) {
       cat <- paste0("Weathered, Fractured or Faulted ", cat)
     }
-    s# If no bedrock terms, but still weathered/fractured/faulted
+    # If no bedrock terms, but still weathered/fractured/faulted
   } else if(any(c(p, s, t) %in% c("weathered", "fractured", "faulted"))) {
     cat <- "Weathered, Fractured or Faulted Bedrock"
 
