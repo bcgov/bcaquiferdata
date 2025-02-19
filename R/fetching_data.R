@@ -83,14 +83,14 @@ data_read <- function(type, update = FALSE, permission = FALSE) {
 data_update <- function(type = c("wells", "lithology"), download = TRUE, permission = FALSE) {
 
   opts <- c("all", data_types())
-  if(!type %in% opts) {
+  if(!any(type %in% opts)) {
     stop("`type` must be one of ", paste0(opts, collapse = ", "), call. = FALSE)
   }
 
   cache_check(permission)
 
   meta <- cache_meta()
-  if(meta$bcaquiferdata_version != packageVersion("bcaquiferdata") & type != "all") {
+  if(meta$bcaquiferdata_version != packageVersion("bcaquiferdata") & type[1] != "all") {
     message("Cache data was processed with a different version of bcaquiferdata",
             "must update all data...")
     type <- "all"
@@ -100,13 +100,13 @@ data_update <- function(type = c("wells", "lithology"), download = TRUE, permiss
   if(download ) {
 
     # GWELLS
-    if(type %in% c("all", "wells", "lithology")) {
+    if(any(type %in% c("all", "wells", "lithology"))) {
       message("Downloading GWELLS data")
       fetch_gwells()
       meta$GWELLS_downloaded <- as.character(Sys.time())
     }
     # Aquifers
-    if(type %in% c("all", "aquifers")) {
+    if(any(type %in% c("all", "aquifers"))) {
       message("Downloading Aquifers")
 
       message("  Standard data")
@@ -128,21 +128,21 @@ data_update <- function(type = c("wells", "lithology"), download = TRUE, permiss
   }
 
   # Clean and Save Aquifers
-  if(type %in% c("all", "aquifers")) {
+  if(any(type %in% c("all", "aquifers"))) {
     message("Aquifers - Cleaning")
     clean_aquifers()
     meta$aquifers_processed <- as.character(Sys.time())
   }
 
   # Clean and Save wells
-  if(type %in% c("all", "wells")) {
+  if(any(type %in% c("all", "wells"))) {
     message("Wells - Cleaning")
     wells <- clean_wells()
     meta$wells_processed <- as.character(Sys.time())
   }
 
   # Clean and Standardize lithology
-  if(type %in% c("all", "lithology")) {
+  if(any(type %in% c("all", "lithology"))) {
     lith <- clean_lithology()
     meta$lith_processed <- as.character(Sys.time())
   }
