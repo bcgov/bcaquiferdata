@@ -75,7 +75,8 @@ aq_theme <- function() {
     bs_add_rules(
       list(
         "div.nopad .value-box-area { padding: 0; }",
-        ".nav-pills .nav-link { background: #00336630; margin-left: 2px; margin-right: 2px;};"
+        ".nav-pills .nav-link { background: #00336630; margin-left: 2px; margin-right: 2px;};",
+        ".shiny-output-error-problem { color: #dc3545; }"
         ))
 }
 

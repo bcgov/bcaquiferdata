@@ -129,6 +129,15 @@ dem_region <- function(region, source = "lidar", buffer = 1,
   # Match regional crs to dem
   region <- sf::st_transform(region, crs = sf::st_crs(dem))
 
+  # Check for at least some intersection
+  i <- sf::st_intersects(
+    sf::st_as_sfc(sf::st_bbox(dem)),
+    region, sparse = FALSE)
+
+  if(all(!i)) {
+    stop("DEM from '", source, "' does not intersect 'region'", call. = FALSE)
+  }
+
   # Clip dem to region
   sf::st_crop(dem, region)
 }

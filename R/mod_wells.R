@@ -19,7 +19,7 @@ ui_wells <- function(id) {
   nav_panel(
     title = "Prepare Data",
     navset_card_pill(
-      sidebar = sidebar(width = "20%",
+      sidebar = sidebar(width = "20%", gap = "1em",
         h4("Prepare data"),
         p("Filter GWELLs to watershed area and use Lidar or TRIM digital ",
         "elevation models to calculate well elevation."),
@@ -43,13 +43,17 @@ ui_wells <- function(id) {
           selected = character(0)),
         conditionalPanel(
           condition = "input.dem_combo == 'custom'",
-          aq_tt(
-            "Choose DEM file(s) supplying elevation for your watershed",
-            "Select multiple files while holding down the 'Ctrl' button"),
-          shinyFiles::shinyFilesButton(
-            ns("dem_file"),
-            label = "Upload Custom DEM",
-            title = "Choose DEM files(s)", multiple = TRUE),
+          layout_columns(
+            aq_tt(
+              "Choose DEM file(s) supplying elevation for your watershed",
+              "Select multiple files while holding down the 'Ctrl' button"),
+            uiOutput(ns("dem_file_path")),
+            shinyFiles::shinyFilesButton(
+              ns("dem_file"),
+              label = "Upload Custom DEM",
+              title = "Choose DEM files(s)", multiple = TRUE),
+            col_widths = 12, gap = 0
+          ),
           ns = NS(id)
         ),
 
@@ -86,6 +90,23 @@ ui_wells <- function(id) {
 server_wells <- function(id, have_data) {
 
   moduleServer(id, function(input, output, session) {
+
+    # ShinyFiles -------------
+    # VPN fix adapted from ccviR: https://github.com/LandSciTech/ccviR
+
+    timeout <- R.utils::withTimeout({
+      volumes <- c(
+        `Working Directory` = fs::path_wd(),
+        Home = fs::path_home(),
+        `All Drives` = shinyFiles::getVolumes()())
+    }, timeout = 200, onTimeout = "silent")
+
+    if(is.null(timeout)){
+      stop("Unable to find drives",
+           "This can occur if a VPN was in use but disconnected.",
+           "To fix, either reconnect to the VPN or restart without connecting",
+           call. = FALSE)
+    }
 
     # warnings -------------------------------------
     output$data_warning <- renderUI({
@@ -125,7 +146,21 @@ server_wells <- function(id, have_data) {
     })
 
     # UI -------------------------------
-    shinyFiles::shinyFileChoose(input, "dem_file", root=c(root='.'))
+    shinyFiles::shinyFileChoose(input, "dem_file", root = volumes)
+
+    output$dem_file_path <- renderUI({
+      req(!is.null(input$dem_file), !is.numeric(input$dem_file))
+      if(is_ready(watershed())) {
+        validate(need(dem_custom() != "no overlap",
+                      "No overlap between watershed and custom DEM"),
+                 errorClass = "problem")
+      }
+      tagList(
+        span(
+          "File: ",
+          code(shinyFiles::parseFilePaths(roots = volumes, input$dem_file)$name)
+        ))
+    })
 
 
     # fixes ---------------------------
@@ -179,8 +214,8 @@ server_wells <- function(id, have_data) {
       bindCache(input$spatial_file)
 
     dem_custom <- reactive({
-      req(watershed(), input$dem_file)
-      p <- shinyFiles::parseFilePaths(roots = c(root = "."), input$dem_file)
+      req(watershed(), !is.null(input$dem_file), !is.numeric(input$dem_file))
+      p <- shinyFiles::parseFilePaths(roots = volumes, input$dem_file)
       dem_region_shiny(p$datapath, watershed(), session)
     })# |>
       #bindCache(input$spatial_file, input$dem_file)
@@ -203,7 +238,7 @@ server_wells <- function(id, have_data) {
         dem_lidar()
       } else if(dem_source1() == "trim") {
         dem_trim()
-      } else if(dem_source1() == "custom") {
+      } else if(dem_source1() == "custom" & inherits(dem_custom(), "stars")) {
         dem_custom()
       }
     })
@@ -245,7 +280,12 @@ server_wells <- function(id, have_data) {
         ggthemes::theme_map() +
         ggplot2::theme(legend.position = "right")
 
-      title <- paste("Elevation Data:", dem_source1())
+      # Use file name if custom
+      if(input$dem_combo == "custom") {
+        nm <- shinyFiles::parseFilePaths(roots = volumes, input$dem_file)$name
+      } else nm <- dem_source1()
+
+      title <- paste("Elevation Data:", nm)
       if(!is.null(dem_tiles2())) {
         title <- paste(title, "supplemented with", dem_source2())
         g <- g +
@@ -323,23 +363,39 @@ dem_region_shiny <- function(source, watershed, session) {
   id <- showNotification(paste0("Fetching ", source, " data..."),
                          duration = NULL, closeButton = FALSE)
 
+  source_name <- dplyr::if_else(source %in% c("lidar", "trim"),
+                                stringr::str_to_title(source),
+                                fs::path_file(source))
+
   withCallingHandlers({
-    message(stringr::str_to_title(source), " - Start")
+    message("DEM - ", source_name)
 
     # Catch errors if have issues and try again
-    l <- try(dem_region(watershed, source = source), silent = TRUE)
-    #l <- try(stop("testing"), silent = TRUE)
-    if(inherits(l, "try-error")) {
-      message("  Problem with ", source, ", trying again...")
+    if(source %in% c("lidar", "trim")) {
+      l <- try(dem_region(watershed, source = source), silent = TRUE)
+      #l <- try(stop("testing"), silent = TRUE)
+
+      if(inherits(l, "try-error")) {
+        message("  Problem with ", source_name, ", trying again...")
+        l <- tryCatch(
+          dem_region(watershed, source = source),
+          #stop("testing2"),
+          error = function(cond) {
+            message("  Problem fetching ", source_name, "\n",
+                    "  Error message: ", cond$message)
+          })
+      }
+    } else {
       l <- tryCatch(
         dem_region(watershed, source = source),
-        #stop("testing2"),
         error = function(cond) {
-          message("  Problem fetching ", source, "\n",
+          message("  Problem processing ", source_name, "\n",
                   "  Error message: ", cond$message)
+          return("no overlap")
         })
     }
-    message(stringr::str_to_title(source), " - Done")
+
+    message("Done - ", source_name)
   },
   message = function(m) {
     shinyjs::html(id = "messages", html = m$message, add = TRUE)

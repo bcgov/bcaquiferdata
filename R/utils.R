@@ -69,3 +69,9 @@ fix_leading_zero <- function(x) {
   stringr::str_replace_all(x, "(?<!\\d)(\\.\\d+)", "0\\1")
 }
 
+is_ready <- function(reactive) {
+  tryCatch({
+    reactive
+    TRUE
+  }, error = function(cond) FALSE)
+}
