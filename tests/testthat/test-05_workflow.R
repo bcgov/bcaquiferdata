@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-test_that("wells", {
+test_that("wells workflow", {
   skip_if(!file.exists(m <- test_path("../../misc/data/Clinton_Creek.shp")))
   r <- sf::st_read(m, quiet = TRUE)
 
@@ -35,7 +35,17 @@ test_that("wells", {
   expect_true(all(flags$Flag %in% names(wells_yield)))
   expect_equal(sort(stringr::str_subset(names(wells_yield), "^flag_|^fix_")),
                sort(flags$Flag))
+})
 
+test_that("dem_region()", {
+  skip_if(!file.exists(m <- test_path("../../misc/data/Clinton_Creek.shp")))
+  skip_if(!file.exists(dem <- test_path("../../misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif")))
+
+  r <- sf::st_read(m, quiet = TRUE)
+
+  expect_error(dem_region(r, source = dem), "does not intersect 'region'") |>
+    expect_message("Load local DEM") |>
+    expect_message("Cropping")
 })
 
 test_that("fix_bottom_intervals", {
