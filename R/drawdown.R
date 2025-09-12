@@ -89,6 +89,26 @@ drawdown <- function(location, rate = NA, duration = NA, overwrite = FALSE,
     "Duration",       "t", "days",   as.numeric(duration),
     "Distance",       "r", "m", NA)
 
+  aquifers <- data_read(type = "aquifers") |>
+    sf::st_drop_geometry() |>
+    dplyr::filter(aquifer_id %in% unique(wells$aquifer_id)) |>
+    dplyr::select("aquifer_id", "aquifer_name", "material", "subtype", "vulnerability", "litho_stratographic_unit") |>
+    dplyr::mutate(url = paste0("https://apps.nrs.gov.bc.ca/gwells/aquifers/", aquifer_id))
+
+  w <- data_read(type = "wells", update = update) |>
+    dplyr::select("aquifer_id", "water_depth_m", "well_depth_m") |>
+    dplyr::semi_join(aquifers, by = "aquifer_id") |>
+    dplyr::summarize(
+      `Average Depth to Water (m)` = mean(water_depth_m, na.rm = TRUE),
+      `Average Well Depth (m)` = mean(well_depth_m, na.rm = TRUE),
+      .by = "aquifer_id")
+
+  aquifers <- dplyr::left_join(aquifers, w, by = "aquifer_id") |>
+    dplyr::mutate(focal = .data$aquifer_id %in% focal$aquifer_id) |>
+    dplyr::arrange(dplyr::desc(.data$focal), .data$aquifer_id) |>
+    dplyr::relocate("focal") |>
+    dplyr::mutate(focal = dplyr::if_else(.data$focal, "Pumping Well Aquifer", "Other Aquifer")) |>
+    dplyr::rename_with(\(x) stringr::str_replace_all(x, "_", " ") |> stringr::str_to_title())
 
   # Setup Sheets -------------------------------------------------------------
   # Get static value locations for the sheets
@@ -142,10 +162,16 @@ drawdown <- function(location, rate = NA, duration = NA, overwrite = FALSE,
   # Write drawdowns
   wb <- dd_sheet_drawdowns(wb, dd)
 
+  # Write Hydrogeologic
+  wb <- dd_sheet_hydrogeologic(wb, aquifers)
+
+  # Write Limitations & Metadata
+  wb <- dd_sheet_limitations(wb)
+  wb <- dd_sheet_metadata(wb)
+
   # Save
   if(is.null(file_name)) {
     if(length(location) == 2) {
-      location <- paste0("coords_", paste0(location, collapse = "_"))
     } else location <- paste0("well_", location)
     file_name <- paste0("drawdown_", location, "_", Sys.Date(), ".xlsx")
   }
@@ -465,6 +491,103 @@ dd_sheet_drawdowns <- function(wb, dd, s = "Drawdown") {
   wb
 }
 
+dd_sheet_hydrogeologic <- function(wb, aquifers, s = "Hydrogeologic Setting") {
+
+  startRow <- 3
+
+  # Add sheet and data
+  openxlsx::addWorksheet(wb, s)
+  openxlsx::writeData(wb, s, x = "Aquifer Information")
+  openxlsx::addStyle(wb, s, style = s_heading(), rows = 1, col = 1)
+
+  openxlsx::writeData(wb, s, x = aquifers, startRow = startRow)
+
+  # Set styles
+  #col_wrap <- which(nchar(names(aquifers)) > 30)
+  #col_rotate <- which(nchar(names(aquifers)) <= 30)
+
+  s_rotate <- openxlsx::createStyle(textRotation = 90)
+  s_wrap <- openxlsx::createStyle(wrapText = TRUE)
+
+  # Apply styles
+  #openxlsx::setRowHeights(wb, s, rows = startRow, heights = 140)
+
+  openxlsx::addStyle(wb, s, style = s_head(), cols = seq_len(ncol(aquifers)), rows = startRow)
+  #openxlsx::addStyle(wb, s, style = s_rotate, cols = col_rotate, rows = startRow, stack = TRUE)
+  openxlsx::addStyle(wb, s, style = s_body(), cols = seq_len(ncol(aquifers)),
+                     rows = startRow:(startRow + nrow(aquifers)+1), gridExpand = TRUE, stack = TRUE)
+
+  # purrr::walk(seq_len(nrow(cols)), \(n) {
+  #   openxlsx::addStyle(wb, s, cols = cols$col_n[n],
+  #                      style = cols$style[[n]], rows = rows, stack = TRUE)
+  # })
+
+  openxlsx::addStyle(wb, s, style = s_wrap, cols = stringr::str_which(names(aquifers), "Depth"),
+                     rows = startRow, stack = TRUE)
+  openxlsx::addStyle(wb, s, cols = stringr::str_which(names(aquifers), "Depth"),
+                     style = openxlsx::createStyle(numFmt = "0.0"),
+                     rows = startRow:(startRow + nrow(aquifers)+1),
+                     gridExpand = TRUE, stack = TRUE)
+
+  # Column widths - Cannot use Auto and then override, one or the other
+  openxlsx::setColWidths(wb, s, cols = seq_len(ncol(aquifers)),
+                         widths = c(20, 10, 30, 20, 40, 15, 35, 35, 15, 15))
+
+  wb
+}
+
+dd_sheet_limitations <- function(wb, s = "Limitations") {
+
+  startRow <- 1
+
+  # Add sheet and data
+  openxlsx::addWorksheet(wb, s)
+  openxlsx::addStyle(wb, s, col = 1:2, row = 1:40,
+                     style = s_body("left"), gridExpand = TRUE, stack = TRUE)
+  openxlsx::writeData(wb, s, startRow = startRow, x = "Limitations")
+  openxlsx::addStyle(wb, s, row = startRow, col = 1, style = s_heading())
+  openxlsx::writeData(wb, s, startRow = startRow + 2,
+                      "This tool is based on Cooper (1946). Assumptions of this solution include infinite aquifer extent, homogeneous, isotropic and uniform thickness, fully penetrating pumping well, horizontal flow, a nonleaky confined aquifer, and neglects well bore storage. This tool does not replace the guidance or advice of a qualified professional. Hydrogeology is a reserved practice that may only be carries out by or under the supervision of an individual registered with Engineers and Geoscientists with competence in hydrogeology.")
+  openxlsx::addStyle(wb, s, row = startRow + 2, col = 1,
+                     style = openxlsx::createStyle(wrapText = TRUE, indent = 1),
+                     stack = TRUE)
+  openxlsx::setColWidths(wb, s, cols = 1, widths = 100)
+
+  wb
+}
+
+dd_sheet_metadata <- function(wb, s = "Metadata") {
+
+  startRow <- 1
+
+  meta <- tidyr::pivot_longer(
+    cache_meta(), cols = dplyr::everything(),
+    names_to = "key", values_transform = as.character) |>
+    dplyr::mutate(key = stringr::str_replace_all(key, "_", " "),
+                  key = stringr::str_to_title(key),
+                  key = stringr::str_replace_all(key, "Bcaquiferdata", "bcaquiferdata"))
+
+  # Add sheet and data
+  openxlsx::addWorksheet(wb, s)
+  openxlsx::addStyle(wb, s, col = 1:2, row = 1:40,
+                     style = s_body("left"), gridExpand = TRUE, stack = TRUE)
+  openxlsx::writeData(wb, s, startRow = startRow, x = "Metadata")
+  openxlsx::addStyle(wb, s, row = startRow, col = 1, style = s_heading())
+
+  openxlsx::writeData(
+    wb, s, startRow = startRow + 2,
+    x = paste0("Excel template created with the bcaquiferdata R package on ", Sys.Date()))
+
+  openxlsx::writeData(wb, s, startRow = startRow + 4, x = meta, colNames = FALSE)
+  openxlsx::addStyle(wb, s, row = (startRow + 4):(startRow + 4 + nrow(meta)),
+                     col = 1, style = openxlsx::createStyle(textDecoration = "bold"),
+                     stack = TRUE)
+
+  openxlsx::setColWidths(wb, s, cols = 1:2, widths = c(25, 25))
+
+  wb
+}
+
 s_heading <- function() {
   openxlsx::createStyle(
     textDecoration = "bold", fontSize = 14, valign = "center", halign = "left",
@@ -477,8 +600,8 @@ s_head <- function() {
     border = "TopBottomLeftRight", borderStyle = "thin")
 }
 
-s_body <- function() {
-  openxlsx::createStyle(fontSize = 10, halign = "center")
+s_body <- function(halign = "center") {
+  openxlsx::createStyle(fontSize = 10, halign = halign)
 }
 
 s_emph <- function(halign = "center") {
