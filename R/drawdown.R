@@ -314,32 +314,71 @@ dd_sheets_locs <- function(inputs, space) {
 }
 
 
-dd_sheet_inputs <- function(wb, location, inputs, locs, space) {
+dd_sheet_inputs <- function(wb, location, inputs, locs, space, s = "Inputs") {
 
   # EQ formulas
   eqs <- dplyr::tribble(
-    ~Parameter,       ~Symbol,  ~Units, ~Value,
+    ~Name,       ~Equation,  ~` `, ~Value,
     "EQ1", "2.303Q/4PiT", NA, NA,
     "EQ2", "2.25Tt/S", NA, NA,
     "EQ Drawdown", "2.303Q/4PiT*log10(2.25Tt/Sr^2)", NA, NA) |>
     dplyr::mutate(
       Value = dplyr::case_when(
-        Parameter == "EQ1" ~ paste0("=2.303*", locs$Q, "/(4*PI()*", locs$T),
-        Parameter == "EQ2" ~ paste0("=2.25*", locs$T, "*", locs$t, "/", locs$S),
+        Name == "EQ1" ~ paste0("=2.303*", locs$Q, "/(4*PI()*", locs$T),
+        Name == "EQ2" ~ paste0("=2.25*", locs$T, "*", locs$t, "/", locs$S),
         .default = Value))
 
   class(eqs$Value) <- c(class(eqs$Value), "formula")
 
-  openxlsx::addWorksheet(wb, "Inputs")
-  openxlsx::writeData(wb, "Inputs", x = "Calculation of impact to adjacent wells from a pumping well")
-  openxlsx::writeData(wb, "Inputs", x = "Well", startRow = 2)
-  openxlsx::writeData(wb, "Inputs", x = location, startRow = 2, startCol = 2)
-  openxlsx::writeData(wb, "Inputs", x = "", startRow = space)
-  openxlsx::writeData(wb, "Inputs", x = inputs, startCol = 1, startRow = space + 1)
-  openxlsx::writeData(wb, "Inputs", x = eqs, startCol = 1, startRow = space + 1 + nrow(inputs) + 1 + 1,
-                      colNames = FALSE)
-  openxlsx::setColWidths(wb, "Inputs", cols = seq_len(ncol(inputs)), widths = "auto")
-  openxlsx::setColWidths(wb, "Inputs", cols = 1, widths = 20)
+  openxlsx::addWorksheet(wb, s)
+
+  openxlsx::addStyle(wb, s, cols = 1:10, rows = 1:20, gridExpand = TRUE,
+                     style = s_body(), stack = TRUE)
+
+  # Metadata
+  openxlsx::writeData(wb, s, x = "Calculation of impact to adjacent wells from a pumping well")
+  openxlsx::addStyle(wb, s, cols = 1, rows = 1, style = s_heading(), stack = TRUE)
+  openxlsx::mergeCells(wb, s, cols = 1:6, rows = 1)
+  openxlsx::writeData(wb, s, x = "Well Tag #", startRow = 2)
+  openxlsx::addStyle(wb, s, row = 2, col = 1, style = s_emph(), stack = TRUE)
+  openxlsx::setRowHeights(wb, s, rows = 1:2, heights = c(30, 20))
+  openxlsx::writeData(wb, s, x = location, startRow = 2, startCol = 2)
+  openxlsx::writeData(wb, s, x = "", startRow = space)
+
+  # Inputs
+  openxlsx::writeData(wb, s, x = inputs, startCol = 1, startRow = space + 1)
+  openxlsx::writeData(wb, s, x = "'Distance to Well' in Drawdown worksheet", startCol = ncol(inputs), startRow = nrow(inputs) + space + 1)
+  openxlsx::addStyle(wb, s, col = ncol(inputs), row = nrow(inputs) + space + 1,
+                     style = s_it("left"))
+  openxlsx::addStyle(wb, s, style = s_head(), cols = seq_len(ncol(inputs)), rows = space + 1, stack = TRUE)
+  openxlsx::addStyle(wb, s, style = s_input(), cols = ncol(inputs), rows = space + 1 + which(is.na(inputs$Value[inputs$Parameter != "Distance"])), stack = TRUE)
+
+  openxlsx::writeData(wb, s, x = "User Input Required",
+                      startCol = ncol(inputs) + 2,
+                      startRow = space + 1)
+  openxlsx::addStyle(wb, s, style = s_input(), cols = ncol(inputs) + 2, rows = space + 1, stack = TRUE)
+  openxlsx::addStyle(wb, s, style = s_it(), cols = ncol(inputs) + 2, rows = space + 1, stack = TRUE)
+
+
+  # Equations
+  openxlsx::writeData(wb, s, x = "Equations for calculating Drawdown",
+                      startCol = 1, startRow = space + 1 + nrow(inputs) + 1 + 1)
+  openxlsx::mergeCells(wb, s, cols = 1:5, rows = space + 1 + nrow(inputs) + 1 + 1)
+  openxlsx::addStyle(wb, s, style = s_emph("left"), col = 1, row = space + 1 + nrow(inputs) + 1 + 1,
+                     stack = TRUE)
+
+  openxlsx::writeData(wb, s, x = eqs, startCol = 1, startRow = space + 1 + nrow(inputs) + 1 + 1 + 1)
+  openxlsx::addStyle(wb, s, style = s_head(), cols = seq_len(ncol(eqs)), rows = space + 1 + nrow(inputs) + 1 + 1 + 1, stack = TRUE)
+  purrr::map(seq(space + 1 + nrow(inputs) + 1 + 1 + 1, length.out = nrow(eqs) + 1),
+            \(x) openxlsx::mergeCells(wb, s, cols = 2:3, rows = x))
+  openxlsx::writeData(wb, s, x = "'Drawdown Impact' in Drawdown worksheet", startCol = 4,
+                      startRow = space + 1 + nrow(inputs) + 1 + 1 + 1 + 3)
+  openxlsx::addStyle(wb, s, col = 4, row = space + 1 + nrow(inputs) + 1 + 1 + 1 + 3,
+                     style = s_it("left"))
+
+  openxlsx::setColWidths(wb, s, cols = 1:6, widths = c(15, 13, 13, 13, 13, 13))
+
+  openxlsx::saveWorkbook(wb, "testing.xlsx", overwrite = TRUE)
 
   wb
 }
