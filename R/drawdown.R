@@ -13,7 +13,7 @@
 #'
 #' @examples
 #'
-#' d <- drawdown(85199, rate = 3.97, duration = 180)
+#' d <- drawdown(85199, rate = 343, duration = 180)
 #'
 #' drawdown(85199, rate = 3.97, duration = 180, transmissivity = 208, storativity = 0.0048)
 #'
@@ -29,20 +29,21 @@ drawdown <- function(location, rate, duration,
          "or a well tag number", call. = FALSE)
   }
 
-  # Load wells data
-  wells <- data_read(type = "wells_sf", update = update) |>
-    sf::st_transform(3005)
+  # Organization
+  space <- 1 + 1 + 1 # Title + well + space
 
-  # Format focal location
-  focal <- dd_focal(location, wells)
-
+  # Get and format data
   duration <- units::set_units(duration, "d")
+  rate <- units::set_units(rate, "m3/d")
 
-  rate <- units::set_units(3.97, "L/s") |>
-    units::set_units("m3/d")
+  wells <- data_read(type = "wells_sf", update = update) |>
+    sf::st_transform(3005) |>
+    dplyr::mutate(aquifer_id = dplyr::na_if(.data$aquifer_id, 1143))
 
+  focal <- dd_focal(location, wells)
+  focal_dist <- sf::st_distance(x = focal, y = wells)
 
-  info <- wells |>
+  wells <- wells |>
     dplyr::mutate(
       static_water_m = units::set_units(static_water_level_ft_btoc, "ft") |>
         units::set_units("m"),
@@ -50,12 +51,9 @@ drawdown <- function(location, rate, duration,
         units::set_units("m"),
       bedrock_depth_m = units::set_units(bedrock_depth_ft_bgl, "ft") |>
         units::set_units("m"),
-      transmissivity_m_2_s = units::set_units(transmissivity_m_2_s, "m2/s")) |>
-
-    #dplyr::select("well_tag_number", "aquifer_id", "well_depth_m", "bedrock_depth_m",
-    #              "well_yield_usgpm", "static_water_m", "aquifer_lithology_code",
-    #              "transmissivity) |>
-    dplyr::mutate(dist = drop(sf::st_distance(x = focal, y = wells))) |>
+      transmissivity_m_2_s = units::set_units(transmissivity_m_2_s, "m2/s"),
+      transmissivity_m_2_d = units::set_units(transmissivity_m_2_s, "m2/d")) |>
+    dplyr::mutate(dist = drop(.env$focal_dist)) |>
     dplyr::filter(dist < units::set_units(1000, "m")) |>
     dplyr::arrange(dist) |>
     dplyr::mutate(
@@ -66,94 +64,37 @@ drawdown <- function(location, rate, duration,
       drawdown = NA,
       safe = NA,
       impact = NA,
-    #  drawdown = as.numeric(eq1 * log10(eq2/dist^2)),
-    #  drawdown = units::set_units(drawdown, "m"),
       aquifer_lithology_reassigned = dplyr::case_when(
         is.na(bedrock_depth_m) & is.na(aquifer_lithology_code) ~ "Unassigned",
         is.na(bedrock_depth_m) ~ aquifer_lithology_code,
         well_depth_m - bedrock_depth_m > units::set_units(5, "ft") ~ "Bedrock",
-        TRUE ~ "Unconsolidated")) |> #,
-    #  safe_drawdown = (well_depth_m - static_water_m) * 0.7,
-    #  impact = units::set_units(drawdown / safe_drawdown, "%")) |>
+        TRUE ~ "Unconsolidated")) |>
     dplyr::arrange(well_tag_number) |>
     sf::st_drop_geometry()
-
-
-  nms <- dplyr::tribble(
-    ~name_nice, ~name, ~sheet,
-    "Well Tag Number", "well_tag_number", "all",
-    "Well Status", "status", "dd",
-    "Intended Well Use", "use", "dd",
-    "Well Details URL", "url", "dd",
-
-    "Distance to Well", "dist", "all",
-    "Top of Bedrock Depth (m)", "bedrock_depth_m", "all",
-    "Screen Depth (m)", "screen_depth", "all",
-    "Finished Depth of Well (m)", "well_depth_m", "all",
-    "Depth to Water (m)", "static_water_m", "all",
-
-    "Yield (US gpm)", "well_yield_usgpm", "ref",
-    "Transmissivity (m2/s)", "transmissivity_m_2_s", "ref",
-    "Storativity", "storativity", "ref",
-
-    "Aquifer ID", "aquifer_id", "all",
-    "Aquifer Subtype", "aquifer_lithology_code", "all",
-    "Bedrock / Unconsolidated", "aquifer_lithology_reassigned", "all",
-
-    "Drawdown Impact (m)", "drawdown", "dd",
-    "Safe (70%)\nAvailable Drawdown (m)", "safe", "dd",
-    "Impact as a\nPercentage of SAD (red>30%)", "impact", "dd",
-  )
 
   inputs <- dplyr::tribble(
     ~Parameter,       ~Symbol,  ~Units, ~Value,
     "Transmissivity", "T", "m2/day", NA,
     "Storativity",    "S", "-", NA,
     "Pumping rate",   "Q", "m3/day", as.numeric(rate),
-    "Duration",       "t", "days", as.numeric(duration),
+    "Duration",       "t", "days",   as.numeric(duration),
     "Distance",       "r", "m", NA)
 
-  # Organization
-  space <- 1 + 1 + 1 # Title + well + space
 
-  # Get static value locations
-  locs <- dplyr::tibble(
-    `T`   = space + 1 + which(inputs[1] == "Transmissivity"),
-    `S`   = space + 1 + which(inputs[1] == "Storativity"),
-    `Q`   = space + 1 + which(inputs[1] == "Pumping rate"),
-    `t`   = space + 1 + which(inputs[1] == "Duration"),
-    `EQ1` = space + 1 + nrow(inputs) + 1 + 1,
-    `EQ2` = space + 1 + nrow(inputs) + 1 + 2,
-    ) |>
-    dplyr::summarize(dplyr::across(
-      dplyr::everything(),
-      \(x) paste0("$", LETTERS[which(names(inputs) == "Value")], "$", x)
-    ))
+  # Setup Sheets -------------------------------------------------------------
+  # Get static value locations for the sheets
+  locs <- dd_sheets_locs(inputs, space)
 
-  # EQ forumlas
-  eqs <- dplyr::tribble(
-    ~Parameter,       ~Symbol,  ~Units, ~Value,
-    "EQ1", "2.303Q/4PiT", NA, NA,
-    "EQ2", "2.25Tt/S", NA, NA,
-    "EQ Drawdown", "2.303Q/4PiT*log10(2.25Tt/Sr^2)", NA, NA) |>
-    dplyr::mutate(
-    Value = dplyr::case_when(
-      Parameter == "EQ1" ~ paste0("=2.303*", locs$Q, "/(4*PI()*", locs$T),
-      Parameter == "EQ2" ~ paste0("=2.25*", locs$T, "*", locs$t, "/", locs$S),
-      .default = Value))
+  nms <- col_nms()
 
-  class(eqs$Value) <- c(class(eqs$Value), "formula")
-
-  refs <- info |>
+  refs <- wells |>
     dplyr::select(dplyr::all_of(nms$name[nms$sheet != "dd"])) |>
     dplyr::rename_with(\(x) nms$name_nice[match(x, nms$name)])
-    #dplyr::filter(`Well Tag Number` %in% c(15173, 36730, 37353))
 
   # Drawdown columns and formulae
-  dd <- info |>
+  dd <- wells |>
     dplyr::arrange(dist) |>
     dplyr::select(dplyr::all_of(nms$name))
-    #dplyr::select(dplyr::all_of(nms$name[nms$sheet != "ref"]))
 
   dd <- dd |>
     dplyr::mutate(
@@ -176,52 +117,61 @@ drawdown <- function(location, rate, duration,
     dplyr::mutate(dplyr::across(dplyr::where(is.numeric), as.numeric)) |>
     dplyr::rename_with(\(x) nms$name_nice[match(x, nms$name)])
 
-  pump <- dplyr::filter(dd, `Distance to Well` == 0) |>
-    dplyr::select(-dplyr::matches("Safe|Drawdown|Impact"))
-
-  dd <- dplyr::filter(dd, `Distance to Well` != 0)
-
   # Apply formula class
   for(x in nms$name_nice[nms$name %in% c("drawdown", "safe", "impact")]) {
     class(dd[[x]]) <- c(class(dd[[x]]), "formula")
   }
 
-  # TODO: NExt is add safe and impact foRmula, and get the screen vs. depth formula
-
-
-    # TODO ---------------------------
-    # dplyr::filter(well_tag_number %in% c(14862, 15173, 36730, 37353, 52011,
-    #                                      53169, 56016, 84818, 94356, 94359,
-    #                                      97015, 104589, 124191))
-
+  # TODO: NExt is get the screen vs. depth formula
 
   wb <- openxlsx::createWorkbook()
 
   # Write inputs
-  openxlsx::addWorksheet(wb, "Inputs")
-  openxlsx::writeData(wb, "Inputs", x = "Calculation of impact to adjacent wells from a pumping well")
-  openxlsx::writeData(wb, "Inputs", x = "Well", startRow = 2)
-  openxlsx::writeData(wb, "Inputs", x = location, startRow = 2, startCol = 2)
-  openxlsx::writeData(wb, "Inputs", x = "", startRow = space)
-  openxlsx::writeData(wb, "Inputs", x = inputs, startCol = 1, startRow = space + 1)
-  openxlsx::writeData(wb, "Inputs", x = eqs, startCol = 1, startRow = space + 1 + nrow(inputs) + 1 + 1,
-                      colNames = FALSE)
-  openxlsx::setColWidths(wb, "Inputs", cols = seq_len(ncol(inputs)), widths = "auto")
-  openxlsx::setColWidths(wb, "Inputs", cols = 1, widths = 20)
+  wb <- dd_sheet_inputs(wb, location, inputs, locs, space)
 
   # Write drawdowns
-  openxlsx::addWorksheet(wb, "Drawdown")
-
-  openxlsx::writeData(wb, "Drawdown", x = "Pumping Well",     startRow = 1)
-  openxlsx::writeData(wb, "Drawdown", x = pump,               startRow = 2)
-  openxlsx::writeData(wb, "Drawdown", x = "",                 startRow = 4)
-  openxlsx::writeData(wb, "Drawdown", x = "Wells within 1km", startRow = 5)
-  openxlsx::writeData(wb, "Drawdown", x = dd,                 startRow = 6)
-  openxlsx::setRowHeights(wb, "Drawdown", rows = c(2, 6), heights = 35)
-  openxlsx::setColWidths(wb, "Drawdown", cols = seq_len(ncol(dd)), widths = "auto")
+  wb <- dd_sheet_drawdowns(wb, dd)
 
   # Save
   openxlsx::saveWorkbook(wb, "testing.xlsx", overwrite = TRUE)
+}
+
+col_nms <- function(wb = NULL, sheet = NULL) {
+  cols <- dplyr::tribble(
+    ~name_nice, ~name, ~sheet, ~numFmt, ~width,
+    "Well Tag Number", "well_tag_number", "all", "TEXT", 7,
+    "Well Status", "status", "dd", "TEXT", NA,
+    "Intended Well Use", "use", "dd", "TEXT", NA,
+    "Well Details URL", "url", "dd", "TEXT", 35,
+
+    "Distance to Well (m)", "dist", "all", "0", NA,
+    "Top of Bedrock Depth (m)", "bedrock_depth_m", "all", "0.00", NA,
+    "Top of Screen Depth (m)", "screen_depth", "all", "0.00", NA,
+    "Finished Depth of Well (m)", "well_depth_m", "all", "0.00", NA,
+    "Depth to Water (m)", "static_water_m", "all", "0.00", NA,
+
+    "Yield (US gpm)", "well_yield_usgpm", "ref", "0", NA,
+    "Transmissivity (m2/d)", "transmissivity_m_2_d", "ref", "0", NA,
+    "Storativity", "storativity", "ref",  "0.000", NA,
+
+    "Aquifer ID", "aquifer_id", "all", "0", NA,
+    "Aquifer Subtype", "aquifer_lithology_code", "all", "TEXT", 15,
+    "Bedrock / Unconsolidated", "aquifer_lithology_reassigned", "all", "TEXT", 15,
+
+    "Drawdown Impact (m)", "drawdown", "dd", "0.00", 7,
+    "Safe (70%)\nAvailable\nDrawdown (m)", "safe", "dd", "0.00", 15,
+    "Impact as a\nPercentage of SAD (red>30%)", "impact", "dd", "PERCENTAGE", 15,
+  ) |>
+    dplyr::mutate(
+      style = purrr::map(numFmt, \(x) openxlsx::createStyle(numFmt = x)),
+      width = tidyr::replace_na(width, 5))
+
+  if(!is.null(wb) && !is.null(sheet)) {
+    cols <- dplyr::mutate(cols, col_n = match(
+      .data$name_nice,
+      stringr::str_replace_all(openxlsx::get_worksheet_entries(.env$wb, .env$sheet), "&gt;", ">")))
+  }
+  cols
 }
 
 aq_subtypes <- function() {
@@ -243,10 +193,14 @@ aq_subtypes <- function() {
   )
 }
 
+#' Excel Columns
+cloc <- function(df, name) {
+  LETTERS[which(names(df) == name)]
+}
 
 #' Excel locations
-eloc <- function(df, name, row = 7) {
-  paste0(LETTERS[which(names(df) == name)], seq(row, dplyr::n() + row - 1))
+eloc <- function(df, name, row = 6) {
+  paste0(cloc(df, name), seq(row, dplyr::n() + row - 1))
 }
 
 
@@ -343,3 +297,130 @@ dd_trans_store <- function(focal, update = FALSE) {
 
   c(aq$transmissivity, aq$storativity)
 }
+
+dd_sheets_locs <- function(inputs, space) {
+  dplyr::tibble(
+    `T`   = space + 1 + which(inputs[1] == "Transmissivity"),
+    `S`   = space + 1 + which(inputs[1] == "Storativity"),
+    `Q`   = space + 1 + which(inputs[1] == "Pumping rate"),
+    `t`   = space + 1 + which(inputs[1] == "Duration"),
+    `EQ1` = space + 1 + nrow(inputs) + 1 + 1,
+    `EQ2` = space + 1 + nrow(inputs) + 1 + 2,
+  ) |>
+    dplyr::summarize(dplyr::across(
+      dplyr::everything(),
+      \(x) paste0("$", LETTERS[which(names(inputs) == "Value")], "$", x)
+    ))
+}
+
+
+dd_sheet_inputs <- function(wb, location, inputs, locs, space) {
+
+  # EQ formulas
+  eqs <- dplyr::tribble(
+    ~Parameter,       ~Symbol,  ~Units, ~Value,
+    "EQ1", "2.303Q/4PiT", NA, NA,
+    "EQ2", "2.25Tt/S", NA, NA,
+    "EQ Drawdown", "2.303Q/4PiT*log10(2.25Tt/Sr^2)", NA, NA) |>
+    dplyr::mutate(
+      Value = dplyr::case_when(
+        Parameter == "EQ1" ~ paste0("=2.303*", locs$Q, "/(4*PI()*", locs$T),
+        Parameter == "EQ2" ~ paste0("=2.25*", locs$T, "*", locs$t, "/", locs$S),
+        .default = Value))
+
+  class(eqs$Value) <- c(class(eqs$Value), "formula")
+
+  openxlsx::addWorksheet(wb, "Inputs")
+  openxlsx::writeData(wb, "Inputs", x = "Calculation of impact to adjacent wells from a pumping well")
+  openxlsx::writeData(wb, "Inputs", x = "Well", startRow = 2)
+  openxlsx::writeData(wb, "Inputs", x = location, startRow = 2, startCol = 2)
+  openxlsx::writeData(wb, "Inputs", x = "", startRow = space)
+  openxlsx::writeData(wb, "Inputs", x = inputs, startCol = 1, startRow = space + 1)
+  openxlsx::writeData(wb, "Inputs", x = eqs, startCol = 1, startRow = space + 1 + nrow(inputs) + 1 + 1,
+                      colNames = FALSE)
+  openxlsx::setColWidths(wb, "Inputs", cols = seq_len(ncol(inputs)), widths = "auto")
+  openxlsx::setColWidths(wb, "Inputs", cols = 1, widths = 20)
+
+  wb
+}
+
+dd_sheet_drawdowns <- function(wb, dd) {
+
+  startRow <- 1
+
+  # Add sheet and data
+  openxlsx::addWorksheet(wb, "Drawdown")
+  openxlsx::writeData(wb, "Drawdown", x = dd, startRow = startRow)
+
+  # Get col/row locations
+  cols <- col_nms(wb, 2)
+  rows <- seq(startRow + 1, nrow(dd) + startRow)
+
+  # Set styles
+
+  col_wrap <- which(nchar(names(dd)) > 30)
+  col_rotate <- which(nchar(names(dd)) <= 30)
+
+  s_head <- openxlsx::createStyle(
+    textDecoration = "bold", fontSize = 10, valign = "center", halign = "center",
+    border = "TopBottomLeftRight", borderStyle = "thin")
+
+  s_rotate <- openxlsx::createStyle(textRotation = 90)
+  s_wrap <- openxlsx::createStyle(wrapText = TRUE)
+  s_body <- openxlsx::createStyle(fontSize = 10, halign = "center")
+
+  # No stack option for conditional styles (s_focal not conditional, so needs fgFill)
+  s_focal <- openxlsx::createStyle(fgFill = "#afd095")
+  s_aq_focal <- openxlsx::createStyle(bgFill = "#afd095", fontSize = 10, halign = "center")
+  s_aq_diff <- openxlsx::createStyle(bgFill = "#b4c7dc", fontSize = 10, halign = "center")
+  s_aq_na <- openxlsx::createStyle(bgFill = "#ec9ba4", fontSize = 10, halign = "center")
+
+  # Apply styles
+  openxlsx::setRowHeights(wb, "Drawdown", rows = 1, heights = 140)
+
+  openxlsx::addStyle(wb, 2, style = s_head, cols = cols$col_n, rows = 1)
+  openxlsx::addStyle(wb, 2, style = s_rotate, cols = col_rotate, rows = 1, stack = TRUE)
+  openxlsx::addStyle(wb, 2, style = s_wrap, cols = col_wrap, rows = 1, stack = TRUE)
+  openxlsx::addStyle(wb, 2, style = s_body, cols = cols$col_n,
+                     rows = rows, gridExpand = TRUE, stack = TRUE)
+
+  # Add colour
+  aid <- cloc(dd, "Aquifer ID")
+  openxlsx::addStyle(wb, 2, style = s_focal, cols = cols$col_n, rows = 2, stack = TRUE)
+  openxlsx::conditionalFormatting(
+    wb, 2,
+    style = s_aq_focal, cols = cols$col_n[cols$name == "aquifer_id"],
+    rows = rows, rule = paste0(aid, "2==$", aid, "$2"), stack = TRUE)
+  openxlsx::conditionalFormatting(
+    wb, 2,
+    style = s_aq_diff, cols = cols$col_n[cols$name == "aquifer_id"],
+    rows = rows, rule = paste0(aid, "2!=$", aid, "$2"), stack = TRUE)
+  openxlsx::conditionalFormatting(
+    wb, 2,
+    style = s_aq_na, cols = cols$col_n[cols$name == "aquifer_id"],
+    rows = rows, type = "blanks")
+
+
+  purrr::walk(seq_len(nrow(cols)), \(n) {
+    openxlsx::addStyle(wb, 2, cols = cols$col_n[n],
+                       style = cols$style[[n]], rows = rows, stack = TRUE)
+  })
+
+  # Column widths - Cannot use Auto and then override, one or the other
+  openxlsx::setColWidths(wb, 2, cols = cols$col_n,
+                         widths = cols$width)
+
+  # TODO: Fix column widths for where based on 'unrotated' column names
+  # TODO: highlight the focal well
+  # TODO: Add colour highlights for wells
+
+  openxlsx::saveWorkbook(wb, "testing.xlsx", overwrite = TRUE)
+  wb
+}
+
+ox_col <- function(wb, col) {
+  browser()
+  openxlsx::get_worksheet_entries(wb, 2)
+}
+
+
