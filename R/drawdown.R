@@ -384,13 +384,14 @@ dd_sheet_inputs <- function(wb, location, inputs, locs, space, s = "Inputs") {
   wb
 }
 
-dd_sheet_drawdowns <- function(wb, dd) {
+dd_sheet_drawdowns <- function(wb, dd, s = "Drawdown") {
 
   startRow <- 1
 
   # Add sheet and data
-  openxlsx::addWorksheet(wb, "Drawdown")
-  openxlsx::writeData(wb, "Drawdown", x = dd, startRow = startRow)
+  openxlsx::addWorksheet(wb, s)
+  openxlsx::writeData(wb, s, x = dd, startRow = startRow)
+  openxlsx::freezePane(wb, s, firstRow = TRUE)
 
   # Get col/row locations
   cols <- col_nms(wb, 2)
@@ -401,13 +402,8 @@ dd_sheet_drawdowns <- function(wb, dd) {
   col_wrap <- which(nchar(names(dd)) > 30)
   col_rotate <- which(nchar(names(dd)) <= 30)
 
-  s_head <- openxlsx::createStyle(
-    textDecoration = "bold", fontSize = 10, valign = "center", halign = "center",
-    border = "TopBottomLeftRight", borderStyle = "thin")
-
   s_rotate <- openxlsx::createStyle(textRotation = 90)
   s_wrap <- openxlsx::createStyle(wrapText = TRUE)
-  s_body <- openxlsx::createStyle(fontSize = 10, halign = "center")
 
   # No stack option for conditional styles (s_focal not conditional, so needs fgFill)
   s_focal <- openxlsx::createStyle(fgFill = "#afd095")
@@ -418,36 +414,36 @@ dd_sheet_drawdowns <- function(wb, dd) {
   # Apply styles
   openxlsx::setRowHeights(wb, "Drawdown", rows = 1, heights = 140)
 
-  openxlsx::addStyle(wb, 2, style = s_head, cols = cols$col_n, rows = 1)
-  openxlsx::addStyle(wb, 2, style = s_rotate, cols = col_rotate, rows = 1, stack = TRUE)
-  openxlsx::addStyle(wb, 2, style = s_wrap, cols = col_wrap, rows = 1, stack = TRUE)
-  openxlsx::addStyle(wb, 2, style = s_body, cols = cols$col_n,
+  openxlsx::addStyle(wb, s, style = s_head(), cols = cols$col_n, rows = 1)
+  openxlsx::addStyle(wb, s, style = s_rotate, cols = col_rotate, rows = 1, stack = TRUE)
+  openxlsx::addStyle(wb, s, style = s_wrap, cols = col_wrap, rows = 1, stack = TRUE)
+  openxlsx::addStyle(wb, s, style = s_body(), cols = cols$col_n,
                      rows = rows, gridExpand = TRUE, stack = TRUE)
 
   # Add colour
   aid <- cloc(dd, "Aquifer ID")
-  openxlsx::addStyle(wb, 2, style = s_focal, cols = cols$col_n, rows = 2, stack = TRUE)
+  openxlsx::addStyle(wb, s, style = s_focal, cols = cols$col_n, rows = 2, stack = TRUE)
   openxlsx::conditionalFormatting(
-    wb, 2,
+    wb, s,
     style = s_aq_focal, cols = cols$col_n[cols$name == "aquifer_id"],
     rows = rows, rule = paste0(aid, "2==$", aid, "$2"), stack = TRUE)
   openxlsx::conditionalFormatting(
-    wb, 2,
+    wb, s,
     style = s_aq_diff, cols = cols$col_n[cols$name == "aquifer_id"],
     rows = rows, rule = paste0(aid, "2!=$", aid, "$2"), stack = TRUE)
   openxlsx::conditionalFormatting(
-    wb, 2,
+    wb, s,
     style = s_aq_na, cols = cols$col_n[cols$name == "aquifer_id"],
     rows = rows, type = "blanks")
 
 
   purrr::walk(seq_len(nrow(cols)), \(n) {
-    openxlsx::addStyle(wb, 2, cols = cols$col_n[n],
+    openxlsx::addStyle(wb, s, cols = cols$col_n[n],
                        style = cols$style[[n]], rows = rows, stack = TRUE)
   })
 
   # Column widths - Cannot use Auto and then override, one or the other
-  openxlsx::setColWidths(wb, 2, cols = cols$col_n,
+  openxlsx::setColWidths(wb, s, cols = cols$col_n,
                          widths = cols$width)
 
   # TODO: Fix column widths for where based on 'unrotated' column names
@@ -458,9 +454,32 @@ dd_sheet_drawdowns <- function(wb, dd) {
   wb
 }
 
-ox_col <- function(wb, col) {
-  browser()
-  openxlsx::get_worksheet_entries(wb, 2)
+s_heading <- function() {
+  openxlsx::createStyle(
+    textDecoration = "bold", fontSize = 14, valign = "center", halign = "left",
+    indent = 1)
 }
 
+s_head <- function() {
+  openxlsx::createStyle(
+    textDecoration = "bold", fontSize = 10, valign = "center", halign = "center",
+    border = "TopBottomLeftRight", borderStyle = "thin")
+}
+
+s_body <- function() {
+  openxlsx::createStyle(fontSize = 10, halign = "center")
+}
+
+s_emph <- function(halign = "center") {
+  openxlsx::createStyle(fontSize = 11, textDecoration = "bold", indent = 1,
+                        halign = halign)
+}
+
+s_input <- function() {
+  openxlsx::createStyle(fgFill = "#fff2cc")
+}
+
+s_it <- function(halign = "center") {
+  openxlsx::createStyle(fontSize = 9, textDecoration = "italic", halign = halign)
+}
 
