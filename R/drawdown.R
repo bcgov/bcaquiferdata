@@ -30,7 +30,8 @@
 #                                      53169, 56016, 84818, 94356, 94359,
 #                                      97015, 104589, 124191))
 
-drawdown <- function(location, rate = NA, duration = NA, update = FALSE) {
+drawdown <- function(location, rate = NA, duration = NA, overwrite = FALSE,
+                     file_name = NULL, update = FALSE) {
 
   if(!is.numeric(location)) {
     stop("`location` must be a number. Either a pair of longitude/latitude, ",
@@ -142,7 +143,13 @@ drawdown <- function(location, rate = NA, duration = NA, update = FALSE) {
   wb <- dd_sheet_drawdowns(wb, dd)
 
   # Save
-  openxlsx::saveWorkbook(wb, "testing.xlsx", overwrite = TRUE)
+  if(is.null(file_name)) {
+    if(length(location) == 2) {
+      location <- paste0("coords_", paste0(location, collapse = "_"))
+    } else location <- paste0("well_", location)
+    file_name <- paste0("drawdown_", location, "_", Sys.Date(), ".xlsx")
+  }
+  openxlsx::saveWorkbook(wb, file_name, overwrite = overwrite)
 }
 
 col_nms <- function(wb = NULL, sheet = NULL) {
@@ -387,8 +394,6 @@ dd_sheet_inputs <- function(wb, location, inputs, locs, space, s = "Inputs") {
 
   openxlsx::setColWidths(wb, s, cols = 1:6, widths = c(15, 13, 13, 13, 13, 13))
 
-  openxlsx::saveWorkbook(wb, "testing.xlsx", overwrite = TRUE)
-
   wb
 }
 
@@ -454,11 +459,6 @@ dd_sheet_drawdowns <- function(wb, dd, s = "Drawdown") {
   openxlsx::setColWidths(wb, s, cols = cols$col_n,
                          widths = cols$width)
 
-  # TODO: Fix column widths for where based on 'unrotated' column names
-  # TODO: highlight the focal well
-  # TODO: Add colour highlights for wells
-
-  openxlsx::saveWorkbook(wb, "testing.xlsx", overwrite = TRUE)
   wb
 }
 
