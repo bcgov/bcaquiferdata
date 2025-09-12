@@ -384,7 +384,10 @@ dd_sheet_inputs <- function(wb, location, inputs, locs, space, s = "Inputs") {
                      stack = TRUE)
 
   openxlsx::writeData(wb, s, x = eqs, startCol = 1, startRow = space + 1 + nrow(inputs) + 1 + 1 + 1)
-  openxlsx::addStyle(wb, s, style = s_head(), cols = seq_len(ncol(eqs)), rows = space + 1 + nrow(inputs) + 1 + 1 + 1, stack = TRUE)
+  openxlsx::addStyle(wb, s, style = s_head(), cols = seq_len(ncol(eqs)),
+                     rows = space + 1 + nrow(inputs) + 1 + 1 + 1, stack = TRUE)
+  openxlsx::addStyle(wb, s, style = openxlsx::createStyle(numFmt = "0.00000"),
+                     cols = ncol(eqs), rows = space + 1 + nrow(inputs) + 1 + 1 + 1 + 1, stack = TRUE)
   purrr::map(seq(space + 1 + nrow(inputs) + 1 + 1 + 1, length.out = nrow(eqs) + 1),
             \(x) openxlsx::mergeCells(wb, s, cols = 2:3, rows = x))
   openxlsx::writeData(wb, s, x = "'Drawdown Impact' in Drawdown worksheet", startCol = 4,
