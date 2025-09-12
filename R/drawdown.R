@@ -161,7 +161,7 @@ col_nms <- function(wb = NULL, sheet = NULL) {
 
     "Drawdown Impact (m)", "drawdown", "dd", "0.00", 7,
     "Safe (70%)\nAvailable\nDrawdown (m)", "safe", "dd", "0.00", 15,
-    "Impact as a\nPercentage of SAD (red>30%)", "impact", "dd", "PERCENTAGE", 15,
+    "Impact as a\nPercentage of SAD (red>30%)", "impact", "dd", "0%", 15,
   ) |>
     dplyr::mutate(
       style = purrr::map(numFmt, \(x) openxlsx::createStyle(numFmt = x)),
