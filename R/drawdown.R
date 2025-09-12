@@ -17,18 +17,11 @@
 #'
 #' @examples
 #' drawdown(85199, rate = 343, duration = 180)
-#'
-#' drawdown(85199, rate = 343.0, duration = 180)
 #' drawdown(22966, rate = 343, duration = 180)
 #' drawdown(22966)
 #'
 #' drawdown(c(-123.5593, 48.647), rate = 3.97, duration = 180)
-#' drawdown(c(-123.5593, 48.647), rate = 3.97, duration = 180)
 #' drawdown(c(-123.5593, 48.647))
-
-# dplyr::filter(well_tag_number %in% c(14862, 15173, 36730, 37353, 52011,
-#                                      53169, 56016, 84818, 94356, 94359,
-#                                      97015, 104589, 124191))
 
 drawdown <- function(location, rate = NA, duration = NA, overwrite = FALSE,
                      file_name = NULL, update = FALSE) {
@@ -454,7 +447,7 @@ dd_sheet_drawdowns <- function(wb, dd, s = "Drawdown") {
   s_aq_na <- openxlsx::createStyle(bgFill = "#ec9ba4", fontSize = 10, halign = "center")
 
   # Apply styles
-  openxlsx::setRowHeights(wb, "Drawdown", rows = 1, heights = 140)
+  openxlsx::setRowHeights(wb, s, rows = 1, heights = 140)
 
   openxlsx::addStyle(wb, s, style = s_head(), cols = cols$col_n, rows = 1)
   openxlsx::addStyle(wb, s, style = s_rotate, cols = col_rotate, rows = 1, stack = TRUE)
