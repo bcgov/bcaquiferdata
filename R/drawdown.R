@@ -1,28 +1,36 @@
 
-#' Title
+#' Create Excel Drawdown template file
 #'
-#' @param location
-#' @param rate
-#' @param duration
-#' @param transmissivity
-#' @param storativity
-#' @param update
+#' Creates an Excel file with formulas for calculating drawdown. File is
+#' pre-filled with wells within 100km of `location` (well or coordinates).
 #'
-#' @return
+#' @param location Numeric. Either a vector with longitude/latitude, or a well
+#'   tag number.
+#' @param rate Numeric. The pumping rate in m3/day (defaults to `NA`, fillable in Excel file).
+#' @param duration Numeric. The duration of pumping in days (defaults to `NA`, fillable in Excel file).
+#' @param overwrite Logical. Overwrite existing file?
+#'
+#' @inheritParams common_docs
+#'
+#' @return Creates excel file
 #' @export
 #'
 #' @examples
+#' drawdown(85199, rate = 343, duration = 180)
 #'
-#' d <- drawdown(85199, rate = 343, duration = 180)
-#'
-#' drawdown(85199, rate = 3.97, duration = 180, transmissivity = 208, storativity = 0.0048)
+#' drawdown(85199, rate = 343.0, duration = 180)
+#' drawdown(22966, rate = 343, duration = 180)
+#' drawdown(22966)
 #'
 #' drawdown(c(-123.5593, 48.647), rate = 3.97, duration = 180)
-#' drawdown(c(-123.5593, 48.647), rate = 3.97, duration = 180,
-#'          transmissivity = 208, storativity = 0.0048)
+#' drawdown(c(-123.5593, 48.647), rate = 3.97, duration = 180)
+#' drawdown(c(-123.5593, 48.647))
 
-drawdown <- function(location, rate, duration,
-                     update = FALSE) {
+# dplyr::filter(well_tag_number %in% c(14862, 15173, 36730, 37353, 52011,
+#                                      53169, 56016, 84818, 94356, 94359,
+#                                      97015, 104589, 124191))
+
+drawdown <- function(location, rate = NA, duration = NA, update = FALSE) {
 
   if(!is.numeric(location)) {
     stop("`location` must be a number. Either a pair of longitude/latitude, ",
