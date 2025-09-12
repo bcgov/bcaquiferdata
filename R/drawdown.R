@@ -36,21 +36,11 @@ drawdown <- function(location, rate, duration,
   # Format focal location
   focal <- dd_focal(location, wells)
 
-  # # Transmissivity and Storativity
-  # if(is.null(transmissivity) | is.null(storativity)) {
-  #   trans_store <- dd_trans_store(focal, update)
-  #   transmissivity <- trans_store[1]
-  #   storativity <- trans_store[2]
-  # }
-  #
-  # transmissivity <- units::set_units(transmissivity, "m2/d")
   duration <- units::set_units(duration, "d")
 
   rate <- units::set_units(3.97, "L/s") |>
     units::set_units("m3/d")
 
-#  eq1 <- 2.303 * rate / (4 * pi * transmissivity)
-#  eq2 <- 2.25 * transmissivity * duration / storativity
 
   info <- wells |>
     dplyr::mutate(
