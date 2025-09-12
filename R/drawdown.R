@@ -199,7 +199,7 @@ cloc <- function(df, name) {
 }
 
 #' Excel locations
-eloc <- function(df, name, row = 6) {
+eloc <- function(df, name, row = 2) {
   paste0(cloc(df, name), seq(row, dplyr::n() + row - 1))
 }
 
@@ -304,8 +304,8 @@ dd_sheets_locs <- function(inputs, space) {
     `S`   = space + 1 + which(inputs[1] == "Storativity"),
     `Q`   = space + 1 + which(inputs[1] == "Pumping rate"),
     `t`   = space + 1 + which(inputs[1] == "Duration"),
-    `EQ1` = space + 1 + nrow(inputs) + 1 + 1,
-    `EQ2` = space + 1 + nrow(inputs) + 1 + 2,
+    `EQ1` = space + 3 + nrow(inputs) + 1 + 1,
+    `EQ2` = space + 3 + nrow(inputs) + 1 + 2,
   ) |>
     dplyr::summarize(dplyr::across(
       dplyr::everything(),
