@@ -100,6 +100,7 @@ drawdown <- function(location, rate, duration,
     dplyr::mutate(
       drawdown = paste0(
         "Inputs!", locs$EQ1, "*LOG10(Inputs!", locs$EQ2, "/(", eloc(dd, "dist"), "*", eloc(dd, "dist"), "))"),
+      drawdown = dplyr::if_else(as.numeric(dist) == 0, stringr::str_replace(drawdown, "[A-Z]{1}\\d\\*[A-Z]{1}\\d", "0.1*0.1"), drawdown),
       # TODO: screen depth not actually used in any calculations....?
       #well_depth_m = paste0(
       #  "=IF(", eloc(dd, "screen_depth"), "<>'', ", eloc(dd, "screen_depth"), ", ", eloc(dd, "well_depth_m"), ")"),
