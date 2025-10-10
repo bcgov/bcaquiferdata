@@ -17,6 +17,7 @@
 #'
 #' @examples
 #' drawdown(85199, rate = 343, duration = 180)
+#' drawdown(85199, rate = 343, duration = 180, overwrite = TRUE)
 #' drawdown(22966, rate = 343, duration = 180)
 #' drawdown(22966)
 #'
@@ -31,121 +32,26 @@ drawdown <- function(location, rate = NA, duration = NA, overwrite = FALSE,
          "or a well tag number", call. = FALSE)
   }
 
+  #TODO: Well status code and well intended use from GWELLS
+  #TODO: Check consistency between wells testing info and pt_aquifer_parameters testing info
+  #TODO: Hydrogeologic Setting should have all wells from all aquifers in the data set?
+  #TODO: Hydrogeologic columns, move comments to middle and merge, then values as smaller to end? 
+  #      MAke URL smaller hyperlink? Remove codes from from aquifer values to reduce size? Wrap Aquifer values?
+
   # Organization
   space <- 1 + 1 + 1 # Title + well + space
 
-  # Get and format data
-  duration <- units::set_units(duration, "d")
-  rate <- units::set_units(rate, "m3/d")
-
-  wells <- data_read(type = "wells_sf", update = update) |>
-    sf::st_transform(3005) |>
-    dplyr::mutate(aquifer_id = dplyr::na_if(.data$aquifer_id, 1143))
-
-  focal <- dd_focal(location, wells)
-  focal_dist <- sf::st_distance(x = focal, y = wells)
-
-  wells <- wells |>
-    dplyr::mutate(
-      static_water_m = units::set_units(static_water_level_ft_btoc, "ft") |>
-        units::set_units("m"),
-      well_depth_m = units::set_units(finished_well_depth_ft_bgl, "ft") |>
-        units::set_units("m"),
-      bedrock_depth_m = units::set_units(bedrock_depth_ft_bgl, "ft") |>
-        units::set_units("m"),
-      transmissivity_m_2_s = units::set_units(transmissivity_m_2_s, "m2/s"),
-      transmissivity_m_2_d = units::set_units(transmissivity_m_2_s, "m2/d")) |>
-    dplyr::mutate(dist = drop(.env$focal_dist)) |>
-    dplyr::filter(dist < units::set_units(1000, "m")) |>
-    dplyr::arrange(dist) |>
-    dplyr::mutate(
-      screen_depth = NA,
-      status = NA,
-      use = NA,
-      url = paste0("https://apps.nrs.gov.bc.ca/gwells/well/", well_tag_number),
-      drawdown = NA,
-      safe = NA,
-      impact = NA,
-      aquifer_lithology_reassigned = dplyr::case_when(
-        is.na(bedrock_depth_m) & is.na(aquifer_lithology_code) ~ "Unassigned",
-        is.na(bedrock_depth_m) ~ aquifer_lithology_code,
-        well_depth_m - bedrock_depth_m > units::set_units(5, "ft") ~ "Bedrock",
-        TRUE ~ "Unconsolidated")) |>
-    dplyr::arrange(well_tag_number) |>
-    sf::st_drop_geometry()
-
-  inputs <- dplyr::tribble(
-    ~Parameter,       ~Symbol,  ~Units, ~Value,
-    "Transmissivity", "T", "m2/day", NA,
-    "Storativity",    "S", "-", NA,
-    "Pumping rate",   "Q", "m3/day", as.numeric(rate),
-    "Duration",       "t", "days",   as.numeric(duration),
-    "Distance",       "r", "m", NA)
-
-  aquifers <- data_read(type = "aquifers") |>
-    sf::st_drop_geometry() |>
-    dplyr::filter(aquifer_id %in% unique(wells$aquifer_id)) |>
-    dplyr::select("aquifer_id", "aquifer_name", "material", "subtype", "vulnerability", "litho_stratographic_unit") |>
-    dplyr::mutate(url = paste0("https://apps.nrs.gov.bc.ca/gwells/aquifers/", aquifer_id))
-
-  w <- data_read(type = "wells", update = update) |>
-    dplyr::select("aquifer_id", "water_depth_m", "well_depth_m") |>
-    dplyr::semi_join(aquifers, by = "aquifer_id") |>
-    dplyr::summarize(
-      `Average Depth to Water (m)` = mean(water_depth_m, na.rm = TRUE),
-      `Average Well Depth (m)` = mean(well_depth_m, na.rm = TRUE),
-      .by = "aquifer_id")
-
-  aquifers <- dplyr::left_join(aquifers, w, by = "aquifer_id") |>
-    dplyr::mutate(focal = .data$aquifer_id %in% focal$aquifer_id) |>
-    dplyr::arrange(dplyr::desc(.data$focal), .data$aquifer_id) |>
-    dplyr::relocate("focal") |>
-    dplyr::mutate(focal = dplyr::if_else(.data$focal, "Pumping Well Aquifer", "Other Aquifer")) |>
-    dplyr::rename_with(\(x) stringr::str_replace_all(x, "_", " ") |> stringr::str_to_title())
+  # Data sets
+  wells <- dd_wells(location, update)
+  wells_testing <- dd_wells_testing(wells, update)
+  aquifers <- dd_aquifers(wells$aquifer_id[wells$focal], wells$aquifer_id, update)
+  inputs <- dd_inputs(rate, duration) 
 
   # Setup Sheets -------------------------------------------------------------
   # Get static value locations for the sheets
   locs <- dd_sheets_locs(inputs, space)
 
-  nms <- col_nms()
-
-  refs <- wells |>
-    dplyr::select(dplyr::all_of(nms$name[nms$sheet != "dd"])) |>
-    dplyr::rename_with(\(x) nms$name_nice[match(x, nms$name)])
-
-  # Drawdown columns and formulae
-  dd <- wells |>
-    dplyr::arrange(dist) |>
-    dplyr::select(dplyr::all_of(nms$name))
-
-  dd <- dd |>
-    dplyr::mutate(
-      drawdown = paste0(
-        "Inputs!", locs$EQ1, "*LOG10(Inputs!", locs$EQ2, "/(", eloc(dd, "dist"), "*", eloc(dd, "dist"), "))"),
-      drawdown = dplyr::if_else(as.numeric(dist) == 0, stringr::str_replace(drawdown, "[A-Z]{1}\\d\\*[A-Z]{1}\\d", "0.1*0.1"), drawdown),
-      # TODO: screen depth not actually used in any calculations....?
-      #well_depth_m = paste0(
-      #  "=IF(", eloc(dd, "screen_depth"), "<>'', ", eloc(dd, "screen_depth"), ", ", eloc(dd, "well_depth_m"), ")"),
-      safe = glue::glue(
-        "=IF({eloc(dd, 'well_depth_m')} <> \"\", ",
-           "IF({eloc(dd, 'static_water_m')} <> \"\", ",
-             "({eloc(dd, 'well_depth_m')} - {eloc(dd, 'static_water_m')}) * 0.7, ",
-           "\"no NPL\"), \"no Well Depth\")"),
-      impact = glue::glue("=IF(ISNUMBER({eloc(dd, 'safe')}),{eloc(dd, 'drawdown')}/{eloc(dd, 'safe')}, \"n.a.\")")
-      ) |>
-    dplyr::select(-dplyr::starts_with("loc"))
-
-  # Pretty names and remove unit class
-  dd <- dd |>
-    dplyr::mutate(dplyr::across(dplyr::where(is.numeric), as.numeric)) |>
-    dplyr::rename_with(\(x) nms$name_nice[match(x, nms$name)])
-
-  # Apply formula class
-  for(x in nms$name_nice[nms$name %in% c("drawdown", "safe", "impact")]) {
-    class(dd[[x]]) <- c(class(dd[[x]]), "formula")
-  }
-
-  # TODO: NExt is get the screen vs. depth formula
+  dd <- dd_drawdown(wells, locs)
 
   wb <- openxlsx::createWorkbook()
 
@@ -156,10 +62,11 @@ drawdown <- function(location, rate = NA, duration = NA, overwrite = FALSE,
   wb <- dd_sheet_drawdowns(wb, dd)
 
   # Write Hydrogeologic
-  wb <- dd_sheet_hydrogeologic(wb, aquifers)
+  wb <- dd_sheet_hydrogeologic(wb, aquifers, wells_testing)
 
-  # Write Limitations & Metadata
+  # Write Supporting
   wb <- dd_sheet_limitations(wb)
+  wb <- dd_sheet_glossary(wb)
   wb <- dd_sheet_metadata(wb)
 
   # Save
@@ -171,43 +78,88 @@ drawdown <- function(location, rate = NA, duration = NA, overwrite = FALSE,
   openxlsx::saveWorkbook(wb, file_name, overwrite = overwrite)
 }
 
-col_nms <- function(wb = NULL, sheet = NULL) {
+col_nms <- function(wb = NULL, sheet = NULL, types = NULL) {
   cols <- dplyr::tribble(
     ~name_nice, ~name, ~sheet, ~numFmt, ~width,
-    "Well Tag Number", "well_tag_number", "all", "TEXT", 7,
+    "Well Tag Number", "well_tag_number", "dd", "TEXT", 7,
     "Well Status", "status", "dd", "TEXT", NA,
     "Intended Well Use", "use", "dd", "TEXT", NA,
     "Well Details URL", "url", "dd", "TEXT", 35,
-
-    "Distance to Well (m)", "dist", "all", "0", NA,
-    "Top of Bedrock Depth (m)", "bedrock_depth_m", "all", "0.00", NA,
-    "Top of Screen Depth (m)", "screen_depth", "all", "0.00", NA,
-    "Finished Depth of Well (m)", "well_depth_m", "all", "0.00", NA,
-    "Depth to Water (m)", "static_water_m", "all", "0.00", NA,
-
-    "Yield (US gpm)", "well_yield_usgpm", "ref", "0", NA,
+    
+    "Distance to Well (m)", "dist", "dd", "0", NA,
+    "Top of Bedrock Depth (m)", "bedrock_depth_m", "dd", "0.00", NA,
+    "Top of Screen Depth (m)", "screen_depth", "dd", "0.00", NA,
+    "Finished Depth of Well (m)", "well_depth_m", "dd", "0.00", NA,
+    "Depth to Water (m)", "static_water_m", "dd", "0.00", NA,
+    "Yield (US gpm)", "well_yield_usgpm", "dd", "0", NA,
+    
     "Transmissivity (m2/d)", "transmissivity_m_2_d", "ref", "0", NA,
     "Storativity", "storativity", "ref",  "0.000", NA,
-
-    "Aquifer ID", "aquifer_id", "all", "0", NA,
+    
+    "Aquifer ID", "aquifer_id", "dd", "0", NA,
     "Aquifer Subtype", "aquifer_lithology_code", "all", "TEXT", 15,
-    "Bedrock / Unconsolidated", "aquifer_lithology_reassigned", "all", "TEXT", 15,
-
+    "Bedrock / Unconsolidated", "aquifer_lithology_reassigned", "dd", "TEXT", 15,
+    
+    "Top of Fracture or Aquifer or Finished Well Depth [m]", "final_depth", "dd", "0.00", 10,
     "Drawdown Impact (m)", "drawdown", "dd", "0.00", 7,
     "Safe (70%)\nAvailable\nDrawdown (m)", "safe", "dd", "0.00", 15,
     "Impact as a\nPercentage of SAD (red>30%)", "impact", "dd", "0%", 15,
+    
+    # Hydrogeologic Settings
+    "Reference", "reference", "aq", "TEXT", 20,
+    "Aquifer ID", "aquifer_id", "aq", "0", 10,
+    "Well Tag Number", "well_tag_number", "aq", "TEXT", 20,
+    "Aquifer Name", "aquifer_name", "aq", "TEXT", 30,
+    "Material Type", "material", "aq", "TEXT", 20,
+    "Subtype", "subtype", "aq", "TEXT", 40,
+    "Vulnerability", "vulnerability", "aq", "TEXT", 15,
+    "Lithostratigraphic Unit", "litho_stratographic_unit", "aq", "TEXT", 35,
+    "Descriptive Location", "location_description", "aq", "TEXT", 30,
+    "Aquifer Details URL", "aquifer_details_url", "aq", "TEXT", 35,
+    "Average Depth to Water (m)", "avg_water_depth_m", "aq", "0.0", 15,
+    "Average Well Depth (m)", "avg_well_depth_m", "aq", "0.0", 15,
+    "Test Duration (min)", "test_duration", "hg", "0", NA,
+    "Hydraulic Conductivity (m/day)", "hydraulic_conductivity", "hg", "0.0", NA,
+    "Specific Capacity (L/s/m)", "specific_capacity", "hg", "0.0", NA
   ) |>
-    dplyr::mutate(
-      style = purrr::map(numFmt, \(x) openxlsx::createStyle(numFmt = x)),
-      width = tidyr::replace_na(width, 5))
-
-  if(!is.null(wb) && !is.null(sheet)) {
-    cols <- dplyr::mutate(cols, col_n = match(
-      .data$name_nice,
-      stringr::str_replace_all(openxlsx::get_worksheet_entries(.env$wb, .env$sheet), "&gt;", ">")))
-  }
-  cols
+  dplyr::mutate(
+    style = purrr::map(numFmt, \(x) openxlsx::createStyle(numFmt = x)),
+    width = tidyr::replace_na(width, 5),
+    sheet = dplyr::case_when(
+      sheet == "dd" ~ "Drawdown",
+      sheet == "aq" ~ "Hydrogeologic Setting",
+      .default = sheet))
+    
+    if (!is.null(wb) && !is.null(sheet)) {
+      if (!is.numeric(sheet)) s <- which(names(wb) == sheet) else s <- sheet
+      cols <- cols |>
+        dplyr::filter(.data$sheet %in% c("all", .env$sheet)) |>
+        dplyr::mutate(
+          col_n = match(.data$name_nice,
+            stringr::str_replace_all(
+              openxlsx::get_worksheet_entries(.env$wb, .env$s), "&gt;", ">")
+          )
+        ) |>
+        tidyr::drop_na(.data$col_n)
+    }
+    cols
 }
+
+dd_pretty_names <- function(.data) {
+  nms <- col_nms()
+
+  .data |>
+    dplyr::mutate(dplyr::across(dplyr::where(is.numeric), as.numeric)) |>
+    dplyr::rename_with(\(x) {
+      n <- nms$name_nice[match(x, nms$name)]
+      n[is.na(n)] <- x[is.na(n)] |>
+        stringr::str_replace_all("_", " ") |>
+        stringr::str_to_title()
+      n
+    })
+}
+
+
 
 aq_subtypes <- function() {
 
@@ -238,7 +190,68 @@ eloc <- function(df, name, row = 2) {
   paste0(cloc(df, name), seq(row, dplyr::n() + row - 1))
 }
 
+dd_inputs <- function(rate, duration) {
+  
+  duration <- units::set_units(duration, "d")
+  rate <- units::set_units(rate, "m3/d")
 
+  dplyr::tribble(
+    ~Parameter,       ~Symbol,  ~Units, ~Value,
+    "Transmissivity", "T", "m2/day", NA,
+    "Storativity",    "S", "-", NA,
+    "Pumping rate",   "Q", "m3/day", as.numeric(rate),
+    "Duration",       "t", "days",   as.numeric(duration),
+    "Distance",       "r", "m", NA)
+}
+
+#' Prepare aquifer details
+#'
+#' @param aquifer_ids List of aquifer ids to include
+#'
+#' @returns Formated aquifer details data frame
+#' @noRd
+dd_aquifers <- function(focal_aquifer, aquifer_ids, update) {
+  aquifers <- data_read(type = "aquifers", update = update) |>
+    sf::st_drop_geometry() |>
+    dplyr::select(
+      "aquifer_id", "aquifer_name", "material", "subtype", 
+      "vulnerability", "litho_stratographic_unit", "location_description") |>
+    dplyr::filter(.data$aquifer_id %in% unique(.env$aquifer_ids)) |>
+    dplyr::mutate(
+      aquifer_details_url = paste0(
+        "https://apps.nrs.gov.bc.ca/gwells/aquifers/",
+        .data$aquifer_id
+      )
+    )
+
+  # Reload wells data to get *all* wells in an aquifer, not just those close to the focal
+  w <- data_read(type = "wells", update = update) |>
+    dplyr::select("aquifer_id", "water_depth_m", "well_depth_m") |>
+    dplyr::semi_join(aquifers, by = "aquifer_id") |>
+    dplyr::summarize(
+      avg_water_depth_m = mean(.data$water_depth_m, na.rm = TRUE),
+      avg_well_depth_m = mean(.data$well_depth_m, na.rm = TRUE),
+      .by = "aquifer_id"
+    )
+
+  dplyr::left_join(aquifers, w, by = "aquifer_id") |>
+    dplyr::mutate(reference = .data$aquifer_id %in% .env$focal_aquifer) |>
+    dplyr::arrange(dplyr::desc(.data$reference), .data$aquifer_id) |>
+    dplyr::relocate("reference") |>
+    dplyr::mutate(
+      reference = dplyr::if_else(
+        .data$reference,
+        "Pumping Well Aquifer",
+        "Other Aquifer"
+      )
+    ) |>
+    dd_pretty_names()
+}
+
+#' Prepare well data
+#'
+#' @returns Data frame of well data 
+#' @noRd
 #' Title
 #'
 #' @param location
@@ -250,23 +263,74 @@ eloc <- function(df, name, row = 2) {
 #' dd_focal(85199, data_read("wells_sf"))
 #' dd_focal(c(-123.5593, 48.647), data_read("wells_sf"))
 
-dd_focal <- function(location, wells) {
+dd_wells <- function(location, update = FALSE) {
+
+  wells <- data_read(type = "wells_sf", update = update) |>
+    sf::st_transform(3005) |>
+    dplyr::mutate(aquifer_id = dplyr::na_if(.data$aquifer_id, 1143))
+
   # Get focal location as well or point
   if(length(location) == 1) {
-    focal <- wells |>
-      dplyr::filter(well_tag_number == .env$location) |>
-      sf::st_transform(crs = 3005)
-    if(nrow(focal) == 0) {
+    wells <- dplyr::mutate(wells, focal = well_tag_number == .env$location)
+    if(sum(wells$focal) == 0) {
       stop("`location` seemed to be a well tag number but was not ",
            "found in GWELLS", call. = FALSE)
     }
   } else if(length(location) == 2) {
     focal <- sf::st_point(location) |>
       sf::st_sfc(crs = 4326) |>
-      sf::st_transform(crs = 3005)
+      sf::st_transform(crs = 3005) |>
+      sf::st_as_sf() |>
+      dplyr::mutate(focal = TRUE) |>
+      dplyr::rename("geometry" = "x")
+
+    wells <- dplyr::bind_rows(wells, focal) |>
+      dplyr::mutate(focal = tidyr::replace_na(.data$focal, FALSE))
   }
 
-  focal
+  focal_dist <- sf::st_distance(x = wells[wells$focal,], y = wells)
+
+  wells |>
+    dplyr::mutate(
+      static_water_m = units::set_units(.data$static_water_level_ft_btoc, "ft") |>
+        units::set_units("m"),
+      well_depth_m = units::set_units(.data$finished_well_depth_ft_bgl, "ft") |>
+        units::set_units("m"),
+      bedrock_depth_m = units::set_units(.data$bedrock_depth_ft_bgl, "ft") |>
+        units::set_units("m"),
+      transmissivity_m_2_s = units::set_units(.data$transmissivity_m_2_s, "m2/s"),
+      transmissivity_m_2_d = units::set_units(.data$transmissivity_m_2_s, "m2/d")) |>
+    dplyr::mutate(dist = drop(.env$focal_dist)) |>
+    dplyr::filter(.data$dist < units::set_units(1000, "m")) |>
+    dplyr::arrange(.data$dist) |>
+    dplyr::mutate(
+      screen_depth = NA,
+      status = NA,
+      use = NA,
+      url = paste0("https://apps.nrs.gov.bc.ca/gwells/well/", .data$well_tag_number),
+      final_depth = NA,
+      drawdown = NA,
+      safe = NA,
+      impact = NA,
+      aquifer_lithology_reassigned = dplyr::case_when(
+        is.na(.data$bedrock_depth_m) & is.na(.data$aquifer_lithology_code) ~ "Unassigned",
+        is.na(.data$bedrock_depth_m) ~ .data$aquifer_lithology_code,
+        .data$well_depth_m - .data$bedrock_depth_m > units::set_units(5, "ft") ~ "Bedrock",
+        TRUE ~ "Unconsolidated")) |>
+    dplyr::arrange(.data$well_tag_number) |>
+    sf::st_drop_geometry()
+  }
+
+dd_wells_testing <- function(wells, update = FALSE) {
+  data_read("wells_testing", update) |>
+    dplyr::right_join(dplyr::select(wells, "well_tag_number", "aquifer_id"), by = "well_tag_number") |>
+    dplyr::select(-"testing_number") |>
+      dplyr::rename_with(\(x) stringr::str_remove_all(x, "_?pumping_test_?")) |>
+    dplyr::relocate("aquifer_id", .after = "well_tag_number") |>
+    dplyr::relocate("description", .before = "start_date") |>    
+      dplyr::relocate("boundary_effect", .after = "start_date") |>    
+    tidyr::drop_na("start_date") |>
+    dd_pretty_names()
 }
 
 #' Title
@@ -332,6 +396,44 @@ dd_trans_store <- function(focal, update = FALSE) {
 
   c(aq$transmissivity, aq$storativity)
 }
+
+dd_drawdown <- function(wells, locs) {
+  
+  nms <- col_nms()
+
+  # Drawdown columns and formulae
+  dd <- wells |>
+    dplyr::arrange(dist) |>
+    dplyr::select(dplyr::all_of(nms$name[nms$sheet %in% c("all", "Drawdown")]))
+
+  dd <- dd |>
+    dplyr::mutate(
+      final_depth = paste0(
+        "=IF(", eloc(dd, "screen_depth"), "<>\"\", ", eloc(dd, "screen_depth"), ", ", eloc(dd, "well_depth_m"), ")"),
+      drawdown = paste0(
+        "Inputs!", locs$EQ1, "*LOG10(Inputs!", locs$EQ2, "/(", eloc(dd, "dist"), "*", eloc(dd, "dist"), "))"),
+      drawdown = dplyr::if_else(as.numeric(dist) == 0, stringr::str_replace(drawdown, "[A-Z]{1}\\d\\*[A-Z]{1}\\d", "0.1*0.1"), drawdown),
+      
+      safe = glue::glue(
+        "=IF({eloc(dd, 'final_depth')} <> \"\", ",
+           "IF({eloc(dd, 'static_water_m')} <> \"\", ",
+             "({eloc(dd, 'final_depth')} - {eloc(dd, 'static_water_m')}) * 0.7, ",
+           "\"no Water Level\"), \"no Well Depth\")"),
+      impact = glue::glue("=IF(ISNUMBER({eloc(dd, 'safe')}),{eloc(dd, 'drawdown')}/{eloc(dd, 'safe')}, \"\")")
+      ) |>
+    dplyr::select(-dplyr::starts_with("loc"))
+
+  # Pretty names and remove unit class
+  dd <- dd_pretty_names(dd)
+
+  # Apply formula class
+  for(x in nms$name_nice[nms$name %in% c("final_depth", "drawdown", "safe", "impact")]) {
+    class(dd[[x]]) <- c(class(dd[[x]]), "formula")
+  }
+
+  dd
+}
+
 
 dd_sheets_locs <- function(inputs, space) {
   dplyr::tibble(
@@ -429,11 +531,10 @@ dd_sheet_drawdowns <- function(wb, dd, s = "Drawdown") {
   openxlsx::freezePane(wb, s, firstRow = TRUE)
 
   # Get col/row locations
-  cols <- col_nms(wb, 2)
+  cols <- col_nms(wb, s, types = c("all", "dd"))
   rows <- seq(startRow + 1, nrow(dd) + startRow)
 
   # Set styles
-
   col_wrap <- which(nchar(names(dd)) > 30)
   col_rotate <- which(nchar(names(dd)) <= 30)
 
@@ -471,61 +572,65 @@ dd_sheet_drawdowns <- function(wb, dd, s = "Drawdown") {
     style = s_aq_na, cols = cols$col_n[cols$name == "aquifer_id"],
     rows = rows, type = "blanks")
 
-
-  purrr::walk(seq_len(nrow(cols)), \(n) {
-    openxlsx::addStyle(wb, s, cols = cols$col_n[n],
-                       style = cols$style[[n]], rows = rows, stack = TRUE)
-  })
-
-  # Column widths - Cannot use Auto and then override, one or the other
-  openxlsx::setColWidths(wb, s, cols = cols$col_n,
-                         widths = cols$width)
+  # Apply formatting and column widths
+  s_apply(wb, s, rows, cols)
 
   wb
 }
 
-dd_sheet_hydrogeologic <- function(wb, aquifers, s = "Hydrogeologic Setting") {
-
-  startRow <- 3
-
-  # Add sheet and data
+dd_sheet_hydrogeologic <- function(wb, aquifers, wells_testing, s = "Hydrogeologic Setting") {
+  
+  # Add sheet data
   openxlsx::addWorksheet(wb, s)
+
+  rows_aq <- seq(2, length.out = nrow(aquifers) + 1)
+  rows_wt <- seq(rows_aq[length(rows_aq)] + 3, length.out = nrow(wells_testing) + 1)
+   
+  # Add data
+  openxlsx::writeData(wb, s, x = aquifers, startRow = rows_aq[1])
+  openxlsx::writeData(wb, s, x = wells_testing, startRow = rows_wt[1])
+
+  # Get header information
+  cols <- col_nms(wb, s)
+  cols_aq <- cols[match(names(aquifers), cols$name_nice), ]
+  cols_wt <- cols[match(names(wells_testing), cols$name_nice), ]
+
+  # Add section headings (after cols, so doesn't interfere with headers)
   openxlsx::writeData(wb, s, x = "Aquifer Information")
   openxlsx::addStyle(wb, s, style = s_heading(), rows = 1, col = 1)
-
-  openxlsx::writeData(wb, s, x = aquifers, startRow = startRow)
-
+  openxlsx::writeData(wb, s, startRow = rows_wt[1] - 1 , x = "Hydraulic Parameters from Well Testing")
+  openxlsx::addStyle(wb, s, style = s_heading(), rows = rows_wt[1]-1, col = 1)
+  
   # Set styles
   #col_wrap <- which(nchar(names(aquifers)) > 30)
   #col_rotate <- which(nchar(names(aquifers)) <= 30)
-
+  
   s_rotate <- openxlsx::createStyle(textRotation = 90)
   s_wrap <- openxlsx::createStyle(wrapText = TRUE)
-
+  
   # Apply styles
-  #openxlsx::setRowHeights(wb, s, rows = startRow, heights = 140)
-
-  openxlsx::addStyle(wb, s, style = s_head(), cols = seq_len(ncol(aquifers)), rows = startRow)
-  #openxlsx::addStyle(wb, s, style = s_rotate, cols = col_rotate, rows = startRow, stack = TRUE)
-  openxlsx::addStyle(wb, s, style = s_body(), cols = seq_len(ncol(aquifers)),
-                     rows = startRow:(startRow + nrow(aquifers)+1), gridExpand = TRUE, stack = TRUE)
-
-  # purrr::walk(seq_len(nrow(cols)), \(n) {
-  #   openxlsx::addStyle(wb, s, cols = cols$col_n[n],
-  #                      style = cols$style[[n]], rows = rows, stack = TRUE)
-  # })
-
-  openxlsx::addStyle(wb, s, style = s_wrap, cols = stringr::str_which(names(aquifers), "Depth"),
-                     rows = startRow, stack = TRUE)
-  openxlsx::addStyle(wb, s, cols = stringr::str_which(names(aquifers), "Depth"),
-                     style = openxlsx::createStyle(numFmt = "0.0"),
-                     rows = startRow:(startRow + nrow(aquifers)+1),
-                     gridExpand = TRUE, stack = TRUE)
-
-  # Column widths - Cannot use Auto and then override, one or the other
-  openxlsx::setColWidths(wb, s, cols = seq_len(ncol(aquifers)),
-                         widths = c(20, 10, 30, 20, 40, 15, 35, 35, 15, 15))
-
+  #openxlsx::setRowHeights(wb, s, rows = rows_aq[1], heights = 140)
+  
+  openxlsx::addStyle(wb, s, style = s_head(), cols = seq_len(ncol(aquifers)), rows = rows_aq[1])
+  #openxlsx::addStyle(wb, s, style = s_rotate, cols = col_rotate, rows = rows_aq[1], stack = TRUE)
+  openxlsx::addStyle(
+    wb, s, style = s_body(), cols = seq_len(ncol(aquifers)),
+    rows = rows_aq[-1], gridExpand = TRUE, stack = TRUE)
+  
+  openxlsx::addStyle(wb, s, style = s_head(), cols = seq_len(ncol(wells_testing)), rows = rows_wt[1])
+  #openxlsx::addStyle(wb, s, style = s_rotate, cols = col_rotate, rows = rows_wt[1], stack = TRUE)
+  openxlsx::addStyle(
+    wb, s, style = s_body(), cols = seq_len(ncol(aquifers)),
+    rows = rows_wt[-1], gridExpand = TRUE, stack = TRUE)
+  
+  openxlsx::addStyle(
+    wb, s, style = s_wrap, cols = stringr::str_which(names(aquifers), "Depth"),
+    rows = rows_aq[1], stack = TRUE)
+  
+  # Apply formatting and column widths
+  s_apply(wb, s, rows = rows_aq, cols = cols_aq)
+  s_apply(wb, s, rows = rows_wt, cols = tidyr::drop_na(cols_wt))
+  
   wb
 }
 
@@ -545,6 +650,40 @@ dd_sheet_limitations <- function(wb, s = "Limitations") {
                      style = openxlsx::createStyle(wrapText = TRUE, indent = 1),
                      stack = TRUE)
   openxlsx::setColWidths(wb, s, cols = 1, widths = 100)
+
+  wb
+}
+
+dd_sheet_glossary <- function(wb, s = "Glossary") {
+  
+  startRow <- 1
+  g <- dplyr::tribble(
+    ~Term, ~Definition,
+    "SAD", "Safe Available Drawdown",
+    #"WL", "Water Level (Depth to Water (m))",
+    "US gpm", "Imperial Gallons Per Minute",
+    "m", "metres",
+    "m2/d", "metres squared per day"
+  )
+
+  exp <- dplyr::tribble(
+    ~`Concept/Column`, ~Explanation, 
+    "Bedrock / Unconsolidated", 
+    paste0(
+      "Reassigned lithology:\n",
+      "If missing both bedrock depth and lithology, becomes 'Unassigned'\n",
+      "If missing bedrock depth, uses same value as 'Aquifer Subtype'\n",
+      "Otherwise, if well depth is > 5ft below the bedrock depth, becomes 'Bedrock'")
+  )
+
+  # Add sheet and data
+  openxlsx::addWorksheet(wb, s)
+  openxlsx::writeData(wb, s, startRow = startRow, x = g)
+  openxlsx::writeData(wb, s, startRow = startRow + nrow(g) + 2, x = exp)
+
+  openxlsx::addStyle(wb, s, row = c(startRow, startRow + nrow(g) + 2), col = 1:2, style = s_head(), gridExpand = TRUE)
+
+  openxlsx::setColWidths(wb, s, cols = 1:2, widths = c(25, 80))
 
   wb
 }
@@ -610,3 +749,21 @@ s_it <- function(halign = "center") {
   openxlsx::createStyle(fontSize = 9, textDecoration = "italic", halign = halign)
 }
 
+
+s_apply <- function(wb, s, rows, cols) {
+  purrr::walk(seq_len(nrow(cols)), \(n) {
+    openxlsx::addStyle(
+      wb,
+      s,
+      cols = cols$col_n[n],
+      style = cols$style[[n]],
+      rows = rows,
+      stack = TRUE
+    )
+  })
+
+  # Column widths - Cannot use Auto and then override, one or the other
+  openxlsx::setColWidths(wb, s, cols = cols$col_n, widths = cols$width)
+
+  wb
+}
