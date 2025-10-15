@@ -27,6 +27,7 @@ fields_lith_combine <- c(
 fields_wells <- c(
   "well_tag_number", "longitude_decdeg", "latitude_decdeg",
   "utm_northing", "utm_easting",
+  "well_status_code", "intended_water_use_code",
   "water_depth_m", "well_depth_m",
   "total_depth_drilled_ft_bgl", "finished_well_depth_ft_bgl",
   "bedrock_depth_ft_bgl", "ground_elevation_ft_asl",

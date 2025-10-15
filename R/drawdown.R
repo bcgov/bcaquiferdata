@@ -82,8 +82,8 @@ col_nms <- function(wb = NULL, sheet = NULL, types = NULL) {
   cols <- dplyr::tribble(
     ~name_nice, ~name, ~sheet, ~numFmt, ~width,
     "Well Tag Number", "well_tag_number", "dd", "TEXT", 7,
-    "Well Status", "status", "dd", "TEXT", NA,
-    "Intended Well Use", "use", "dd", "TEXT", NA,
+    "Well Status", "well_status_code", "dd", "TEXT", 10,
+    "Intended Well Use", "intended_water_use_code", "dd", "TEXT", NA,
     "Well Details URL", "url", "dd", "TEXT", 35,
     
     "Distance to Well (m)", "dist", "dd", "0", NA,
