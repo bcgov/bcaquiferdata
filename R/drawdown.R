@@ -32,12 +32,6 @@ drawdown <- function(location, rate = NA, duration = NA, overwrite = FALSE,
          "or a well tag number", call. = FALSE)
   }
 
-  #TODO: Well status code and well intended use from GWELLS
-  #TODO: Check consistency between wells testing info and pt_aquifer_parameters testing info
-  #TODO: Hydrogeologic Setting should have all wells from all aquifers in the data set?
-  #TODO: Hydrogeologic columns, move comments to middle and merge, then values as smaller to end? 
-  #      MAke URL smaller hyperlink? Remove codes from from aquifer values to reduce size? Wrap Aquifer values?
-
   # Organization
   space <- 1 + 1 + 1 # Title + well + space
 
@@ -78,7 +72,8 @@ drawdown <- function(location, rate = NA, duration = NA, overwrite = FALSE,
   openxlsx::saveWorkbook(wb, file_name, overwrite = overwrite)
 }
 
-col_nms <- function(wb = NULL, sheet = NULL, types = NULL) {
+col_nms <- function(df = NULL, types = NULL) {
+  
   cols <- dplyr::tribble(
     ~name_nice, ~name, ~sheet, ~numFmt, ~width,
     "Well Tag Number", "well_tag_number", "dd", "TEXT", 7,
@@ -110,9 +105,9 @@ col_nms <- function(wb = NULL, sheet = NULL, types = NULL) {
     "Aquifer ID", "aquifer_id", "aq", "0", 10,
     "Well Tag Number", "well_tag_number", "aq", "TEXT", 20,
     "Aquifer Name", "aquifer_name", "aq", "TEXT", 30,
-    "Material Type", "material", "aq", "TEXT", 20,
-    "Subtype", "subtype", "aq", "TEXT", 40,
-    "Vulnerability", "vulnerability", "aq", "TEXT", 15,
+    "Material Type", "material", "aq", "TEXT", 15,
+    "Subtype", "subtype", "aq", "TEXT", 35,
+    "Vulnerability", "vulnerability", "aq", "TEXT", 17,
     "Lithostratigraphic Unit", "litho_stratographic_unit", "aq", "TEXT", 35,
     "Descriptive Location", "location_description", "aq", "TEXT", 30,
     "Aquifer Details URL", "aquifer_details_url", "aq", "TEXT", 35,
@@ -129,25 +124,21 @@ col_nms <- function(wb = NULL, sheet = NULL, types = NULL) {
   ) |>
   dplyr::mutate(
     style = purrr::map(numFmt, \(x) openxlsx::createStyle(numFmt = x)),
-    width = tidyr::replace_na(width, 5),
-    sheet = dplyr::case_when(
-      sheet == "dd" ~ "Drawdown",
-      sheet == "aq" ~ "Hydrogeologic Setting",
-      .default = sheet))
-    
-    if (!is.null(wb) && !is.null(sheet)) {
-      if (!is.numeric(sheet)) s <- which(names(wb) == sheet) else s <- sheet
-      cols <- cols |>
-        dplyr::filter(.data$sheet %in% c("all", .env$sheet)) |>
-        dplyr::mutate(
-          col_n = match(.data$name_nice,
-            stringr::str_replace_all(
-              openxlsx::get_worksheet_entries(.env$wb, .env$s), "&gt;", ">")
-          )
-        ) |>
-        tidyr::drop_na(.data$col_n)
-    }
-    cols
+    width = tidyr::replace_na(width, 5)
+  )  
+  
+  if(!is.null(df) & !is.null(types)) {
+    cols <- cols |>
+      dplyr::filter(
+        .data$sheet %in% .env$types, 
+        .data$name_nice %in% names(.env$df)
+      ) |>
+      dplyr::mutate(col_n = match(.data$name_nice, names(.env$df))) |>
+      tidyr::drop_na(.data$col_n) |>
+      dplyr::arrange(.data$col_n)
+  }
+  
+  cols
 }
 
 dd_pretty_names <- function(.data) {
@@ -226,7 +217,10 @@ dd_aquifers <- function(focal_aquifer, aquifer_ids, update) {
       aquifer_details_url = paste0(
         "https://apps.nrs.gov.bc.ca/gwells/aquifers/",
         .data$aquifer_id
-      )
+      ),
+      material = stringr::str_remove(material, "^[A-Z]+ - "),
+      subtype = stringr::str_remove(subtype, "^\\d[a-z]+ - "),
+      vulnerability = stringr::str_remove(vulnerability, "^[A-Z]+ - ")
     )
 
   # Reload wells data to get *all* wells in an aquifer, not just those close to the focal
@@ -240,6 +234,10 @@ dd_aquifers <- function(focal_aquifer, aquifer_ids, update) {
     )
 
   dplyr::left_join(aquifers, w, by = "aquifer_id") |>
+    dplyr::relocate(
+      c("avg_water_depth_m", "avg_well_depth_m"),
+      .after = "vulnerability"
+    ) |>
     dplyr::mutate(reference = .data$aquifer_id %in% .env$focal_aquifer) |>
     dplyr::arrange(dplyr::desc(.data$reference), .data$aquifer_id) |>
     dplyr::relocate("reference") |>
@@ -310,8 +308,6 @@ dd_wells <- function(location, update = FALSE) {
     dplyr::arrange(.data$dist) |>
     dplyr::mutate(
       screen_depth = NA,
-      status = NA,
-      use = NA,
       url = paste0("https://apps.nrs.gov.bc.ca/gwells/well/", .data$well_tag_number),
       final_depth = NA,
       drawdown = NA,
@@ -330,10 +326,10 @@ dd_wells_testing <- function(wells, update = FALSE) {
   data_read("wells_testing", update) |>
     dplyr::right_join(dplyr::select(wells, "well_tag_number", "aquifer_id"), by = "well_tag_number") |>
     dplyr::select(-"testing_number") |>
-      dplyr::rename_with(\(x) stringr::str_remove_all(x, "_?pumping_test_?")) |>
+    dplyr::rename_with(\(x) stringr::str_remove_all(x, "_?pumping_test_?")) |>
     dplyr::relocate("aquifer_id", .after = "well_tag_number") |>
     dplyr::relocate("description", .before = "start_date") |>    
-      dplyr::relocate("boundary_effect", .after = "start_date") |>    
+    dplyr::relocate("boundary_effect", .after = "start_date") |>  
     tidyr::drop_na("start_date") |>
     dd_pretty_names()
 }
@@ -409,7 +405,7 @@ dd_drawdown <- function(wells, locs) {
   # Drawdown columns and formulae
   dd <- wells |>
     dplyr::arrange(dist) |>
-    dplyr::select(dplyr::all_of(nms$name[nms$sheet %in% c("all", "Drawdown")]))
+    dplyr::select(dplyr::all_of(nms$name[nms$sheet %in% c("all", "dd")]))
 
   dd <- dd |>
     dplyr::mutate(
@@ -536,7 +532,7 @@ dd_sheet_drawdowns <- function(wb, dd, s = "Drawdown") {
   openxlsx::freezePane(wb, s, firstRow = TRUE)
 
   # Get col/row locations
-  cols <- col_nms(wb, s, types = c("all", "dd"))
+  cols <- col_nms(dd, types = c("dd", "all"))
   rows <- seq(startRow + 1, nrow(dd) + startRow)
 
   # Set styles
@@ -596,45 +592,52 @@ dd_sheet_hydrogeologic <- function(wb, aquifers, wells_testing, s = "Hydrogeolog
   openxlsx::writeData(wb, s, x = wells_testing, startRow = rows_wt[1])
 
   # Get header information
-  cols <- col_nms(wb, s)
-  cols_aq <- cols[match(names(aquifers), cols$name_nice), ]
-  cols_wt <- cols[match(names(wells_testing), cols$name_nice), ]
+  cols_aq <- col_nms(aquifers, types = "aq")
+  cols_wt <- col_nms(wells_testing, types = "hg")
 
-  # Add section headings (after cols, so doesn't interfere with headers)
+  # Add section headings
   openxlsx::writeData(wb, s, x = "Aquifer Information")
   openxlsx::addStyle(wb, s, style = s_heading(), rows = 1, col = 1)
   openxlsx::writeData(wb, s, startRow = rows_wt[1] - 1 , x = "Hydraulic Parameters from Well Testing")
   openxlsx::addStyle(wb, s, style = s_heading(), rows = rows_wt[1]-1, col = 1)
   
-  # Set styles
-  #col_wrap <- which(nchar(names(aquifers)) > 30)
-  #col_rotate <- which(nchar(names(aquifers)) <= 30)
-  
-  s_rotate <- openxlsx::createStyle(textRotation = 90)
+  # Set styles 
   s_wrap <- openxlsx::createStyle(wrapText = TRUE)
   
-  # Apply styles
-  #openxlsx::setRowHeights(wb, s, rows = rows_aq[1], heights = 140)
-  
+  # Apply styles  
   openxlsx::addStyle(wb, s, style = s_head(), cols = seq_len(ncol(aquifers)), rows = rows_aq[1])
-  #openxlsx::addStyle(wb, s, style = s_rotate, cols = col_rotate, rows = rows_aq[1], stack = TRUE)
   openxlsx::addStyle(
     wb, s, style = s_body(), cols = seq_len(ncol(aquifers)),
     rows = rows_aq[-1], gridExpand = TRUE, stack = TRUE)
   
   openxlsx::addStyle(wb, s, style = s_head(), cols = seq_len(ncol(wells_testing)), rows = rows_wt[1])
-  #openxlsx::addStyle(wb, s, style = s_rotate, cols = col_rotate, rows = rows_wt[1], stack = TRUE)
   openxlsx::addStyle(
-    wb, s, style = s_body(), cols = seq_len(ncol(aquifers)),
+    wb, s, style = s_body(), cols = seq_len(ncol(wells_testing)),
     rows = rows_wt[-1], gridExpand = TRUE, stack = TRUE)
   
+  # Wrapped headings
   openxlsx::addStyle(
     wb, s, style = s_wrap, cols = stringr::str_which(names(aquifers), "Depth"),
     rows = rows_aq[1], stack = TRUE)
+  openxlsx::addStyle(
+    wb, s, style = s_wrap, cols = stringr::str_which(names(wells_testing), "Hydraulic|Capacity|Duration"),
+    rows = rows_wt[1], stack = TRUE)
   
   # Apply formatting and column widths
   s_apply(wb, s, rows = rows_aq, cols = cols_aq)
   s_apply(wb, s, rows = rows_wt, cols = tidyr::drop_na(cols_wt))
+
+  # Let text in final columns extend out
+  openxlsx::addStyle(
+    wb, s, style = openxlsx::createStyle(halign = "left"), stack = TRUE,
+    rows = rows_aq[-1], cols = cols_aq$col_n[cols_aq$name == "aquifer_details_url"])
+  openxlsx::addStyle(
+    wb, s, style = openxlsx::createStyle(halign = "left"), stack = TRUE,
+    rows = rows_wt[-1], cols = cols_wt$col_n[cols_wt$name == "comments"])
+  
+  # Add colour
+  s_aq_focal <- openxlsx::createStyle(fgFill = "#afd095")
+  openxlsx::addStyle(wb, s, style = s_aq_focal, cols = cols_aq$col_n, rows = 3, stack = TRUE)
   
   wb
 }
