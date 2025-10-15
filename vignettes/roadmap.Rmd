@@ -18,7 +18,7 @@ Here is a summary with links to the relevant sections
 - [Downloading GWELLS](#downloading-gwells) - **Complete**
 - [Standardize Lithology](#standardize-lithology) - **Polishing**
 - [Defining area of interest](#defining-area-of-interest) - **Complete**
-- [Fetching elevation data](#fetching-elevation-data) - **Partially complete**
+- [Fetching elevation data](#fetching-elevation-data) - **Complete**
 - [Adding elevation data](#adding-elevation-data) - **Complete**
 - [Adding spatial data layers](#adding-spatial-data-layers) - **Not implemented**
 - [Water flow analysis](#water-flow-analysis) - **Partially complete**
@@ -67,18 +67,13 @@ Here is a summary with links to the relevant sections
 - TRIM DEM 
     - ~~https://catalogue.data.gov.bc.ca/dataset/1-20-000-georeferenced-topographic-base-maps-by-mapsheet~~
     - https://catalogue.data.gov.bc.ca/dataset/digital-elevation-model-for-british-columbia-cded-1-250-000
-  
+> - Custom DEM ([Issue #18](https://github.com/bcgov/bcaquiferdata/issues/18))
+
 **Steps**
 - Using area of interest, download relevant DEM data to the cache, 
   load it, and trim it to the area of interest.
 - [Code] User passes area of interest to `dem_region()` function
 - [App] Automatically happens once area of interest is selected
-
-> **Status** - Mostly complete
->
-> **TODO**
-> 
-> - Add option for user to supply their own spatial elevation data ([Issue #18](https://github.com/bcgov/bcaquiferdata/issues/18))
 
 ### Adding elevation data
 

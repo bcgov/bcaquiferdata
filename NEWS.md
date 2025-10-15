@@ -12,6 +12,7 @@
 * Add tooltips (#17)
 * ArcHydro exports coordinates in BC Albers projection (#8)
 * Add option to use custom DEM file (#20)
+* Add drawdown() to create Excel worksheets for Pumping wells
 
 # Version 0.0.3
 * Fix ArcHydro exports
