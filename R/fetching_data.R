@@ -14,7 +14,7 @@
 
 
 data_types <- function() {
-  c("lithology", "wells", "wells_sf", "aquifers")
+  c("lithology", "wells", "wells_testing", "wells_sf", "aquifers")
 }
 
 
@@ -77,7 +77,7 @@ data_read <- function(type, update = FALSE, permission = FALSE) {
 #' @export
 #'
 #' @examplesIf interactive()
-#'
+#' data_update(type = "wells")
 #' data_update(type = "lithology")
 
 data_update <- function(type = c("wells", "lithology"), download = TRUE, permission = FALSE) {
@@ -138,6 +138,7 @@ data_update <- function(type = c("wells", "lithology"), download = TRUE, permiss
   if(any(type %in% c("all", "wells"))) {
     message("Wells - Cleaning")
     wells <- clean_wells()
+    wells_testing <- clean_wells_testing()
     meta$wells_processed <- as.character(Sys.time())
   }
 
@@ -161,8 +162,8 @@ fetch_gwells <- function() {
               httr::progress())
   utils::unzip(file.path(cache_dir(), "GWELLS", "gwells.zip"),
                exdir = file.path(cache_dir(), "GWELLS"),
-               files = c("well.csv", "lithology.csv"), overwrite = TRUE)
-  unlink(file.path(cache_dir(), "GWELLS", "gwells.zip"))
+               files = c("well.csv", "lithology.csv", "pt_aquifer_parameters.csv"), overwrite = TRUE)
+  #unlink(file.path(cache_dir(), "GWELLS", "gwells.zip"))
 }
 
 fetch_aquifers <- function() {
@@ -193,6 +194,16 @@ clean_wells <- function(file = NULL) {
   readr::write_rds(wells, file.path(cache_dir(), "wells_nice.rds"))
 }
 
+clean_wells_testing <- function(file = NULL) {
+  if(is.null(file)) file <- file.path(cache_dir(), "GWELLS/pt_aquifer_parameters.csv")
+
+  testing <- readr::read_csv(file, guess_max = Inf, show_col_types = FALSE,
+                           progress = FALSE) %>%
+    janitor::clean_names()
+
+  message("Wells Testing - Saving data to cache")
+  readr::write_rds(testing, file.path(cache_dir(), "wells_testing_nice.rds"))
+}
 
 clean_lithology <- function(file = NULL) {
 

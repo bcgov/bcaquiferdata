@@ -118,9 +118,14 @@ col_nms <- function(wb = NULL, sheet = NULL, types = NULL) {
     "Aquifer Details URL", "aquifer_details_url", "aq", "TEXT", 35,
     "Average Depth to Water (m)", "avg_water_depth_m", "aq", "0.0", 15,
     "Average Well Depth (m)", "avg_well_depth_m", "aq", "0.0", 15,
-    "Test Duration (min)", "test_duration", "hg", "0", NA,
-    "Hydraulic Conductivity (m/day)", "hydraulic_conductivity", "hg", "0.0", NA,
-    "Specific Capacity (L/s/m)", "specific_capacity", "hg", "0.0", NA
+
+    # Extra columns for testing
+    "Test Duration (min)", "test_duration", "hg", "0", 12,
+    "Hydraulic Conductivity (m/day)", "hydraulic_conductivity", "hg", "0.0", 25,
+    "Specific Yield", "specific_yield", "hg", "0.0", 25,
+    "Specific Capacity (L/s/m)", "specific_capacity", "hg", "0.0", 20,
+    "Analysis Method", "analysis_method", "hg", "TEXT", 15,
+    "Comments", "comments", "hg", "TEXT", 40
   ) |>
   dplyr::mutate(
     style = purrr::map(numFmt, \(x) openxlsx::createStyle(numFmt = x)),
