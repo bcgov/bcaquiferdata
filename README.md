@@ -51,20 +51,20 @@ maturing.
     pkgbuild::check_build_tools()
     ```
 
-6.  **Install bcgwcat** In the console type the following and hit enter
+6.  **Install bcaquiferdata** In the console type the following and hit enter
     (be sure to install all updates if prompted!)
 
     ``` r
-    pak::pkg_install("bcgov/bcgwcat")
+    pak::pkg_install("bcgov/bcaquiferdata")
     ```
 
 ## Troubleshooting
 
 If you run into errors right at the start, try **updating all packages
-required by bcgwcat**
+required by bcaquiferdata**
 
 ``` r
-pak::pkg_install("bcgov/bcgwcat", upgrade = TRUE)
+pak::pkg_install("bcgov/bcaquiferdata", upgrade = TRUE)
 ```
 
 ## Shiny User-Interface
