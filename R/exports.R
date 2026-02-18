@@ -60,6 +60,8 @@
 #'
 #' # Export Surver
 #' wells_export(creek_wells, id = "clinton", type = "surfer")
+#' 
+#' wells_export(creek_wells, id = "clinton", type = "leapfrog")
 
 
 wells_export <- function(wells_sub, id, type, dir = ".", preview = FALSE) {
@@ -247,7 +249,8 @@ export_leapfrog <- function(wells_sub, id, dir, preview) {
   }
 
   f1 <- wells_sub %>%
-    dplyr::select("Hole ID" = "well_tag_number",
+    dplyr::select("Aquifer ID" = "aquifer_id", 
+                  "Hole ID" = "well_tag_number",
                   "East (X)" = "X", "North (Y)" = "Y",
                   "Elev (Z)" = "elev",
                   "Max Depth" = "well_depth_m") %>%
