@@ -116,8 +116,24 @@ server_export_data <- function(id, wells) {
 
   moduleServer(id, function(input, output, session) {
 
+    # ShinyFiles -------------
+    # VPN fix adapted from ccviR: https://github.com/LandSciTech/ccviR
+
+    timeout <- R.utils::withTimeout({
+      volumes <- c(
+        `Working Directory` = fs::path_wd(),
+        Home = fs::path_home(),
+        `All Drives` = shinyFiles::getVolumes()())
+    }, timeout = 200, onTimeout = "silent")
+
+    if(is.null(timeout)){
+      stop("Unable to find drives",
+           "This can occur if a VPN was in use but disconnected.",
+           "To fix, either reconnect to the VPN or restart without connecting",
+           call. = FALSE)
+    }
+
     # Setup ----------------------
-    volumes <- c(Home = fs::path_home(), "R Installation" = R.home(), getVolumes()())
     feedback <- reactiveValues(strater = "", voxler = "", archydro = "")
 
     # Functions
