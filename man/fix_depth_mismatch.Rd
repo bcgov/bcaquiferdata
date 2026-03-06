@@ -22,7 +22,7 @@ means replacing the well depth with the depth of the final lithology layer.
 This is done automatically for leapfrog exports, but otherwise not.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 
 library(sf)
 

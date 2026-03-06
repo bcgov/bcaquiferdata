@@ -38,6 +38,11 @@ reference:
   - lith_fix
   - starts_with("fix")
 
+- title: Drawdown
+  desc: Creating Excel Drawdown Worksheets
+  contents:
+  - drawdown
+
 - title: Data
 - contents:
   - tiles

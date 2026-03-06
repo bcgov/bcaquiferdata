@@ -39,7 +39,7 @@ elevations from the secondary source (\code{dem_extra}), \code{elev} contains th
 combined elevation data, \code{elev1} unless missing, then \code{elev2}.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 
 library(sf)
 library(ggplot2)

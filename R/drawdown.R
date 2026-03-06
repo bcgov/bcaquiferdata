@@ -177,11 +177,13 @@ aq_subtypes <- function() {
 }
 
 #' Excel Columns
+#' @noRd
 cloc <- function(df, name) {
   LETTERS[which(names(df) == name)]
 }
 
 #' Excel locations
+#' @noRd
 eloc <- function(df, name, row = 2) {
   paste0(cloc(df, name), seq(row, dplyr::n() + row - 1))
 }

@@ -19,7 +19,7 @@ Yield records are extracted from lithology observations and added to the
 wells data.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 
 library(sf)
 

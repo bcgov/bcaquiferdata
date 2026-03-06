@@ -29,7 +29,7 @@ a list of data frames.
 Export wells data for use in Strater and Voxler
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 
 library(sf)
 
@@ -60,5 +60,7 @@ wells_export(creek_wells, id = "clinton", type = "archydro")
 
 # Export Surver
 wells_export(creek_wells, id = "clinton", type = "surfer")
+
+wells_export(creek_wells, id = "clinton", type = "leapfrog")
 \dontshow{\}) # examplesIf}
 }

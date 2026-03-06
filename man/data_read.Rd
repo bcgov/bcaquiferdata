@@ -38,7 +38,7 @@ standardizing, while better than the original data, will almost certainly
 still have errors!
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 wells <- data_read("wells")
 \dontshow{\}) # examplesIf}
 }

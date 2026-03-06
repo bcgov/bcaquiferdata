@@ -22,7 +22,7 @@ equal to the depth of the final lithology layer. Default \code{TRUE}.}
 Filter the GWELLS data returning only wells within the provided shapefile.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 
 library(sf)
 
