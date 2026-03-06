@@ -405,7 +405,7 @@
             "names": {
               "type": "character",
               "attributes": {},
-              "value": ["Hole ID", "East (X)", "North (Y)", "Elev (Z)", "Max Depth"]
+              "value": ["Aquifer ID", "Hole ID", "East (X)", "North (Y)", "Elev (Z)", "Max Depth"]
             },
             "row.names": {
               "type": "integer",
@@ -419,6 +419,11 @@
             }
           },
           "value": [
+            {
+              "type": "double",
+              "attributes": {},
+              "value": [203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 206, 206, 206, 206, 206, 206, 1143, 1143, 1143, 1143, 1143, "NA", "NA"]
+            },
             {
               "type": "double",
               "attributes": {},
