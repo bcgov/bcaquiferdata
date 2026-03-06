@@ -18,6 +18,9 @@
 # Update the app helpfiles -----------------------
 # - inst/extra_docs/lithology_desc.md
 
+# Bump Version ------------------------------------
+file.edit("DESCRIPTION")
+
 # Update NEWS ------------------------------------
 file.edit("NEWS.md")
 

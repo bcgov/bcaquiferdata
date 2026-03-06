@@ -167,7 +167,7 @@ server_export_data <- function(id, wells) {
       f1 <- any(wells()$flag_int_bottom) & !any(wells()$fix_int_bottom)
       f2 <- any(wells()$flag_depth_mismatch)
 
-      if(f1 | f2) {
+      if(f1 || f2) {
         t <- tagList(strong("LeapFrog Export:"), br())
       } else {
         t <- tagList()
