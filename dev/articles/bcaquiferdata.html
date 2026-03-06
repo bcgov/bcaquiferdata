@@ -89,15 +89,15 @@ This will launch the Shiny App.</p>
 </h2>
 <p>The first time you launch the Shiny App your local GWELLS data will
 likely be out of date (or non-existent).</p>
-<p><img src="figures/out-of-date.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="figures/out-of-date.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>Click on <strong>Fetch/Update GWELLS data</strong> to download the
 most recent GWELLS data. You will see a progress messages the “Messages
 box”. If you look at the R console, you will see the progress bar
 advance.</p>
-<p><img src="figures/update_progress.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="figures/update_progress.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>This may take a little while, but once the Status box turns Green,
 you’re ready to go!
-<img src="figures/update_ready.png" width="80%" style="display: block; margin: auto;"></p>
+<img src="figures/update_ready.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="prepare-data">Prepare data<a class="anchor" aria-label="anchor" href="#prepare-data"></a>
@@ -108,14 +108,14 @@ files (including .shp, .prj, etc.) or you can update a zip file of all
 the files together.</p>
 <p>Once you add your shape file, the app will automatically start
 downloading Lidar tiles to match that particular region.</p>
-<p><img src="figures/shape_file.png" width="40%" style="display: block; margin: auto;"></p>
+<p><img src="figures/shape_file.png" class="r-plt" alt="" width="40%" style="display: block; margin: auto;"></p>
 <p>Once the download is finished, the watershed map with Wells and Lidar
 Elevation will be displayed.</p>
-<p><img src="figures/map_lidar.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="figures/map_lidar.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>If you do not have sufficient Lidar coverage, you can also work with
 TRIM data by clicking on the TRIM radio button. This will then download
 TRIM CDED tiles.</p>
-<p><img src="figures/map_trim.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="figures/map_trim.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>Now that we have filtered the wells data to our region and added the
 elevation data we can take a look at the other aspects of the GWELLS
 data.</p>
@@ -136,7 +136,7 @@ these are created.</p>
 <p>You can explore more columns by choosing which to include on the left
 side bar, as well as by hiding/showing specific columns with the “Column
 visibility” menu bar.</p>
-<p><img src="figures/explore_lith.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="figures/explore_lith.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="explore-hydrostratigraphy">Explore Hydrostratigraphy<a class="anchor" aria-label="anchor" href="#explore-hydrostratigraphy"></a>
@@ -146,7 +146,7 @@ also extracted from lithology, but specifically deal with water flow
 observations at different depths.</p>
 <p>In this example, we have extracted 6 flow measures for 6 different
 depths from one lithology description.</p>
-<p><img src="figures/explore_hy.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="figures/explore_hy.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>The plan is to incorporate these flow values into the exports for use
 in different programs, but this aspect is currently still under
 development.</p>
@@ -166,7 +166,7 @@ in the original GWELLS data base, and let us know if you find any that
 reflect a problem in the categorization of the raw data.</p>
 <p>Note that if you click in the lower right corner of the flag
 descriptions, you can expand it out for better reading.</p>
-<p><img src="figures/flags.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="figures/flags.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="exports">Exports<a class="anchor" aria-label="anchor" href="#exports"></a>
@@ -177,7 +177,7 @@ export it for use in Strater, Voxler, ArcHydro, Leapfrog or Surfer.</p>
 go (Output folder), and what format (click on the tab at the top). Then
 check the preview data and export if it looks good!</p>
 <p>Note that this will usually create a collection of files.</p>
-<p><img src="figures/export.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="figures/export.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>Enjoy!</p>
 <p>Be sure to let us know if there is functionality you would like to
 see, or if there are any problems you find.</p>
@@ -207,7 +207,7 @@ see, or if there are any problems you find.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
