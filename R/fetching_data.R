@@ -90,7 +90,7 @@ data_update <- function(type = c("wells", "lithology"), download = TRUE, permiss
   cache_check(permission)
 
   meta <- cache_meta()
-  if(meta$bcaquiferdata_version != packageVersion("bcaquiferdata") & type[1] != "all") {
+  if(meta$bcaquiferdata_version != packageVersion("bcaquiferdata") && type[1] != "all") {
     message("Cache data was processed with a different version of bcaquiferdata",
             "must update all data...")
     type <- "all"
@@ -322,7 +322,8 @@ cache_clean <- function(bcmaps_cded = FALSE) {
 
 cache_meta <- function() {
 
-  if(file.exists(f <- file.path(cache_dir(), "meta.csv"))) {
+  f <- file.path(cache_dir(), "meta.csv")
+  if(file.exists(f)) {
     m <- readr::read_csv(f, show_col_types = FALSE, progress = FALSE) %>%
       dplyr::mutate(dplyr::across(dplyr::where(lubridate::is.POSIXct),
                                   ~round(.x, units = "secs")))
