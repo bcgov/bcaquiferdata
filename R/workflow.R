@@ -172,13 +172,30 @@ wells_subset <- function(region, fix_bottom = TRUE, fix_depth = TRUE, update = F
 
   # Subset wells to creek area
   message("Subset wells")
-  data_read(type = "wells_sf", update = update) %>%
+  w <- data_read(type = "wells_sf", update = update) %>%
     sf::st_transform(sf::st_crs(region)) %>%
     sf::st_filter(region) %>%
     dplyr::left_join(
       data_read("lithology") |> dplyr::select(-"well_yield_unit_code"),
       by = "well_tag_number") |>
-    dplyr::mutate(flag_lith_missing = dplyr::if_else(is.na(.data$lithology_from_m), TRUE, FALSE)) |>
+    wells_flag() |>
+
+    # Fix problems
+    fix_bottom_intervals(fix = fix_bottom) |>
+    fix_depth_missing(fix = fix_depth)
+}
+
+#' Add flags to subsetted well data
+#'
+#' @param wells Data frame. Wells subset
+#'
+#' @returns wells data frame with flag columns.
+#'
+#' @noRd
+
+wells_flag <- function(wells) {
+  wells %>%
+    dplyr::mutate(flag_lith_missing = is.na(.data$lithology_from_m)) %>%
 
     # Additional flags
     # TODO: Consider joining in cleaning stage and putting these there...
@@ -187,20 +204,15 @@ wells_subset <- function(region, fix_bottom = TRUE, fix_depth = TRUE, update = F
 
     dplyr::mutate(
       flag_depth_missing = is.na(.data$well_depth_m),
-      flag_depth_mismatch = .data$well_depth_m != .data$lithology_to_m) |>
+      flag_depth_mismatch = .data$well_depth_m != .data$lithology_to_m) %>%
     dplyr::mutate(
       # Only applies to final lith depth interval
       flag_depth_mismatch = .data$flag_depth_mismatch[.data$lith_rec == .data$lith_n],
-      .by = "well_tag_number") |>
+      .by = "well_tag_number") %>%
 
     # All missing flags are NA
-    dplyr::mutate(dplyr::across(dplyr::starts_with("flag_"), \(x) tidyr::replace_na(x, FALSE))) |>
-
-    # Fix problems
-    fix_bottom_intervals(fix = fix_bottom) |>
-    fix_depth_missing(fix = fix_depth)
+    dplyr::mutate(dplyr::across(dplyr::starts_with("flag_"), \(x) tidyr::replace_na(x, FALSE)))
 }
-
 
 #' Subset wells and add elevation
 #'
