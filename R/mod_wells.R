@@ -271,6 +271,9 @@ server_wells <- function(id, have_data) {
 
 
     output$map_plot <- renderPlot({
+      validate(need(input$spatial_file, "Please load a watershed spatial file"))
+      validate(need(input$dem_combo, "Please choose a DEM source"))
+
       req(watershed(), wells(), dem1())
 
       id <- showNotification("Plotting data...",
