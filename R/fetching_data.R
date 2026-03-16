@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-
 data_types <- function() {
   c("lithology", "wells", "wells_testing", "wells_sf", "aquifers")
 }
@@ -49,16 +48,20 @@ data_types <- function() {
 #' wells <- data_read("wells")
 
 data_read <- function(type, update = FALSE, permission = FALSE) {
-
-  if(!type %in% data_types()) {
-    stop("`type` must be one of ", paste0(data_types(), collapse = ", "),
-         call. = FALSE)
+  if (!type %in% data_types()) {
+    stop(
+      "`type` must be one of ",
+      paste0(data_types(), collapse = ", "),
+      call. = FALSE
+    )
   }
   cache_check(permission)
 
   f <- file.path(cache_dir(), paste0(type, "_nice.rds"))
 
-  if(update || !file.exists(f) || !data_ready()) data_update(type)
+  if (update || !file.exists(f) || !data_ready()) {
+    data_update(type)
+  }
 
   readr::read_rds(f)
 }
@@ -80,38 +83,47 @@ data_read <- function(type, update = FALSE, permission = FALSE) {
 #' data_update(type = "wells")
 #' data_update(type = "lithology")
 
-data_update <- function(type = c("wells", "lithology"), download = TRUE, permission = FALSE) {
-
+data_update <- function(
+  type = c("wells", "lithology"),
+  download = TRUE,
+  permission = FALSE
+) {
   opts <- c("all", data_types())
-  if(!any(type %in% opts)) {
+  if (!any(type %in% opts)) {
     stop("`type` must be one of ", paste0(opts, collapse = ", "), call. = FALSE)
   }
 
   cache_check(permission)
 
   meta <- cache_meta()
-  if(meta$bcaquiferdata_version != packageVersion("bcaquiferdata") && type[1] != "all") {
-    message("Cache data was processed with a different version of bcaquiferdata",
-            "must update all data...")
+  if (
+    meta$bcaquiferdata_version != packageVersion("bcaquiferdata") &&
+      type[1] != "all"
+  ) {
+    message(
+      "Cache data was processed with a different version of bcaquiferdata",
+      "must update all data..."
+    )
     type <- "all"
   }
 
   # Download data
-  if(download ) {
-
+  if (download) {
     # GWELLS
-    if(any(type %in% c("all", "wells", "lithology"))) {
+    if (any(type %in% c("all", "wells", "lithology"))) {
       message("Downloading GWELLS data")
       fetch_gwells()
       meta$GWELLS_downloaded <- as.character(Sys.time())
     }
     # Aquifers
-    if(any(type %in% c("all", "aquifers"))) {
+    if (any(type %in% c("all", "aquifers"))) {
       message("Downloading Aquifers")
 
       message("  Standard data")
-      download.file("https://apps.nrs.gov.bc.ca/gwells/api/v1/aquifers/csv",
-                    file.path(cache_dir(), "aquifers.csv"))
+      download.file(
+        "https://apps.nrs.gov.bc.ca/gwells/api/v1/aquifers/csv",
+        file.path(cache_dir(), "aquifers.csv")
+      )
 
       meta$aquifers_downloaded <- as.character(Sys.time())
 
@@ -128,14 +140,14 @@ data_update <- function(type = c("wells", "lithology"), download = TRUE, permiss
   }
 
   # Clean and Save Aquifers
-  if(any(type %in% c("all", "aquifers"))) {
+  if (any(type %in% c("all", "aquifers"))) {
     message("Aquifers - Cleaning")
     clean_aquifers()
     meta$aquifers_processed <- as.character(Sys.time())
   }
 
   # Clean and Save wells
-  if(any(type %in% c("all", "wells"))) {
+  if (any(type %in% c("all", "wells"))) {
     message("Wells - Cleaning")
     wells <- clean_wells()
     wells_testing <- clean_wells_testing()
@@ -143,13 +155,15 @@ data_update <- function(type = c("wells", "lithology"), download = TRUE, permiss
   }
 
   # Clean and Standardize lithology
-  if(any(type %in% c("all", "lithology"))) {
+  if (any(type %in% c("all", "lithology"))) {
     lith <- clean_lithology()
     meta$lith_processed <- as.character(Sys.time())
   }
 
   # Update package version
-  meta$bcaquiferdata_version <- as.character(utils::packageVersion("bcaquiferdata"))
+  meta$bcaquiferdata_version <- as.character(utils::packageVersion(
+    "bcaquiferdata"
+  ))
 
   # Save updated metadata
   readr::write_csv(meta, file.path(cache_dir(), "meta.csv"), progress = FALSE)
@@ -157,37 +171,55 @@ data_update <- function(type = c("wells", "lithology"), download = TRUE, permiss
 
 fetch_gwells <- function() {
   "https://s3.ca-central-1.amazonaws.com/gwells-export/export/v2/gwells.zip" %>%
-    httr::GET(httr::write_disk(file.path(cache_dir(), "GWELLS", "gwells.zip"),
-                               overwrite = TRUE),
-              httr::progress())
-  utils::unzip(file.path(cache_dir(), "GWELLS", "gwells.zip"),
-               exdir = file.path(cache_dir(), "GWELLS"),
-               files = c("well.csv", "lithology.csv", "pt_aquifer_parameters.csv"), overwrite = TRUE)
+    httr::GET(
+      httr::write_disk(
+        file.path(cache_dir(), "GWELLS", "gwells.zip"),
+        overwrite = TRUE
+      ),
+      httr::progress()
+    )
+  utils::unzip(
+    file.path(cache_dir(), "GWELLS", "gwells.zip"),
+    exdir = file.path(cache_dir(), "GWELLS"),
+    files = c("well.csv", "lithology.csv", "pt_aquifer_parameters.csv"),
+    overwrite = TRUE
+  )
   #unlink(file.path(cache_dir(), "GWELLS", "gwells.zip"))
 }
 
-fetch_aquifers <- function() {
-
-
-}
+fetch_aquifers <- function() {}
 
 clean_wells <- function(file = NULL) {
-  if(is.null(file)) file <- file.path(cache_dir(), "GWELLS/well.csv")
+  if (is.null(file)) {
+    file <- file.path(cache_dir(), "GWELLS/well.csv")
+  }
 
-  wells <- readr::read_csv(file, guess_max = Inf, show_col_types = FALSE,
-                           progress = FALSE) %>%
+  wells <- readr::read_csv(
+    file,
+    guess_max = Inf,
+    show_col_types = FALSE,
+    progress = FALSE
+  ) %>%
     janitor::clean_names() %>%
-    dplyr::filter(!is.na(.data$latitude_decdeg),
-                  !is.na(.data$longitude_decdeg)) %>%
+    dplyr::filter(
+      !is.na(.data$latitude_decdeg),
+      !is.na(.data$longitude_decdeg)
+    ) %>%
     # Convert to metric
-    convert_m(cols = c("well_depth_m" = "finished_well_depth_ft_bgl",
-                       "water_depth_m" = "static_water_level_ft_btoc"),
-              digits = 1) %>%
+    convert_m(
+      cols = c(
+        "well_depth_m" = "finished_well_depth_ft_bgl",
+        "water_depth_m" = "static_water_level_ft_btoc"
+      ),
+      digits = 1
+    ) %>%
     dplyr::select(dplyr::all_of(fields_wells))
 
-  wells_sf <- sf::st_as_sf(wells,
-                           coords = c("longitude_decdeg", "latitude_decdeg"),
-                           crs = 4326)
+  wells_sf <- sf::st_as_sf(
+    wells,
+    coords = c("longitude_decdeg", "latitude_decdeg"),
+    crs = 4326
+  )
 
   message("Wells - Saving data to cache")
   readr::write_rds(wells_sf, file.path(cache_dir(), "wells_sf_nice.rds"))
@@ -195,10 +227,16 @@ clean_wells <- function(file = NULL) {
 }
 
 clean_wells_testing <- function(file = NULL) {
-  if(is.null(file)) file <- file.path(cache_dir(), "GWELLS/pt_aquifer_parameters.csv")
+  if (is.null(file)) {
+    file <- file.path(cache_dir(), "GWELLS/pt_aquifer_parameters.csv")
+  }
 
-  testing <- readr::read_csv(file, guess_max = Inf, show_col_types = FALSE,
-                           progress = FALSE) %>%
+  testing <- readr::read_csv(
+    file,
+    guess_max = Inf,
+    show_col_types = FALSE,
+    progress = FALSE
+  ) %>%
     janitor::clean_names()
 
   message("Wells Testing - Saving data to cache")
@@ -206,8 +244,9 @@ clean_wells_testing <- function(file = NULL) {
 }
 
 clean_lithology <- function(file = NULL) {
-
-  if(is.null(file)) file <- file.path(cache_dir(), "GWELLS/lithology.csv")
+  if (is.null(file)) {
+    file <- file.path(cache_dir(), "GWELLS/lithology.csv")
+  }
 
   message("Lithology - Cleaning")
   l_prep <- lith_prep(file)
@@ -228,14 +267,19 @@ clean_lithology <- function(file = NULL) {
 }
 
 clean_aquifers <- function(files = NULL) {
-  if(is.null(files)) {
+  if (is.null(files)) {
     file <- c(
       file.path(cache_dir(), "aquifers.csv"),
-      file.path(cache_dir(), "aquifers_spatial.gpkg"))
+      file.path(cache_dir(), "aquifers_spatial.gpkg")
+    )
   }
 
   aq <- readr::read_csv(
-    file[1], guess_max = Inf, show_col_types = FALSE, progress = FALSE) %>%
+    file[1],
+    guess_max = Inf,
+    show_col_types = FALSE,
+    progress = FALSE
+  ) %>%
     janitor::clean_names()
 
   sf::st_read(file[2], quiet = TRUE) %>%
@@ -251,11 +295,17 @@ data_ready <- function() {
   m <- as.character(meta$wells_processed) != "" &
     as.character(meta$lith_processed) != ""
   v <- meta$bcaquiferdata_version == utils::packageVersion("bcaquiferdata")
-  f <- file.exists(file.path(cache_dir(),
-                             c("wells_nice.rds", "lithology_nice.rds")))
+  f <- file.exists(file.path(
+    cache_dir(),
+    c("wells_nice.rds", "lithology_nice.rds")
+  ))
 
-  if(!v) message("Your version of the data was cleaned using a different ",
-                 "version of `bcaquiferdata`.\nUpdating data...")
+  if (!v) {
+    message(
+      "Your version of the data was cleaned using a different ",
+      "version of `bcaquiferdata`.\nUpdating data..."
+    )
+  }
 
   all(m & f & v)
 }
@@ -263,16 +313,20 @@ data_ready <- function() {
 
 cache_check <- function(permission = FALSE) {
   # Ask for permission to save data
-  if(!dir.exists(cache_dir())) {
-
-    if(!permission) {
+  if (!dir.exists(cache_dir())) {
+    if (!permission) {
       permission <- utils::askYesNo(
-        paste0("bcaquiferdata would like to store data ",
-               "in: \n", cache_dir(), "\nIs that okay? ",
-               "(You can always use cache_clean() to remove it)"))
+        paste0(
+          "bcaquiferdata would like to store data ",
+          "in: \n",
+          cache_dir(),
+          "\nIs that okay? ",
+          "(You can always use cache_clean() to remove it)"
+        )
+      )
     }
 
-    if(!permission) {
+    if (!permission) {
       stop("Can't store data. Stopping.", call. = FALSE)
     } else {
       message("Creating cache directory: ", cache_dir())
@@ -301,38 +355,49 @@ cache_dir <- function() {
 #' @export
 
 cache_clean <- function(bcmaps_cded = FALSE) {
-  if(dir.exists(cache_dir())) {
+  if (dir.exists(cache_dir())) {
     message("Removing cache directory: ", cache_dir(), appendLF = FALSE)
     unlink(cache_dir(), recursive = TRUE)
-    if(length(list.files(cache_dir())) == 0) {
+    if (length(list.files(cache_dir())) == 0) {
       message("... Successful")
-    } else message("... Unsuccessful")
-  } else message("No bcaquiferdata cache directory to remove")
+    } else {
+      message("... Unsuccessful")
+    }
+  } else {
+    message("No bcaquiferdata cache directory to remove")
+  }
 
-
-  if(bcmaps_cded) {
+  if (bcmaps_cded) {
     f <- list.files(file.path(bcmaps:::data_dir(), "cded"), recursive = TRUE)
-    if(length(f) > 0) {
-      message("Removing bcmaps cache files related to CDED: \n",
-              paste0(paste0(" - ", f), sep = "\n"))
+    if (length(f) > 0) {
+      message(
+        "Removing bcmaps cache files related to CDED: \n",
+        paste0(paste0(" - ", f), sep = "\n")
+      )
       unlink(file.path(bcmaps:::data_dir(), "cded"), recursive = TRUE)
-    } else message("No bcmaps CDED cache directory to remove")
+    } else {
+      message("No bcmaps CDED cache directory to remove")
+    }
   }
 }
 
 cache_meta <- function() {
-
   f <- file.path(cache_dir(), "meta.csv")
-  if(file.exists(f)) {
+  if (file.exists(f)) {
     m <- readr::read_csv(f, show_col_types = FALSE, progress = FALSE) %>%
-      dplyr::mutate(dplyr::across(dplyr::where(lubridate::is.POSIXct),
-                                  ~round(.x, units = "secs")))
+      dplyr::mutate(dplyr::across(
+        dplyr::where(lubridate::is.POSIXct),
+        ~ round(.x, units = "secs")
+      ))
   } else {
     m <- data.frame(
-      bcaquiferdata_version = as.character(utils::packageVersion("bcaquiferdata")),
+      bcaquiferdata_version = as.character(utils::packageVersion(
+        "bcaquiferdata"
+      )),
       GWELLS_downloaded = "No",
       wells_processed = "No",
-      lith_processed = "No")
+      lith_processed = "No"
+    )
   }
   m
 }

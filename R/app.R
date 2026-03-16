@@ -26,10 +26,10 @@
 #' aq_app()
 #'
 aq_app <- function() {
-
   # Check for suggested packages
   rlang::check_installed(
-    c("DT", "ggplot2", "ggthemes", "shinyjs"))
+    c("DT", "ggplot2", "ggthemes", "shinyjs")
+  )
 
   ui <- tagList(
     page_navbar(
@@ -43,7 +43,7 @@ aq_app <- function() {
       ui_export_data("export_data"),
       ui_about("about")
     ),
-    shinyjs::useShinyjs()  # Set up shinyjs
+    shinyjs::useShinyjs() # Set up shinyjs
   )
 
   server <- function(input, output, session) {
@@ -68,34 +68,40 @@ aq_theme <- function() {
     secondary = "#AAB1B8",
     font_scale = 0.9,
     "nav-link-font-size" = "110%",
-    ) %>%
+  ) %>%
     bs_add_variables(
-      "nav-tabs-link-border-color" = "$primary", .where = "declarations"
+      "nav-tabs-link-border-color" = "$primary",
+      .where = "declarations"
     ) %>%
     bs_add_rules(
       list(
         "div.nopad .value-box-area { padding: 0; }",
         ".nav-pills .nav-link { background: #00336630; margin-left: 2px; margin-right: 2px;};",
         ".shiny-output-error-problem { color: #dc3545; }"
-        ))
+      )
+    )
 }
 
 
 mod_test <- function(which, data = "fixed") {
-  if(data == "fixed") wells_eg <- wells_eg_fixed else wells_eg <- wells_eg_unfixed
+  if (data == "fixed") {
+    wells_eg <- wells_eg_fixed
+  } else {
+    wells_eg <- wells_eg_unfixed
+  }
   ui <- tagList(
     page_navbar(
       title = "BC Aquifer Data",
       theme = aq_theme(),
       get(paste0("ui_", which))(which)
     ),
-    shinyjs::useShinyjs()  # Set up shinyjs
+    shinyjs::useShinyjs() # Set up shinyjs
   )
 
   server <- function(input, output, session) {
-    if(which == "data") {
+    if (which == "data") {
       server_data("data")
-    } else if(which == "wells") {
+    } else if (which == "wells") {
       server_wells("wells", reactive(TRUE))
     } else {
       wells <- reactive(wells_eg)
@@ -105,4 +111,3 @@ mod_test <- function(which, data = "fixed") {
 
   shinyApp(ui, server)
 }
-

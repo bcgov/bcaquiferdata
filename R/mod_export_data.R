@@ -13,7 +13,6 @@
 # the License.
 
 ui_export_data <- function(id) {
-
   ns <- NS(id)
 
   nav_panel(
@@ -23,14 +22,17 @@ ui_export_data <- function(id) {
         textInput(
           ns("export_id"),
           h4(aq_tt("File ID", "Prefix for the files to be exported")),
-          value = "xxx"),
+          value = "xxx"
+        ),
         p(),
         h4(aq_tt("Output folder", "Where should the exported files be saved?")),
         textOutput(ns("export_dir")),
         p(),
-        shinyDirButton(ns("choose_export_dir"),
-                       "Choose output folder",
-                       "Choose where to save files"),
+        shinyDirButton(
+          ns("choose_export_dir"),
+          "Choose output folder",
+          "Choose where to save files"
+        ),
         uiOutput(ns("fixes"), inline = TRUE)
       ),
 
@@ -41,25 +43,43 @@ ui_export_data <- function(id) {
         textOutput(ns("feedback_strater")),
         navset_card_tab(
           nav_panel(
-            title = h5("Lithology (", textOutput(ns("strater_f1"), container = code), ")"),
-            DT::dataTableOutput(ns("table_strater_f1"))),
+            title = h5(
+              "Lithology (",
+              textOutput(ns("strater_f1"), container = code),
+              ")"
+            ),
+            DT::dataTableOutput(ns("table_strater_f1"))
+          ),
 
           nav_panel(
-            title = h5("Collars (", textOutput(ns("strater_f2"), container = code), ")"),
-            DT::dataTableOutput(ns("table_strater_f2"))),
+            title = h5(
+              "Collars (",
+              textOutput(ns("strater_f2"), container = code),
+              ")"
+            ),
+            DT::dataTableOutput(ns("table_strater_f2"))
+          ),
 
           nav_panel(
-            title = h5("Wells (", textOutput(ns("strater_f3"), container = code), ")"),
-            DT::dataTableOutput(ns("table_strater_f3"))))
+            title = h5(
+              "Wells (",
+              textOutput(ns("strater_f3"), container = code),
+              ")"
+            ),
+            DT::dataTableOutput(ns("table_strater_f3"))
+          )
+        )
       ),
 
       # UI - Voxler -------------
-      nav_panel(title = "Voxler",
-                actionButton(ns("export_voxler"), "Export", width = 150),
-                textOutput(ns("feedback_voxler")),
+      nav_panel(
+        title = "Voxler",
+        actionButton(ns("export_voxler"), "Export", width = 150),
+        textOutput(ns("feedback_voxler")),
 
-                h3("Voxler file (", textOutput(ns("voxler_f1"), container = code), ")"),
-                DT::dataTableOutput(ns("table_voxler_f1"))),
+        h3("Voxler file (", textOutput(ns("voxler_f1"), container = code), ")"),
+        DT::dataTableOutput(ns("table_voxler_f1"))
+      ),
 
       # UI - ArcHydro -------------
       nav_panel(
@@ -68,16 +88,31 @@ ui_export_data <- function(id) {
         textOutput(ns("feedback_archydro")),
         navset_card_tab(
           nav_panel(
-            title = h5("Wells (", textOutput(ns("archydro_f1"), container = code), ")"),
-            DT::dataTableOutput(ns("table_archydro_f1"))),
+            title = h5(
+              "Wells (",
+              textOutput(ns("archydro_f1"), container = code),
+              ")"
+            ),
+            DT::dataTableOutput(ns("table_archydro_f1"))
+          ),
 
           nav_panel(
-            title = h5("HGU ID (lithology ", textOutput(ns("archydro_f2"), container = code), ")"),
-            DT::dataTableOutput(ns("table_archydro_f2"))),
+            title = h5(
+              "HGU ID (lithology ",
+              textOutput(ns("archydro_f2"), container = code),
+              ")"
+            ),
+            DT::dataTableOutput(ns("table_archydro_f2"))
+          ),
 
           nav_panel(
-            title = h5("BH (lithology index ", textOutput(ns("archydro_f3"), container = code), ")"),
-            DT::dataTableOutput(ns("table_archydro_f3")))
+            title = h5(
+              "BH (lithology index ",
+              textOutput(ns("archydro_f3"), container = code),
+              ")"
+            ),
+            DT::dataTableOutput(ns("table_archydro_f3"))
+          )
         )
       ),
 
@@ -88,12 +123,22 @@ ui_export_data <- function(id) {
         textOutput(ns("feedback_leapfrog")),
         navset_card_tab(
           nav_panel(
-            title = h5("Collars (", textOutput(ns("leapfrog_f1"), container = code), ")"),
-            DT::dataTableOutput(ns("table_leapfrog_f1"))),
+            title = h5(
+              "Collars (",
+              textOutput(ns("leapfrog_f1"), container = code),
+              ")"
+            ),
+            DT::dataTableOutput(ns("table_leapfrog_f1"))
+          ),
 
           nav_panel(
-            title = h5("Intervals (", textOutput(ns("leapfrog_f2"), container = code), ")"),
-            DT::dataTableOutput(ns("table_leapfrog_f2")))
+            title = h5(
+              "Intervals (",
+              textOutput(ns("leapfrog_f2"), container = code),
+              ")"
+            ),
+            DT::dataTableOutput(ns("table_leapfrog_f2"))
+          )
         )
       ),
 
@@ -106,31 +151,34 @@ ui_export_data <- function(id) {
         h3("Surfer file (", textOutput(ns("surfer_f1"), container = code), ")"),
         DT::dataTableOutput(ns("table_surfer_f1"))
       )
-
-
     )
   )
 }
 
 server_export_data <- function(id, wells) {
-
   moduleServer(id, function(input, output, session) {
-
     # ShinyFiles -------------
     # VPN fix adapted from ccviR: https://github.com/LandSciTech/ccviR
 
-    timeout <- R.utils::withTimeout({
-      volumes <- c(
-        `Working Directory` = fs::path_wd(),
-        Home = fs::path_home(),
-        `All Drives` = shinyFiles::getVolumes()())
-    }, timeout = 200, onTimeout = "silent")
+    timeout <- R.utils::withTimeout(
+      {
+        volumes <- c(
+          `Working Directory` = fs::path_wd(),
+          Home = fs::path_home(),
+          `All Drives` = shinyFiles::getVolumes()()
+        )
+      },
+      timeout = 200,
+      onTimeout = "silent"
+    )
 
-    if(is.null(timeout)){
-      stop("Unable to find drives",
-           "This can occur if a VPN was in use but disconnected.",
-           "To fix, either reconnect to the VPN or restart without connecting",
-           call. = FALSE)
+    if (is.null(timeout)) {
+      stop(
+        "Unable to find drives",
+        "This can occur if a VPN was in use but disconnected.",
+        "To fix, either reconnect to the VPN or restart without connecting",
+        call. = FALSE
+      )
     }
 
     # Setup ----------------------
@@ -148,50 +196,64 @@ server_export_data <- function(id, wells) {
 
     feedback_output <- function(type) {
       renderText({
-        validate(need(export_dir() != "No output directory selected",
-                      "Please choose an output directory"))
-        validate(need(dir.exists(export_dir()),
-                      "The choose output directory does not exist, please
-                    choose another one"))
+        validate(need(
+          export_dir() != "No output directory selected",
+          "Please choose an output directory"
+        ))
+        validate(need(
+          dir.exists(export_dir()),
+          "The choose output directory does not exist, please
+                    choose another one"
+        ))
         feedback[[type]]
       }) %>%
-        bindEvent(input[[paste0("export_", type)]], export_dir(), ignoreInit = TRUE)
+        bindEvent(
+          input[[paste0("export_", type)]],
+          export_dir(),
+          ignoreInit = TRUE
+        )
     }
-
 
     # Messaging --------------------
 
     # If any things need to be fixed (and haven't already), let the user know
     output$fixes <- renderUI({
-
       f1 <- any(wells()$flag_int_bottom) & !any(wells()$fix_int_bottom)
       f2 <- any(wells()$flag_depth_mismatch)
 
-      if(f1 || f2) {
+      if (f1 || f2) {
         t <- tagList(strong("LeapFrog Export:"), br())
       } else {
         t <- tagList()
       }
 
-      if(f1) {
+      if (f1) {
         t <- tagList(
           t,
-          p("Forcing thickness of bottom lithology intervals from 0m to 1m in wells:", br(),
+          p(
+            "Forcing thickness of bottom lithology intervals from 0m to 1m in wells:",
+            br(),
             tags$ul(
-              lapply(unique(wells()$well_tag_number[wells()$flag_int_bottom]),
-                     htmltools::tags$li)
+              lapply(
+                unique(wells()$well_tag_number[wells()$flag_int_bottom]),
+                htmltools::tags$li
+              )
             )
           )
         )
       }
 
-      if(f2) {
+      if (f2) {
         t <- tagList(
           t,
-          p("Forcing well depth to equal depth of the final lithology interval", br(),
+          p(
+            "Forcing well depth to equal depth of the final lithology interval",
+            br(),
             tags$ul(
-              lapply(unique(wells()$well_tag_number[wells()$flag_depth_mismatch]),
-                     htmltools::tags$li)
+              lapply(
+                unique(wells()$well_tag_number[wells()$flag_depth_mismatch]),
+                htmltools::tags$li
+              )
             )
           )
         )
@@ -203,8 +265,12 @@ server_export_data <- function(id, wells) {
     # Setup Directory and File IDs ------------------
     export_id <- reactive(janitor::make_clean_names(input$export_id))
 
-    shinyDirChoose(input, "choose_export_dir", session = session,
-                   roots = volumes)
+    shinyDirChoose(
+      input,
+      "choose_export_dir",
+      session = session,
+      roots = volumes
+    )
 
     export_dir <- reactive({
       if (is.integer(input$choose_export_dir)) {
@@ -215,16 +281,25 @@ server_export_data <- function(id, wells) {
     })
 
     output$export_dir <- renderText({
-      if(is.na(export_dir())) "No output directory selected" else export_dir()
+      if (is.na(export_dir())) "No output directory selected" else export_dir()
     })
 
     files <- reactive({
-      paste0(export_id(),
-             c("_lith.csv", "_collars.csv", "_wls.csv",
-               "_voxler.csv",
-               "_archydro_well.csv", "_archydro_hguid.csv", "_archydro_bh.csv",
-               "_leapfrog_collars.csv", "_leapfrog_intervals.csv",
-               "_surfer.csv"))
+      paste0(
+        export_id(),
+        c(
+          "_lith.csv",
+          "_collars.csv",
+          "_wls.csv",
+          "_voxler.csv",
+          "_archydro_well.csv",
+          "_archydro_hguid.csv",
+          "_archydro_bh.csv",
+          "_leapfrog_collars.csv",
+          "_leapfrog_intervals.csv",
+          "_surfer.csv"
+        )
+      )
     })
 
     # File headers
@@ -240,27 +315,75 @@ server_export_data <- function(id, wells) {
     output$surfer_f1 <- renderText(files()[10])
 
     # Export previews ---------------
-    exp_strater <- reactive(wells_export(wells(), type = "strater", preview = TRUE))
-    exp_voxler <- reactive(wells_export(wells(), type = "voxler", preview = TRUE))
-    exp_archydro <- reactive(wells_export(wells(), type = "archydro", preview = TRUE))
-    exp_leapfrog <- reactive(wells_export(wells(), type = "leapfrog", preview = TRUE))
-    exp_surfer <- reactive(wells_export(wells(), type = "surfer", preview = TRUE))
+    exp_strater <- reactive(wells_export(
+      wells(),
+      type = "strater",
+      preview = TRUE
+    ))
+    exp_voxler <- reactive(wells_export(
+      wells(),
+      type = "voxler",
+      preview = TRUE
+    ))
+    exp_archydro <- reactive(wells_export(
+      wells(),
+      type = "archydro",
+      preview = TRUE
+    ))
+    exp_leapfrog <- reactive(wells_export(
+      wells(),
+      type = "leapfrog",
+      preview = TRUE
+    ))
+    exp_surfer <- reactive(wells_export(
+      wells(),
+      type = "surfer",
+      preview = TRUE
+    ))
 
     output$table_strater_f1 <- DT::renderDataTable({
-      aq_dt(exp_strater()[[1]], minimal = TRUE)})
-    output$table_strater_f2 <- DT::renderDataTable(aq_dt(exp_strater()[[2]], minimal = TRUE))
-    output$table_strater_f3 <- DT::renderDataTable(aq_dt(exp_strater()[[3]], minimal = TRUE))
+      aq_dt(exp_strater()[[1]], minimal = TRUE)
+    })
+    output$table_strater_f2 <- DT::renderDataTable(aq_dt(
+      exp_strater()[[2]],
+      minimal = TRUE
+    ))
+    output$table_strater_f3 <- DT::renderDataTable(aq_dt(
+      exp_strater()[[3]],
+      minimal = TRUE
+    ))
 
-    output$table_voxler_f1 <- DT::renderDataTable(aq_dt(exp_voxler()[[1]], minimal = TRUE))
+    output$table_voxler_f1 <- DT::renderDataTable(aq_dt(
+      exp_voxler()[[1]],
+      minimal = TRUE
+    ))
 
-    output$table_archydro_f1 <- DT::renderDataTable(aq_dt(exp_archydro()[[1]], minimal = TRUE))
-    output$table_archydro_f2 <- DT::renderDataTable(aq_dt(exp_archydro()[[2]], minimal = TRUE))
-    output$table_archydro_f3 <- DT::renderDataTable(aq_dt(exp_archydro()[[3]], minimal = TRUE))
+    output$table_archydro_f1 <- DT::renderDataTable(aq_dt(
+      exp_archydro()[[1]],
+      minimal = TRUE
+    ))
+    output$table_archydro_f2 <- DT::renderDataTable(aq_dt(
+      exp_archydro()[[2]],
+      minimal = TRUE
+    ))
+    output$table_archydro_f3 <- DT::renderDataTable(aq_dt(
+      exp_archydro()[[3]],
+      minimal = TRUE
+    ))
 
-    output$table_leapfrog_f1 <- DT::renderDataTable(aq_dt(exp_leapfrog()[[1]], minimal = TRUE))
-    output$table_leapfrog_f2 <- DT::renderDataTable(aq_dt(exp_leapfrog()[[2]], minimal = TRUE))
+    output$table_leapfrog_f1 <- DT::renderDataTable(aq_dt(
+      exp_leapfrog()[[1]],
+      minimal = TRUE
+    ))
+    output$table_leapfrog_f2 <- DT::renderDataTable(aq_dt(
+      exp_leapfrog()[[2]],
+      minimal = TRUE
+    ))
 
-    output$table_surfer_f1 <- DT::renderDataTable(aq_dt(exp_surfer()[[1]], minimal = TRUE))
+    output$table_surfer_f1 <- DT::renderDataTable(aq_dt(
+      exp_surfer()[[1]],
+      minimal = TRUE
+    ))
 
     # Export files ---------------------
     output$feedback_strater <- feedback_output("strater")
@@ -277,7 +400,5 @@ server_export_data <- function(id, wells) {
 
     output$feedback_surfer <- feedback_output("surfer")
     observe_export("surfer")
-
   })
-
 }

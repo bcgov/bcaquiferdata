@@ -24,12 +24,14 @@ tiles <- bcdata::bcdc_query_geodata('a61976ac-d8e8-4862-851e-d105227b6525') %>%
   dplyr::mutate(map_tile = tolower(map_tile))
 
 tile_utm <- tiles %>%
-  sf::st_set_agr("constant") %>%# Suppress warnings about constant geometries
+  sf::st_set_agr("constant") %>% # Suppress warnings about constant geometries
   sf::st_centroid() %>%
   sf::st_transform(4326) %>%
-  dplyr::mutate(coords = purrr::map(geometry, ~as.data.frame(sf::st_coordinates(.)))) %>%
+  dplyr::mutate(
+    coords = purrr::map(geometry, ~ as.data.frame(sf::st_coordinates(.)))
+  ) %>%
   tidyr::unnest(coords) %>%
-  dplyr::mutate(utm = (floor((.data$X + 180)/6) %% 60) + 1) %>%
+  dplyr::mutate(utm = (floor((.data$X + 180) / 6) %% 60) + 1) %>%
   sf::st_drop_geometry() %>%
   dplyr::select(map_tile, utm)
 
@@ -62,19 +64,22 @@ tile_files <- readr::read_lines("data-raw/lidar_tiles.txt") |>
   stringr::str_subset("bc_") |>
   stringr::str_remove("^\\t") |>
   paste(collapse = "\n") |>
-  readr::read_tsv(col_names = c("file", "file2", "map_tile", "scale", "year", "proj"),
-                  col_types = "c_ccnc") |>
+  readr::read_tsv(
+    col_names = c("file", "file2", "map_tile", "scale", "year", "proj"),
+    col_types = "c_ccnc"
+  ) |>
   unique() |>
   # Ensure we copied all the tiles
   assertr::verify(expr = length(map_tile) == n_tiles) |>
   # Keep only the most recent tif per tile
   dplyr::slice_max(year, by = "map_tile") |>
   # Create download links
-  dplyr::mutate(tile_part1 = stringr::str_extract(map_tile, "^\\d+"),
-                tile_part2 = stringr::str_extract(map_tile, "^\\d+[a-z]+"),
-                url = file.path(lidar_url, tile_part1, tile_part2, year,
-                                 "dem", file),
-                url = stringr::str_replace_all(url, " ", "%20"))
+  dplyr::mutate(
+    tile_part1 = stringr::str_extract(map_tile, "^\\d+"),
+    tile_part2 = stringr::str_extract(map_tile, "^\\d+[a-z]+"),
+    url = file.path(lidar_url, tile_part1, tile_part2, year, "dem", file),
+    url = stringr::str_replace_all(url, " ", "%20")
+  )
 
 # Fix/Document errors
 tile_files <- tile_files |>
@@ -82,8 +87,10 @@ tile_files <- tile_files |>
     # Deal with capital "K"s and "L"s in listing
     url = tolower(url),
     url = dplyr::case_when(
-      map_tile == "092i071" ~ "https://nrs.objectstore.gov.bc.ca/gdwuts/092/092j/2019/dem/bc_092i071_xli1m_utm10_2019.tif",
-      TRUE ~ url)
+      map_tile ==
+        "092i071" ~ "https://nrs.objectstore.gov.bc.ca/gdwuts/092/092j/2019/dem/bc_092i071_xli1m_utm10_2019.tif",
+      TRUE ~ url
+    )
   )
 
 # Find any other problems
@@ -95,7 +102,10 @@ tile_files <- tile_files |>
 # Join and finish ----------------------------------------
 tiles <- tiles |>
   dplyr::left_join(tile_utm, by = "map_tile") |>
-  dplyr::left_join(dplyr::select(tile_files, "map_tile", "tile_name" = "file", "url"), by = "map_tile") |>
+  dplyr::left_join(
+    dplyr::select(tile_files, "map_tile", "tile_name" = "file", "url"),
+    by = "map_tile"
+  ) |>
   tidyr::drop_na(url) # Not all have lidar, drop missing tiles
 
 assertr::assert(tiles, assertr::not_na, tile_name, url)

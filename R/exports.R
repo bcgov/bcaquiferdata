@@ -60,33 +60,42 @@
 #'
 #' # Export Surver
 #' wells_export(creek_wells, id = "clinton", type = "surfer")
-#' 
+#'
 #' wells_export(creek_wells, id = "clinton", type = "leapfrog")
 
-
 wells_export <- function(wells_sub, id, type, dir = ".", preview = FALSE) {
-
   # TODO: Checks
   # Check for elev and well tag number etc.
-  if(!dir.exists(dir)) {
-    stop("`dir` (", dir,
-         " doesn't not exist relative to current working directory\n(",
-         getwd(), ")", call. = FALSE)
+  if (!dir.exists(dir)) {
+    stop(
+      "`dir` (",
+      dir,
+      " doesn't not exist relative to current working directory\n(",
+      getwd(),
+      ")",
+      call. = FALSE
+    )
   }
 
   type <- tolower(type)
 
-  if(!preview && missing(id)) {
+  if (!preview && missing(id)) {
     stop("Must provide `id` in order to export data", call. = FALSE)
   }
 
   opts <- c("strater", "voxler", "archydro", "leapfrog", "surfer")
-  if(missing(type) || !type %in% opts) {
-    stop("`type` must be one of '", paste0(opts, collapse = "', '"), "'",
-         call. = FALSE)
+  if (missing(type) || !type %in% opts) {
+    stop(
+      "`type` must be one of '",
+      paste0(opts, collapse = "', '"),
+      "'",
+      call. = FALSE
+    )
   }
 
-  if(!missing(id)) id <- stringr::str_replace_all(tolower(id), " ", "_")
+  if (!missing(id)) {
+    id <- stringr::str_replace_all(tolower(id), " ", "_")
+  }
 
   wells_sub <- wells_sub %>%
     dplyr::bind_cols(as.data.frame(sf::st_coordinates(.))) %>%
@@ -97,40 +106,45 @@ wells_export <- function(wells_sub, id, type, dir = ".", preview = FALSE) {
 }
 
 export_strater <- function(wells_sub, id, dir, preview) {
-
-  if(!preview) {
+  if (!preview) {
     f <- file.path(
       dir,
-      paste0(id, "_strater_", c("lith.csv", "collars.csv", "wls.csv")))
+      paste0(id, "_strater_", c("lith.csv", "collars.csv", "wls.csv"))
+    )
   }
 
   # Strater Lithology
   f1 <- wells_sub %>%
-    dplyr::select("Hole_ID" = "well_tag_number",
-                  "From" = "lithology_from_m",
-                  "To" = "lithology_to_m",
-                  "Lithology_Keyword" = "lithology_category",
-                  "Lithology_Description" = "lithology_raw_combined")
+    dplyr::select(
+      "Hole_ID" = "well_tag_number",
+      "From" = "lithology_from_m",
+      "To" = "lithology_to_m",
+      "Lithology_Keyword" = "lithology_category",
+      "Lithology_Description" = "lithology_raw_combined"
+    )
 
   # Strater Collars
   f2 <- wells_sub %>%
     dplyr::group_by(.data$well_tag_number, .data$X, .data$Y, .data$elev) %>%
-    dplyr::summarize(Starting_Depth = min(.data$lithology_from_m),
-                     Ending_Depth = max(.data$lithology_to_m),
-                     .groups = "drop") %>%
-    dplyr::select("Hole_ID" = "well_tag_number",
-                  "Easting_Albers" = "X",
-                  "Northing_Albers" = "Y",
-                  "Starting_Depth", "Ending_Depth",
-                  "Elevation" = "elev")
+    dplyr::summarize(
+      Starting_Depth = min(.data$lithology_from_m),
+      Ending_Depth = max(.data$lithology_to_m),
+      .groups = "drop"
+    ) %>%
+    dplyr::select(
+      "Hole_ID" = "well_tag_number",
+      "Easting_Albers" = "X",
+      "Northing_Albers" = "Y",
+      "Starting_Depth",
+      "Ending_Depth",
+      "Elevation" = "elev"
+    )
 
   f3 <- wells_sub %>%
     dplyr::select("well_tag_number", "water_depth_m")
 
-  if(preview) {
-    r <- list("strater_lith" = f1,
-              "strater_collars" = f2,
-              "strater_wells" = f3)
+  if (preview) {
+    r <- list("strater_lith" = f1, "strater_collars" = f2, "strater_wells" = f3)
   } else {
     message("Writing Strater files ", paste0(f, collapse = ", "))
     readr::write_csv(f1, f[1])
@@ -143,25 +157,33 @@ export_strater <- function(wells_sub, id, dir, preview) {
 }
 
 export_voxler <- function(wells_sub, id, dir, preview) {
-
-  if(!preview) f <- file.path(dir, paste0(id, "_voxler.csv"))
+  if (!preview) {
+    f <- file.path(dir, paste0(id, "_voxler.csv"))
+  }
 
   voxler <- wells_sub %>%
-    dplyr::mutate(Water_Elevation = .data$elev - .data$water_depth_m,
-                  Component = 0) %>%
+    dplyr::mutate(
+      Water_Elevation = .data$elev - .data$water_depth_m,
+      Component = 0
+    ) %>%
     dplyr::filter(!is.na(.data$Water_Elevation)) %>%
-    dplyr::select("well_tag_number",
-                  "Easting_Albers" = "X",
-                  "Northing_Albers" = "Y",
-                  "Water_Elevation",
-                  "Component") %>%
+    dplyr::select(
+      "well_tag_number",
+      "Easting_Albers" = "X",
+      "Northing_Albers" = "Y",
+      "Water_Elevation",
+      "Component"
+    ) %>%
     dplyr::distinct()
 
   f1 <- voxler %>%
-    dplyr::mutate(Component = 2, Water_Elevation = .data$Water_Elevation + 1) %>%
+    dplyr::mutate(
+      Component = 2,
+      Water_Elevation = .data$Water_Elevation + 1
+    ) %>%
     dplyr::bind_rows(voxler)
 
-  if(preview) {
+  if (preview) {
     r <- list("voxler" = f1)
   } else {
     message("Writing Voxler file ", f)
@@ -173,11 +195,11 @@ export_voxler <- function(wells_sub, id, dir, preview) {
 
 
 export_archydro <- function(wells_sub, id, dir, preview) {
-
-  if(!preview) {
+  if (!preview) {
     f <- file.path(
       dir,
-      paste0(id, "_archydro_", c("well.csv", "hguid.csv", "bh.csv")))
+      paste0(id, "_archydro_", c("well.csv", "hguid.csv", "bh.csv"))
+    )
   }
 
   w <- wells_sub %>%
@@ -194,35 +216,43 @@ export_archydro <- function(wells_sub, id, dir, preview) {
       BottomElev = .data$LandElev - .data$ToDepth,
       Description = .data$lithology_category,
       HGUName = .data$lithology_category,
-      OriginalLithology = .data$lithology_raw_combined)
+      OriginalLithology = .data$lithology_raw_combined
+    )
 
-  f1 <- dplyr::select(w,
-                      "HydroID", "HydroCode",
-                      "X", "Y",
-                      "LandElev", "WellDepth") |>
+  f1 <- dplyr::select(
+    w,
+    "HydroID",
+    "HydroCode",
+    "X",
+    "Y",
+    "LandElev",
+    "WellDepth"
+  ) |>
     dplyr::distinct()
 
   f2 <- w %>%
     dplyr::select("Description", "HGUName") %>%
     dplyr::distinct() %>%
-    dplyr::mutate(HGUID = 1:dplyr::n(),
-                  HGUCode = .data$HGUID) %>%
+    dplyr::mutate(HGUID = 1:dplyr::n(), HGUCode = .data$HGUID) %>%
     dplyr::relocate("HGUID", "HGUCode", .before = "Description")
 
   f3 <- w %>%
     dplyr::left_join(dplyr::select(f2, "HGUName", "HGUID"), by = "HGUName") %>%
-    dplyr::select("WellID" = "HydroID",
-                  "WellCode" = "HydroCode",
-                  "Material" = "HGUName",
-                  "HGUID",
-                  "RefElev" = "LandElev",
-                  "FromDepth", "ToDepth",
-                  "TopElev", "BottomElev", "OriginalLithology")
+    dplyr::select(
+      "WellID" = "HydroID",
+      "WellCode" = "HydroCode",
+      "Material" = "HGUName",
+      "HGUID",
+      "RefElev" = "LandElev",
+      "FromDepth",
+      "ToDepth",
+      "TopElev",
+      "BottomElev",
+      "OriginalLithology"
+    )
 
-  if(preview) {
-    r <- list("archydro_well" = f1,
-              "archydro_hguid" = f2,
-              "archydro_bh" = f3)
+  if (preview) {
+    r <- list("archydro_well" = f1, "archydro_hguid" = f2, "archydro_bh" = f3)
   } else {
     message("Writing ArcHydro files ", paste0(f, collapse = ", "))
     readr::write_csv(f1, f[1])
@@ -235,43 +265,46 @@ export_archydro <- function(wells_sub, id, dir, preview) {
 }
 
 export_leapfrog <- function(wells_sub, id, dir, preview) {
-
   # Check for un-fixed problems
   wells_sub <- wells_sub %>%
     fix_bottom_intervals() %>%
     fix_depth_missing() %>%
     fix_depth_mismatch()
 
-  if(!preview) {
+  if (!preview) {
     f <- file.path(
       dir,
-      paste0(id, "_leapfrog_", c("collars.csv", "intervals.csv")))
+      paste0(id, "_leapfrog_", c("collars.csv", "intervals.csv"))
+    )
   }
 
   # Collars File
   f1 <- wells_sub %>%
-    dplyr::select("Aquifer ID" = "aquifer_id", 
-                  "Hole ID" = "well_tag_number",
-                  "East (X)" = "X", 
-                  "North (Y)" = "Y",
-                  "Elev (Z)" = "elev",
-                  "Max Depth (m)" = "well_depth_m",
-                "Artesian Conditions" = "artesian_conditions",
-              "Artesian Pressure (Head Ft AGL)" = "artesian_pressure_head_ft_agl") %>%
+    dplyr::select(
+      "Aquifer ID" = "aquifer_id",
+      "Hole ID" = "well_tag_number",
+      "East (X)" = "X",
+      "North (Y)" = "Y",
+      "Elev (Z)" = "elev",
+      "Max Depth (m)" = "well_depth_m",
+      "Artesian Conditions" = "artesian_conditions",
+      "Artesian Pressure (Head Ft AGL)" = "artesian_pressure_head_ft_agl"
+    ) %>%
     dplyr::distinct()
 
   # Intervals File
   f2 <- wells_sub %>%
-    dplyr::select("Hole ID" = "well_tag_number",
-                  "From" = "lithology_from_m",
-                  "To" = "lithology_to_m",
-                  "Lithology" = "lithology_category",
-                  "Lithology Raw" = "lithology_raw_combined") %>%
+    dplyr::select(
+      "Hole ID" = "well_tag_number",
+      "From" = "lithology_from_m",
+      "To" = "lithology_to_m",
+      "Lithology" = "lithology_category",
+      "Lithology Raw" = "lithology_raw_combined"
+    ) %>%
     dplyr::distinct()
 
-  if(preview) {
-    r <- list("leapfrog_collars" = f1,
-              "leapfrog_intervals" = f2)
+  if (preview) {
+    r <- list("leapfrog_collars" = f1, "leapfrog_intervals" = f2)
   } else {
     message("Writing Leapfrog files ", paste0(f, collapse = ", "))
     readr::write_csv(f1, f[1])
@@ -282,17 +315,21 @@ export_leapfrog <- function(wells_sub, id, dir, preview) {
 }
 
 export_surfer <- function(wells_sub, id, dir, preview) {
-
-  if(!preview) f <- file.path(dir, paste0(id, "_surfer.csv"))
+  if (!preview) {
+    f <- file.path(dir, paste0(id, "_surfer.csv"))
+  }
 
   f1 <- wells_sub %>%
-    dplyr::select("well_tag_number",
-                  "X", "Y",
-                  "bedrock_depth_m",
-                  "water_depth_m") %>%
+    dplyr::select(
+      "well_tag_number",
+      "X",
+      "Y",
+      "bedrock_depth_m",
+      "water_depth_m"
+    ) %>%
     dplyr::distinct()
 
-  if(preview) {
+  if (preview) {
     r <- list("surfer" = f1)
   } else {
     message("Writing Surfer file ", f)

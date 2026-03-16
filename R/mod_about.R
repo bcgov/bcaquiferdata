@@ -13,22 +13,35 @@
 # the License.
 
 ui_about <- function(id) {
-
   ns <- NS(id)
 
   nav_panel(
     title = "About",
     card(
       card_header("About this Shiny app"),
-      p("This app allows functions the R package bcaquiferdata (BC Aquifer Data Tools)",
-        "to be used in a simpler, and interactive format."),
-      p("BC Government GWELLS data is retrieved, filtered and matched to Lidar or TRIM elevation data.",
-        "Lithology is cleaned, simplified and categorized, and flow yields are extracted"),
-      p("As this data can be messy and error prone, we also flag potentially suspect data for review."),
-      p("Data can be exported for use in a variety of external programs or as basic csv/xlsx files."),
+      p(
+        "This app allows functions the R package bcaquiferdata (BC Aquifer Data Tools)",
+        "to be used in a simpler, and interactive format."
+      ),
+      p(
+        "BC Government GWELLS data is retrieved, filtered and matched to Lidar or TRIM elevation data.",
+        "Lithology is cleaned, simplified and categorized, and flow yields are extracted"
+      ),
+      p(
+        "As this data can be messy and error prone, we also flag potentially suspect data for review."
+      ),
+      p(
+        "Data can be exported for use in a variety of external programs or as basic csv/xlsx files."
+      ),
       h3("Citing", code("bcaquiferdata")),
       p("To cite this software please use the following:"),
-      markdown(paste0(utils::capture.output(print(utils::citation("bcaquiferdata"), style = "text")), collapse = "\n"))
+      markdown(paste0(
+        utils::capture.output(print(
+          utils::citation("bcaquiferdata"),
+          style = "text"
+        )),
+        collapse = "\n"
+      ))
     )
   )
 }

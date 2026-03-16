@@ -12,8 +12,6 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-
-
 #' Prepare raw GWELLS lithology for cleaning
 #'
 #' @param file Character. Relative location of the downloaded data
@@ -25,31 +23,48 @@
 #'
 #' @noRd
 lith_prep <- function(file = NULL) {
-  if(is.null(file)) file <- file.path(cache_dir(), "GWELLS/lithology.csv")
+  if (is.null(file)) {
+    file <- file.path(cache_dir(), "GWELLS/lithology.csv")
+  }
 
   file %>%
-    readr::read_csv(guess_max = Inf, show_col_types = FALSE, progress = FALSE) %>%
+    readr::read_csv(
+      guess_max = Inf,
+      show_col_types = FALSE,
+      progress = FALSE
+    ) %>%
     janitor::clean_names() %>%
 
     # Replace NA with 0 (very few cases where NA and not 0)
-    dplyr::mutate(dplyr::across(dplyr::matches("from|to"), \(x) tidyr::replace_na(x, 0))) %>%
+    dplyr::mutate(dplyr::across(dplyr::matches("from|to"), \(x) {
+      tidyr::replace_na(x, 0)
+    })) %>%
 
     # Find duplicates and log them
     lith_duplicates() %>%
 
     # Convert to metric
-    convert_m(cols = c("lithology_from_m" = "lithology_from_ft_bgl",
-                       "lithology_to_m" = "lithology_to_ft_bgl"))  %>%
+    convert_m(
+      cols = c(
+        "lithology_from_m" = "lithology_from_ft_bgl",
+        "lithology_to_m" = "lithology_to_ft_bgl"
+      )
+    ) %>%
 
-   # Collect and combine lithology descriptions
+    # Collect and combine lithology descriptions
     lith_desc_combine() %>%
 
     # Arrange and label intervals
-    dplyr::arrange(.data$well_tag_number,
-                   .data$lithology_from_m, .data$lithology_to_m) %>%
-    dplyr::mutate(lith_n = dplyr::n(),
-                  lith_rec = dplyr::row_number(),
-                  .by = "well_tag_number") %>%
+    dplyr::arrange(
+      .data$well_tag_number,
+      .data$lithology_from_m,
+      .data$lithology_to_m
+    ) %>%
+    dplyr::mutate(
+      lith_n = dplyr::n(),
+      lith_rec = dplyr::row_number(),
+      .by = "well_tag_number"
+    ) %>%
 
     # Create flags
     lith_flags_interval() %>%
@@ -57,40 +72,55 @@ lith_prep <- function(file = NULL) {
 }
 
 
-
 # Convert to metric
 convert_m <- function(data, cols, digits = 2) {
-  dplyr::mutate(data,
-                dplyr::across(.cols = dplyr::all_of(cols),
-                              .fns = \(x) round(x * 0.3048, digits),
-                              .names = "{names(cols)}"))
+  dplyr::mutate(
+    data,
+    dplyr::across(
+      .cols = dplyr::all_of(cols),
+      .fns = \(x) round(x * 0.3048, digits),
+      .names = "{names(cols)}"
+    )
+  )
 }
 
 lith_desc_combine <- function(lith) {
   dplyr::mutate(
     lith,
-    dplyr::across(.cols = dplyr::all_of(.env$fields_lith_combine),
-                  ~ as.character(.x) %>%
-                    tidyr::replace_na("") %>%
-                    stringr::str_to_lower() %>%
-                    stringr::str_replace("^(0 nothing entered)|(nothing provided)$", "")
-    )) %>%
+    dplyr::across(
+      .cols = dplyr::all_of(.env$fields_lith_combine),
+      ~ as.character(.x) %>%
+        tidyr::replace_na("") %>%
+        stringr::str_to_lower() %>%
+        stringr::str_replace("^(0 nothing entered)|(nothing provided)$", "")
+    )
+  ) %>%
     dplyr::mutate(
-      lithology_raw_combined = purrr::pmap(dplyr::pick(dplyr::all_of(.env$fields_lith_combine)), paste),
-      lithology_raw_combined = stringr::str_squish(.data$lithology_raw_combined))
+      lithology_raw_combined = purrr::pmap(
+        dplyr::pick(dplyr::all_of(.env$fields_lith_combine)),
+        paste
+      ),
+      lithology_raw_combined = stringr::str_squish(.data$lithology_raw_combined)
+    )
 }
 
 lith_duplicates <- function(lith) {
-
   ## Remove Exact duplicates
   dups <- which(duplicated(lith))
-  if(length(dups) > 0) {
-    dups_tags <- c("Wells with omitted duplicated lithology records: ",
-                   unique(lith$well_tag_number[dups]))
+  if (length(dups) > 0) {
+    dups_tags <- c(
+      "Wells with omitted duplicated lithology records: ",
+      unique(lith$well_tag_number[dups])
+    )
     lf <- paste0("log_duplicate_records_", Sys.Date(), ".txt")
     writeLines(dups_tags, lf)
-    message("Omitting duplicate lithology records for ",
-            length(dups_tags), " wells.\nSee ", lf, " for the list of wells.")
+    message(
+      "Omitting duplicate lithology records for ",
+      length(dups_tags),
+      " wells.\nSee ",
+      lf,
+      " for the list of wells."
+    )
 
     lith <- lith[-dups, ]
   }
@@ -135,36 +165,46 @@ lith_flags_interval <- function(lith) {
     lith,
 
     # Flag individual, possible overruns - No `from` & No `to` when text takes up multiple record slots
-    flag_int_overrun = .data$lithology_from_m == 0 & .data$lithology_to_m == 0 & .data$lith_rec != 1,
+    flag_int_overrun = .data$lithology_from_m == 0 &
+      .data$lithology_to_m == 0 &
+      .data$lith_rec != 1,
 
     # Flag notes
-    flag_int_note = .data$lithology_from_m == 0 & .data$lithology_to_m == 0 & .data$lith_rec == 1,
+    flag_int_note = .data$lithology_from_m == 0 &
+      .data$lithology_to_m == 0 &
+      .data$lith_rec == 1,
 
     # Flag overlapping intervals - Non-first `from` < preceeding `to`
-    flag_int_overlap = .data$lithology_from_m != 0 & .data$lithology_from_m < dplyr::lag(.data$lithology_to_m, default = -Inf) & .data$lith_rec != 1,
-    flag_int_overlap = .data$flag_int_overlap | dplyr::lead(.data$flag_int_overlap, default = FALSE),
+    flag_int_overlap = .data$lithology_from_m != 0 &
+      .data$lithology_from_m <
+        dplyr::lag(.data$lithology_to_m, default = -Inf) &
+      .data$lith_rec != 1,
+    flag_int_overlap = .data$flag_int_overlap |
+      dplyr::lead(.data$flag_int_overlap, default = FALSE),
 
     # Flag gaps between intervals - Non-first `from` > preceeding `to`
     flag_int_gap = .data$lithology_from_m != 0 &
       !dplyr::lag(.data$flag_int_overrun, default = FALSE) &
       .data$lithology_from_m > dplyr::lag(.data$lithology_to_m, default = Inf) &
       .data$lith_rec != 1,
-    flag_int_gap = .data$flag_int_gap | dplyr::lead(.data$flag_int_gap, default = FALSE),
+    flag_int_gap = .data$flag_int_gap |
+      dplyr::lead(.data$flag_int_gap, default = FALSE),
 
     # Flag intermediate intervals with `from` == 0
-    flag_int_shortform = !.data$flag_int_overrun & .data$lith_rec != 1 & # .data$lith_rec != .data$lith_n &
+    flag_int_shortform = !.data$flag_int_overrun &
+      .data$lith_rec != 1 & # .data$lith_rec != .data$lith_n &
       !dplyr::lag(.data$flag_int_note, default = FALSE) &
       (.data$lithology_from_m == 0 | is.na(.data$lithology_from_m)),
 
     # Flag no thickness thick bottom intervals
-    flag_int_bottom =
-      # Last (bottom) record
-      .data$lith_n == .data$lith_rec &
+    # Last (bottom) record
+    flag_int_bottom = .data$lith_n == .data$lith_rec &
       # Either only one record, or not missing the 'from'
       (.data$lith_n > 1 | .data$lithology_from_m != 0) &
       # And missing the 'to' OR 'to' equivalent to 'from'
-      (.data$lithology_to_m == 0 | is.na(.data$lithology_to_m) |
-         .data$lithology_from_m == .data$lithology_to_m),
+      (.data$lithology_to_m == 0 |
+        is.na(.data$lithology_to_m) |
+        .data$lithology_from_m == .data$lithology_to_m),
 
     # Flag missing lithology
     flag_int_missing = is.na(.data$lithology_raw_combined) |
@@ -180,7 +220,8 @@ lith_flags_well <- function(lith) {
     lith,
 
     # Flag lithology where no depths
-    flag_lith_nodepths = all(.data$lithology_from_m == 0) & all(.data$lithology_to_m == 0),
+    flag_lith_nodepths = all(.data$lithology_from_m == 0) &
+      all(.data$lithology_to_m == 0),
 
     # Flag record with overruns (mark the whole record if there are any)
     flag_lith_overruns = any(.data$flag_int_overrun),

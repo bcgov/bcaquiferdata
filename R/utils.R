@@ -13,7 +13,7 @@
 # the License.
 
 ext <- function(file) {
- stringr::str_extract(file, "(?<=.)[[:alpha:]]{2,4}$")
+  stringr::str_extract(file, "(?<=.)[[:alpha:]]{2,4}$")
 }
 
 
@@ -45,17 +45,18 @@ fix_fraction <- function(x) {
     unlist() %>%
     unique()
 
-  if(length(unlist(f)) > 0) {
+  if (length(unlist(f)) > 0) {
     n <- f %>%
       purrr::map_chr(
         ~ stringr::str_replace_all(.x, "( )?/( )?", "/") %>%
           stringr::str_split(" ") %>%
           purrr::map(\(x) purrr::map_vec(x, \(x) eval(parse(text = x)))) %>%
-          purrr::map_dbl(~sum(.x)) %>%
-          as.character()) %>%
+          purrr::map_dbl(~ sum(.x)) %>%
+          as.character()
+      ) %>%
       stats::setNames(paste0("(?<!\\d( )?)", f, "(?!( )?\\d)"))
 
-    x <-stringr::str_replace_all(x, n)
+    x <- stringr::str_replace_all(x, n)
   }
   x
 }
@@ -70,8 +71,11 @@ fix_leading_zero <- function(x) {
 }
 
 is_ready <- function(reactive) {
-  tryCatch({
-    reactive
-    TRUE
-  }, error = function(cond) FALSE)
+  tryCatch(
+    {
+      reactive
+      TRUE
+    },
+    error = function(cond) FALSE
+  )
 }

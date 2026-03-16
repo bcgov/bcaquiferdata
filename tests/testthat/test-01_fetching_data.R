@@ -13,7 +13,11 @@
 # the License.
 
 test_that("clean_wells()", {
-  f <- system.file("extdata", "test_gwells_wells.csv", package = "bcaquiferdata")
+  f <- system.file(
+    "extdata",
+    "test_gwells_wells.csv",
+    package = "bcaquiferdata"
+  )
   expect_message(w <- clean_wells(file = f), "Wells - Saving data to cache")
   expect_true(all(c("well_depth_m", "water_depth_m") %in% names(w)))
 })

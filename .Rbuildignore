@@ -22,3 +22,5 @@
 ^vignettes/articles$
 ^doc$
 ^Meta$
+^\.vscode$
+^[.]?air[.]toml$
