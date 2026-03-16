@@ -405,7 +405,7 @@
             "names": {
               "type": "character",
               "attributes": {},
-              "value": ["Aquifer ID", "Hole ID", "East (X)", "North (Y)", "Elev (Z)", "Max Depth"]
+              "value": ["Aquifer ID", "Hole ID", "East (X)", "North (Y)", "Elev (Z)", "Max Depth (m)", "Artesian Conditions", "Artesian Pressure (Head Ft AGL)"]
             },
             "row.names": {
               "type": "integer",
@@ -448,6 +448,16 @@
               "type": "double",
               "attributes": {},
               "value": [121.92, 121.92, 155.53, 155.53, 155.53, 155.53, 155.53, 155.53, 190.5, 190.5, 190.5, 191.5, 94.57, 94.57, 94.57, 94.57, 94.57, 94.57, 19.2, 19.2, 19.2, 19.2, 19.2, 19.2, 35.66, 35.66, 35.66, 35.66, 35.66, 60.96, 60.96]
+            },
+            {
+              "type": "logical",
+              "attributes": {},
+              "value": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+            },
+            {
+              "type": "double",
+              "attributes": {},
+              "value": ["NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"]
             }
           ]
         },

@@ -13,6 +13,9 @@
 # the License.
 
 test_that("clean_wells()", {
+  # Use fake cache directory
+  local_mocked_bindings(cache_dir = \() tempdir())
+
   f <- system.file(
     "extdata",
     "test_gwells_wells.csv",
@@ -20,4 +23,6 @@ test_that("clean_wells()", {
   )
   expect_message(w <- clean_wells(file = f), "Wells - Saving data to cache")
   expect_true(all(c("well_depth_m", "water_depth_m") %in% names(w)))
+  # Cleanup
+  unlink(tempdir())
 })
