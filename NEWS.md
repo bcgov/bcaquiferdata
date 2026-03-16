@@ -21,6 +21,7 @@
 ## Exports
 * Fix download buttons (#1)
 * ArcHydro exports coordinates in BC Albers projection (#8)
+* Add Aquifer ID, Artesian Conditions, and Artesian Pressure to leapfrog collars (#22)
 
 
 

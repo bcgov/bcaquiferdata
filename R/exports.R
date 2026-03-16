@@ -248,14 +248,19 @@ export_leapfrog <- function(wells_sub, id, dir, preview) {
       paste0(id, "_leapfrog_", c("collars.csv", "intervals.csv")))
   }
 
+  # Collars File
   f1 <- wells_sub %>%
     dplyr::select("Aquifer ID" = "aquifer_id", 
                   "Hole ID" = "well_tag_number",
-                  "East (X)" = "X", "North (Y)" = "Y",
+                  "East (X)" = "X", 
+                  "North (Y)" = "Y",
                   "Elev (Z)" = "elev",
-                  "Max Depth" = "well_depth_m") %>%
+                  "Max Depth (m)" = "well_depth_m",
+                "Artesian Conditions" = "artesian_conditions",
+              "Artesian Pressure (Head Ft AGL)" = "artesian_pressure_head_ft_agl") %>%
     dplyr::distinct()
 
+  # Intervals File
   f2 <- wells_sub %>%
     dplyr::select("Hole ID" = "well_tag_number",
                   "From" = "lithology_from_m",
