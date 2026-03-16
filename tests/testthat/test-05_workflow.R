@@ -116,6 +116,30 @@ test_that("fix_depth_missing", {
   expect_true(all(!w2$fix_depth_missing[w2$flag_depth_missing]))
 })
 
+test_that("fix_yield_zero", {
+  w <- data.frame(
+    well_tag_number = c(1, 2, 3, 4),
+    well_yield_usgpm = c(0, 10, 0, 34),
+    flag_yield_zero = c(TRUE, FALSE, FALSE, FALSE)
+  )
+
+  # Fix
+  expect_message(w2 <- fix_yield_zero(w), "Fixing wells")
+  expect_equal(nrow(w), nrow(w2))
+  expect_equal(w2$well_yield_usgpm, c(NA, 10, NA, 34))
+  expect_true("fix_yield_zero" %in% names(w2))
+  expect_true(all(w2$fix_yield_zero[w2$flag_yield_zero]))
+
+  # Message only
+  expect_message(
+    w2 <- fix_yield_zero(w, fix = FALSE),
+    "Some wells have a yield of 0"
+  )
+  expect_true(all(w2$well_depth_m[w2$flag_yield_zero] == 0))
+  expect_true("fix_yield_zero" %in% names(w2))
+  expect_true(all(!w2$fix_yield_zero[w2$flag_yield_zero]))
+})
+
 test_that("multiple fixes don't conflict", {
   # Fixes are applied in wells_subset(): fix_bottom_intervals() *then* fix_depth_missing()
   # fix_depth_mismatch() also applied in leapfrog exports

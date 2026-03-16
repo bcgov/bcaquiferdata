@@ -155,10 +155,14 @@ dem_region <- function(
 #'
 #' Filter the GWELLS data returning only wells within the provided shapefile.
 #'
-#' @param fix_bottom Logical. Whether to add 1m to bottom lithology intervals that
-#'   has no thickness (identified by `flat_int_bottom`). Default `TRUE`.
-#' @param fix_depth Logical. Whether to fix missing well depths by making them
-#'   equal to the depth of the final lithology layer. Default `TRUE`.
+#' @param fix_bottom_intervals Logical. Whether to add 1m to bottom lithology
+#'   intervals that has no thickness (identified by `flat_int_bottom`). Default
+#'   `TRUE`.
+#' @param fix_depth_missing Logical. Whether to fix missing well depths by
+#'   making them equal to the depth of the final lithology layer. Default
+#'   `TRUE`.
+#' @param fix_yield_zero Logical. Whether to fix well yields of 0 by making them
+#'   `NA`. Default `TRUE`.
 #' @inheritParams common_docs
 #'
 #' @examplesIf interactive()
@@ -172,10 +176,12 @@ dem_region <- function(
 #' creek_wells <- wells_subset(creek_sf)
 #'
 #' @export
+
 wells_subset <- function(
   region,
-  fix_bottom = TRUE,
-  fix_depth = TRUE,
+  fix_bottom_intervals = TRUE,
+  fix_depth_missing = TRUE,
+  fix_yield_zero = TRUE,
   update = FALSE
 ) {
   if (!"sf" %in% class(region)) {
@@ -194,8 +200,9 @@ wells_subset <- function(
     wells_flag() |>
 
     # Fix problems
-    fix_bottom_intervals(fix = fix_bottom) |>
-    fix_depth_missing(fix = fix_depth)
+    fix_bottom_intervals(fix = fix_bottom_intervals) |>
+    fix_depth_missing(fix = fix_depth_missing) |>
+    fix_yield_zero(fix = fix_yield_zero)
 }
 
 #' Add flags to subsetted well data
@@ -217,7 +224,8 @@ wells_flag <- function(wells) {
 
     dplyr::mutate(
       flag_depth_missing = is.na(.data$well_depth_m),
-      flag_depth_mismatch = .data$well_depth_m != .data$lithology_to_m
+      flag_depth_mismatch = .data$well_depth_m != .data$lithology_to_m,
+      flag_yield_zero = .data$well_yield_usgpm == 0
     ) %>%
     dplyr::mutate(
       # Only applies to final lith depth interval
@@ -599,6 +607,51 @@ fix_depth_mismatch <- function(wells_sub) {
       w,
       by = c("well_tag_number", "lith_rec")
     )
+  }
+
+  wells_sub
+}
+
+
+#' Fix the yield of a well if equal to zero
+#'
+#' The `flag_yield_zero` flag identifies wells where the yield was marked as 0
+#' in GWELLS but probably should have been recorded as `NA`. Fixing these well
+#' yields means replacing the yield of 0 with `NA`.
+#'
+#' @param wells_sub Data frame. The subsetted Wells data frame.
+#' @param fix Logical. Whether to apply the fix.
+
+fix_yield_zero <- function(wells_sub, fix = TRUE) {
+  if (!"fix_yield_zero" %in% names(wells_sub)) {
+    wells_sub$fix_yield_zero <- FALSE
+  }
+
+  # Which wells are fixable and haven't been?
+  w <- wells_sub$well_tag_number[
+    wells_sub$flag_yield_zero & !wells_sub$fix_yield_zero
+  ] |>
+    unique()
+  w_pretty <- paste0(w, collapse = ", ")
+
+  if (length(w) > 0) {
+    if (fix) {
+      message("Fixing wells where yield 0 should be NA: ", w_pretty)
+
+      wells_sub <- wells_sub %>%
+        dplyr::mutate(
+          well_yield_usgpm = dplyr::na_if(.data$well_yield_usgpm, 0),
+          fix_yield_zero = TRUE
+        )
+    } else {
+      message(
+        "Some wells have a yield of 0 which should probably be `NA`. ",
+        "Consider either using `fix_yield_zero = TRUE` in `wells_subset()` or ",
+        "fixing the original record in GWELLS\n",
+        "Wells: ",
+        w_pretty
+      )
+    }
   }
 
   wells_sub

@@ -13,10 +13,10 @@
 
 ## Data Quality
 * Update flags - Categorize, rename and add new 
-  (`flag_int_overlap`, `flag_int_gap`, `flag_int_note`, `flag_int_bottom`, etc.) (#9, #10, #11, #12, #14, #16)
+  (`flag_int_overlap`, `flag_int_gap`, `flag_int_note`, `flag_int_bottom`, `flag_yield_zero`, etc.) (#9, #10, #11, #12, #14, #16, #23)
 * Add detections for duplicate lithologies/wells (#15)
 * Fix yield values where no 0 before the decimal and units are metres (#5)
-* Add fixes for missing well depth and zero-width bottom lithology intervals (#11, #14)
+* Add fixes for missing well depth, zero-width bottom lithology intervals, and well yields of zero which should be missing (#11, #14, #23)
 
 ## Exports
 * Fix download buttons (#1)
