@@ -95,7 +95,7 @@ dem_region <- function(region, source = "lidar", buffer = 1,
   }
 
   if(tolower(source) %in% c("lidar", "trim")) source <- tolower(source)
-  if(!source %in% c("lidar", "trim") & !fs::file_exists(source)) {
+  if(!source %in% c("lidar", "trim") && !fs::file_exists(source)) {
     stop("`source` must be one of 'lidar', 'trim', or a path to local DEM",
          call. = FALSE)
   }
@@ -134,7 +134,7 @@ dem_region <- function(region, source = "lidar", buffer = 1,
     sf::st_as_sfc(sf::st_bbox(dem)),
     region, sparse = FALSE)
 
-  if(all(!i)) {
+  if(!any(i)) {
     stop("DEM from '", source, "' does not intersect 'region'", call. = FALSE)
   }
 

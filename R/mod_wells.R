@@ -238,7 +238,7 @@ server_wells <- function(id, have_data) {
         dem_lidar()
       } else if(dem_source1() == "trim") {
         dem_trim()
-      } else if(dem_source1() == "custom" & inherits(dem_custom(), "stars")) {
+      } else if(dem_source1() == "custom" && inherits(dem_custom(), "stars")) {
         dem_custom()
       }
     })
