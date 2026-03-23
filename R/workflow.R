@@ -18,11 +18,11 @@
 #' Lidar data is stored locally as tiles. Tiles are only downloaded if they
 #' don't already exist unless `only_new = FALSE`. TRIM data is obtained via the
 #' `bcmaps` package and stored locally as tiles. **Note:** TRIM elevation is
-#' coarser than Lidar Use Lidar unless it is missing for your region of
+#' coarser than Lidar. Use Lidar unless it is missing for your region of
 #' interest.
 #'
 #' Lidar tiles are the newest tile available. If you have reason to need a
-#' historical file, contact the team to discuss your use case.
+#' historical file, contact the `bcaquiferdata` team to discuss your use case.
 #'
 #' @param source Character. Source of DEM, "lidar", "trim" or a file path (or
 #'   vector of file paths) to a custom DEM file. See Details.
@@ -35,7 +35,11 @@
 #' @param only_new Logical. Whether to download all Lidar tiles, or only new
 #'   tiles that don't exist locally. Defaults to TRUE. Only apples when `source =
 #'   "lidar"`.
-
+#' @param out_file Character. File path of where to save tif of DEM clipped to
+#'   `region`.
+#' @param overwrite Logical. If `out_file` supplied, whether to overwrite this
+#'   file if it already exists.
+#'
 #' @param progress Function. Progress bar to use. Generally leave as is.
 #'
 #' @inheritParams common_docs
@@ -60,24 +64,45 @@
 #' loaded with `stars` and combined with `stars::st_mosaic()`. Note that it is
 #' assumed the data is elevation in metres.
 #'
+#' @section Saving to disk or memory:
+#'
+#' The fastest way to process these data is to use an stars proxy object which
+#' keeps manipulations fast. However, to save a copy of the DEM, it is *much*
+#' faster to use [sf::gdal_utils()] (rather than [stars::write_stars()] after).
+#'
+#' Therefore, if `out_file` is NULL [stars::st_mosaic()] and [sf::st_crop()]
+#' will be used to manipulate a stars proxy object. Alternatively, if `out_file`
+#' is provided, [sf::gdal_utils()] will be used to combine, crop, and save a
+#' copy of the Lidar or Trim DEM for the region provided. These means that
+#' slightly different methods are used and it results in a very slightly
+#' different cropped region. However, since the region file is buffered before
+#' cropping in either method, it shouldn't affect well elevation calculations
+#' downstream.
+#'
 #' @return stars spatiotemporal array object
 #' @export
 #'
 #' @examplesIf interactive()
 #'
 #' library(sf)
+#' library(stars)
 #'
 #' # Load a shape file defining the region of interest
 #' creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 #'
 #' # Fetch Lidar DEM
 #' creek_lidar <- dem_region(creek_sf)
-#'
 #' plot(creek_lidar)
 #'
 #' # Fetch TRIM DEM
 #' creek_trim <- dem_region(creek_sf, source = "trim")
+#' plot(creek_trim)
 #'
+#' # Get dem and save to file
+#' creek_lidar2 <- dem_region(creek_sf, out_file = "clinton_lidar.tif")
+#' plot(creek_lidar)
+#'
+#' creek_trim <- dem_region(creek_sf, source = "trim", out_file = "clinton_trim.tif")
 #' plot(creek_trim)
 #'
 #' # Use local DEM
@@ -88,6 +113,8 @@
 dem_region <- function(
   region,
   source = "lidar",
+  out_file = NULL,
+  overwrite = FALSE,
   buffer = 1,
   lidar_dir = NULL,
   only_new = TRUE,
@@ -109,24 +136,42 @@ dem_region <- function(
     )
   }
 
+  if (!is.null(out_file) && file.exists(out_file) && !overwrite) {
+    stop(
+      out_file,
+      " exists. Choose a different file name, remove the file, ",
+      "or use `overwrite = TRUE`",
+      call. = FALSE
+    )
+  }
+
   # Add Buffer
   region <- sf::st_buffer(region, sqrt(sf::st_area(region)) * buffer / 100)
 
   # Load DEM raster as combined (mosaic)
+  # We do this EVEN if we are later going to create file on disk and use that
+  # This is a fast way to figure out CRS and intersections before lengthy
+  # computations.
+
   if (source == "lidar") {
     message("Get Lidar data")
-    dem <- lidar_fetch(region, out_dir = lidar_dir, progress = progress) %>%
+    dem_path <- lidar_fetch(
+      region,
+      out_dir = lidar_dir,
+      progress = progress
+    ) %>%
       dplyr::pull(.data$out_file)
   } else if (source == "trim") {
     message("Get TRIM data")
-    dem <- bcmaps::cded(region, ask = FALSE)
+    dem_path <- bcmaps::cded(region, ask = FALSE)
   } else {
     message("Load local DEM")
-    dem <- source
+    dem_path <- source
   }
 
-  dem <- dem %>%
-    normalizePath() %>%
+  dem_path <- normalizePath(dem_path)
+
+  dem <- dem_path %>%
     stars::st_mosaic() %>%
     stars::read_stars(proxy = TRUE) %>%
     stats::setNames("elev")
@@ -148,7 +193,44 @@ dem_region <- function(
   }
 
   # Clip dem to region
-  sf::st_crop(dem, region)
+  if (is.null(out_file)) {
+    dem <- sf::st_crop(dem, region)
+  } else {
+    # Save region to temp
+    message("Creating local dem '", out_file, "', this may take a while...")
+
+    if (file.exists(out_file) && overwrite) {
+      message("  Overwriting ", out_file)
+      file.remove(out_file)
+    }
+
+    r_temp <- tempfile(fileext = ".gpkg")
+
+    message("  Saving region shape to temp...")
+    sf::st_write(region, r_temp, quiet = TRUE)
+
+    message("  Creating DEM...")
+    sf::gdal_utils(
+      util = "warp",
+      source = dem_path,
+      destination = out_file,
+      options = c(
+        "-cutline",
+        r_temp,
+        "-crop_to_cutline",
+        "-co",
+        "COMPRESS=DEFLATE",
+        "-co",
+        "TILED=YES"
+      )
+    )
+    message("  DEM created: ", out_file)
+
+    dem <- stars::read_stars(out_file, proxy = TRUE) %>%
+      stats::setNames("elev")
+  }
+
+  dem
 }
 
 #' Subset wells to region

@@ -17,7 +17,7 @@ test_that("wells workflow", {
   r <- sf::st_read(m, quiet = TRUE)
 
   # Get lidar
-  expect_message(elev <- dem_region(r)) |>
+  expect_message(dem <- dem_region(r)) |>
     suppressMessages()
 
   # Subset to region
@@ -25,7 +25,7 @@ test_that("wells workflow", {
     suppressMessages()
 
   # Add Lidar
-  expect_message(wells_elev <- wells_elev(wells, elev)) |>
+  expect_message(wells_elev <- wells_elev(wells, dem)) |>
     suppressMessages()
 
   # Add yield
@@ -52,6 +52,29 @@ test_that("dem_region()", {
   expect_error(dem_region(r, source = dem), "does not intersect 'region'") |>
     expect_message("Load local DEM") |>
     expect_message("Cropping")
+})
+
+test_that("dem_region() with out_file is the same", {
+  skip_if(!file.exists(m <- test_path("../../misc/data/Clinton_Creek.shp")))
+
+  r <- sf::st_read(m, quiet = TRUE)
+  t <- tempfile("test_dem", fileext = ".tif")
+
+  expect_message(d1 <- dem_region(r)) |>
+    suppressMessages()
+  expect_message(w1 <- wells_subset(r)) |>
+    suppressMessages()
+  expect_message(e1 <- wells_elev(w1, d1)) |>
+    suppressMessages()
+
+  expect_message(d2 <- dem_region(r, out_file = t), "Creating local dem") |>
+    suppressMessages()
+  expect_message(w2 <- wells_subset(r)) |>
+    suppressMessages()
+  expect_message(e2 <- wells_elev(w2, d2)) |>
+    suppressMessages()
+
+  expect_equal(e1, e2)
 })
 
 test_that("fix_bottom_intervals", {
