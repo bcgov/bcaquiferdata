@@ -38,3 +38,17 @@ aq_dt <- function(data, filename = NULL, minimal = FALSE) {
       extensions = ext
     )
 }
+
+aq_spinner <- function(ui_element) {
+  as_fill_carrier(
+    shinycssloaders::withSpinner(
+      type = 8,
+      color.background = bs_get_variables(sdm_theme(), "primary"),
+      ui_element
+    )
+  )
+}
+
+aq_dt_output <- function(id, ...) {
+  aq_spinner(DT::dataTableOutput(id, ...))
+}

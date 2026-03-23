@@ -22,7 +22,7 @@ ui_flags <- function(id) {
         "Flags",
         full_screen = TRUE,
         # Data table with flags,
-        DT::dataTableOutput(ns("flags_table"))
+        aq_dt_output(ns("flags_table"))
       ),
       nav_panel(
         "Glossary",

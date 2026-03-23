@@ -48,7 +48,7 @@ ui_export_data <- function(id) {
               textOutput(ns("strater_f1"), container = code),
               ")"
             ),
-            DT::dataTableOutput(ns("table_strater_f1"))
+            aq_dt_output(ns("table_strater_f1"))
           ),
 
           nav_panel(
@@ -57,7 +57,7 @@ ui_export_data <- function(id) {
               textOutput(ns("strater_f2"), container = code),
               ")"
             ),
-            DT::dataTableOutput(ns("table_strater_f2"))
+            aq_dt_output(ns("table_strater_f2"))
           ),
 
           nav_panel(
@@ -66,7 +66,7 @@ ui_export_data <- function(id) {
               textOutput(ns("strater_f3"), container = code),
               ")"
             ),
-            DT::dataTableOutput(ns("table_strater_f3"))
+            aq_dt_output(ns("table_strater_f3"))
           )
         )
       ),
@@ -78,7 +78,7 @@ ui_export_data <- function(id) {
         textOutput(ns("feedback_voxler")),
 
         h3("Voxler file (", textOutput(ns("voxler_f1"), container = code), ")"),
-        DT::dataTableOutput(ns("table_voxler_f1"))
+        aq_dt_output(ns("table_voxler_f1"))
       ),
 
       # UI - ArcHydro -------------
@@ -93,7 +93,7 @@ ui_export_data <- function(id) {
               textOutput(ns("archydro_f1"), container = code),
               ")"
             ),
-            DT::dataTableOutput(ns("table_archydro_f1"))
+            aq_dt_output(ns("table_archydro_f1"))
           ),
 
           nav_panel(
@@ -102,7 +102,7 @@ ui_export_data <- function(id) {
               textOutput(ns("archydro_f2"), container = code),
               ")"
             ),
-            DT::dataTableOutput(ns("table_archydro_f2"))
+            aq_dt_output(ns("table_archydro_f2"))
           ),
 
           nav_panel(
@@ -111,7 +111,7 @@ ui_export_data <- function(id) {
               textOutput(ns("archydro_f3"), container = code),
               ")"
             ),
-            DT::dataTableOutput(ns("table_archydro_f3"))
+            aq_dt_output(ns("table_archydro_f3"))
           )
         )
       ),
@@ -128,7 +128,7 @@ ui_export_data <- function(id) {
               textOutput(ns("leapfrog_f1"), container = code),
               ")"
             ),
-            DT::dataTableOutput(ns("table_leapfrog_f1"))
+            aq_dt_output(ns("table_leapfrog_f1"))
           ),
 
           nav_panel(
@@ -137,7 +137,7 @@ ui_export_data <- function(id) {
               textOutput(ns("leapfrog_f2"), container = code),
               ")"
             ),
-            DT::dataTableOutput(ns("table_leapfrog_f2"))
+            aq_dt_output(ns("table_leapfrog_f2"))
           )
         )
       ),
@@ -149,7 +149,8 @@ ui_export_data <- function(id) {
         textOutput(ns("feedback_surfer")),
 
         h3("Surfer file (", textOutput(ns("surfer_f1"), container = code), ")"),
-        DT::dataTableOutput(ns("table_surfer_f1"))
+        aq_dt_output(ns("table_surfer_f1"))
+      ),
       )
     )
   )

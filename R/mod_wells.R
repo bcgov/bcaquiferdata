@@ -108,8 +108,11 @@ ui_wells <- function(id) {
         h4("Messages"),
         verbatimTextOutput(ns("messages"), placeholder = TRUE)
       ),
-      nav_panel("Maps", plotOutput(ns("map_plot"), height = "650px")),
-      nav_panel("Wells Data", DT::dataTableOutput(ns("wells_table"))),
+      nav_panel(
+        "Maps",
+        aq_spinner(plotOutput(ns("map_plot"), height = "650px"))
+      ),
+      nav_panel("Wells Data", aq_dt_output(ns("wells_table"))),
       nav_panel(
         "Info",
         includeMarkdown(

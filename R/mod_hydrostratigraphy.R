@@ -38,7 +38,7 @@ ui_hydrostratigraphy <- function(id) {
               "a yield or depth (see 'Info' tab for more details)."
             ))
           ),
-          DT::dataTableOutput(ns("hydrostratigraphy_table"))
+          aq_dt_output(ns("hydrostratigraphy_table"))
         )
       ),
       nav_panel(

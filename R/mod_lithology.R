@@ -36,7 +36,7 @@ ui_lithology <- function(id) {
             ),
             p("See 'Info' for specific details regarding these columns")
           ),
-          DT::dataTableOutput(ns("lith_table"))
+          aq_dt_output(ns("lith_table"))
         )
       ),
       nav_panel(
