@@ -46,6 +46,7 @@ devtools::build_readme()
 
 # Precompile vignettes
 source("vignettes/_precompile.R")
+file.edit("vignettes/_precompile.R")
 
 # Run tests - Compare snapshots - BUILD PACKAGE FIRST ------------------
 #devtools::test()
