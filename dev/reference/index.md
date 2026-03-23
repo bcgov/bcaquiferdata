@@ -43,6 +43,8 @@ Functions you may not need, but might use for troubleshooting
   : Fix lithology descriptions
 - [`fix_depth_mismatch()`](https://bcgov.github.io/bcaquiferdata/dev/reference/fix_depth_mismatch.md)
   : Fix the depth of the well if not equal to final lithology
+- [`fix_yield_zero()`](https://bcgov.github.io/bcaquiferdata/dev/reference/fix_yield_zero.md)
+  : Fix the yield of a well if equal to zero
 
 ## Drawdown
 

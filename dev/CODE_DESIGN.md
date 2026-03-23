@@ -32,6 +32,13 @@ of making collaboration and future modifications easier.
 - `aq_tt()` is a helper function to create tooltips
 - `aq_theme()` is a helper to define the theme and additional styles
 
+## Fixes and Flags
+
+- Every fix should have a corresponding flag (`wells_flag()`) and in
+  `data-raw/flags.R`
+- Fixes generally happen in
+  [`wells_subset()`](https://bcgov.github.io/bcaquiferdata/dev/reference/wells_subset.md)
+
 ## Data sources
 
 - TRIM DEM

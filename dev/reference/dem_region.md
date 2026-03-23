@@ -4,7 +4,7 @@ This function takes a shape file of a region and creates a DEM of the
 region. Lidar data is stored locally as tiles. Tiles are only downloaded
 if they don't already exist unless `only_new = FALSE`. TRIM data is
 obtained via the `bcmaps` package and stored locally as tiles. **Note:**
-TRIM elevation is coarser than Lidar Use Lidar unless it is missing for
+TRIM elevation is coarser than Lidar. Use Lidar unless it is missing for
 your region of interest.
 
 ## Usage
@@ -13,6 +13,8 @@ your region of interest.
 dem_region(
   region,
   source = "lidar",
+  out_file = NULL,
+  overwrite = FALSE,
   buffer = 1,
   lidar_dir = NULL,
   only_new = TRUE,
@@ -31,6 +33,15 @@ dem_region(
 
   Character. Source of DEM, "lidar", "trim" or a file path (or vector of
   file paths) to a custom DEM file. See Details.
+
+- out_file:
+
+  Character. File path of where to save tif of DEM clipped to `region`.
+
+- overwrite:
+
+  Logical. If `out_file` supplied, whether to overwrite this file if it
+  already exists.
 
 - buffer:
 
@@ -62,7 +73,8 @@ stars spatiotemporal array object
 ## Details
 
 Lidar tiles are the newest tile available. If you have reason to need a
-historical file, contact the team to discuss your use case.
+historical file, contact the `bcaquiferdata` team to discuss your use
+case.
 
 ## Data Source
 
@@ -89,24 +101,53 @@ loaded with `stars` and combined with
 [`stars::st_mosaic()`](https://r-spatial.github.io/stars/reference/st_mosaic.html).
 Note that it is assumed the data is elevation in metres.
 
+## Saving to disk or memory
+
+The fastest way to process these data is to use an stars proxy object
+which keeps manipulations fast. However, to save a copy of the DEM, it
+is *much* faster to use
+[`sf::gdal_utils()`](https://r-spatial.github.io/sf/reference/gdal_utils.html)
+(rather than
+[`stars::write_stars()`](https://r-spatial.github.io/stars/reference/write_stars.html)
+after).
+
+Therefore, if `out_file` is NULL
+[`stars::st_mosaic()`](https://r-spatial.github.io/stars/reference/st_mosaic.html)
+and
+[`sf::st_crop()`](https://r-spatial.github.io/sf/reference/st_crop.html)
+will be used to manipulate a stars proxy object. Alternatively, if
+`out_file` is provided,
+[`sf::gdal_utils()`](https://r-spatial.github.io/sf/reference/gdal_utils.html)
+will be used to combine, crop, and save a copy of the Lidar or Trim DEM
+for the region provided. These means that slightly different methods are
+used and it results in a very slightly different cropped region.
+However, since the region file is buffered before cropping in either
+method, it shouldn't affect well elevation calculations downstream.
+
 ## Examples
 
 ``` r
 if (FALSE) { # interactive()
 
 library(sf)
+library(stars)
 
 # Load a shape file defining the region of interest
 creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 
 # Fetch Lidar DEM
 creek_lidar <- dem_region(creek_sf)
-
 plot(creek_lidar)
 
 # Fetch TRIM DEM
 creek_trim <- dem_region(creek_sf, source = "trim")
+plot(creek_trim)
 
+# Get dem and save to file
+creek_lidar2 <- dem_region(creek_sf, out_file = "clinton_lidar.tif")
+plot(creek_lidar)
+
+creek_trim <- dem_region(creek_sf, source = "trim", out_file = "clinton_trim.tif")
 plot(creek_trim)
 
 # Use local DEM
