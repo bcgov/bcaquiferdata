@@ -250,6 +250,39 @@ test_that("wells_export() Leapfrog", {
   unlink(list.files(test_path(), "^mill_leapfrog", full.names = TRUE))
 })
 
+test_that("wells_export() Leapfrog duplicates Koksilha", {
+  skip_if(
+    !file.exists(
+      m <- test_path(
+        "../../misc/data/Koksilah_watershed4/Koksilah_watershed4.shp"
+      )
+    )
+  )
+
+  r <- sf::st_read(m, quiet = TRUE)
+  expect_message(d_l <- dem_region(r, source = "lidar")) |>
+    suppressMessages()
+  expect_message(d_t <- dem_region(r, source = "trim")) |>
+    suppressMessages()
+  expect_message(w <- wells_subset(r)) |>
+    suppressMessages()
+  expect_warning(
+    e <- wells_elev(w, dem = d_l, dem_extra = d_t),
+    "Combining elevations measured through different techniques"
+  ) |>
+    suppressMessages()
+
+  # Preview
+  expect_message(
+    p <- wells_export(
+      e,
+      id = "koksilah",
+      type = "leapfrog",
+      preview = TRUE
+    )
+  )
+})
+
 test_that("wells_export() Surfer", {
   # Preview data
   expect_silent(

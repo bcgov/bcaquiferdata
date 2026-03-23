@@ -24,6 +24,10 @@
 #' test_mod_export() # Clinton creek lidar
 #' test_mod_export(source = c("lidar", "trim")) # Clinton creek lidar and trim
 #' test_mod_export(source = "trim") # Clinton creek trim
+#'
+#' w <- "misc/data/Koksilah_watershed4/Koksilah_watershed4.shp"
+#' test_mod_export(w)
+#' test_mod_export(w, "trim")
 
 test_mod_export <- function(
   watershed = "misc/data/Clinton_Creek.shp",
@@ -461,31 +465,41 @@ server_export_data <- function(id, wells_list) {
     # Export previews ---------------
 
     ## Data ----------------------------
-    exp_strater <- reactive(wells_export(
-      wells(),
-      type = "strater",
-      preview = TRUE
-    ))
-    exp_voxler <- reactive(wells_export(
-      wells(),
-      type = "voxler",
-      preview = TRUE
-    ))
-    exp_archydro <- reactive(wells_export(
-      wells(),
-      type = "archydro",
-      preview = TRUE
-    ))
-    exp_leapfrog <- reactive(wells_export(
-      wells(),
-      type = "leapfrog",
-      preview = TRUE
-    ))
-    exp_surfer <- reactive(wells_export(
-      wells(),
-      type = "surfer",
-      preview = TRUE
-    ))
+    exp_strater <- reactive({
+      wells_export(
+        wells(),
+        type = "strater",
+        preview = TRUE
+      )
+    })
+    exp_voxler <- reactive({
+      wells_export(
+        wells(),
+        type = "voxler",
+        preview = TRUE
+      )
+    })
+    exp_archydro <- reactive({
+      wells_export(
+        wells(),
+        type = "archydro",
+        preview = TRUE
+      )
+    })
+    exp_leapfrog <- reactive({
+      wells_export(
+        wells(),
+        type = "leapfrog",
+        preview = TRUE
+      )
+    })
+    exp_surfer <- reactive({
+      wells_export(
+        wells(),
+        type = "surfer",
+        preview = TRUE
+      )
+    })
 
     ## Tables -------------------------------------------------
     output$table_strater_f1 <- DT::renderDataTable({
@@ -518,10 +532,12 @@ server_export_data <- function(id, wells_list) {
       minimal = TRUE
     ))
 
-    output$table_leapfrog_f1 <- DT::renderDataTable(aq_dt(
-      exp_leapfrog()[[1]],
-      minimal = TRUE
-    ))
+    output$table_leapfrog_f1 <- DT::renderDataTable({
+      aq_dt(
+        exp_leapfrog()[[1]],
+        minimal = TRUE
+      )
+    })
     output$table_leapfrog_f2 <- DT::renderDataTable(aq_dt(
       exp_leapfrog()[[2]],
       minimal = TRUE
