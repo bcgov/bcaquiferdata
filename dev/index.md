@@ -89,7 +89,7 @@ for a more in-depth look at how to use the User Interface**
 
 You can cite this software as follows:
 
-LaZerte S, Bieber C, Province of British Columbia (2024). *BC Aquifer
+LaZerte S, Bieber C, Province of British Columbia (2026). *BC Aquifer
 Data Tools*. R package version 0.0.3.9000,
 <http://bcgov.github.io/bcaquiferdata/>.
 

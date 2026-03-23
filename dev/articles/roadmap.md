@@ -115,13 +115,16 @@ selected
 - Freshwater Atlas streams:
   <https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-stream-network>
 
-> **Status** - Not implemented
+**Steps**
+
+- Add option to download spatial data layers (or as needed?)
+- Add option to export cropped spatial data
+
+> **Status** - In Progress
 >
-> **TODO**
->
-> - [Issue \#19](https://github.com/bcgov/bcaquiferdata/issues/18)
-> - Is this necessary or desired?
-> - If so, what should it look like in the App?
+> **TODO** - [Add Freshwater
+> atlas](https://github.com/bcgov/bcaquiferdata/issues/26) - [Potential
+> others](https://github.com/bcgov/bcaquiferdata/issues/19)
 
 ### Water flow analysis
 
@@ -176,8 +179,6 @@ selected
 >
 > - Review flag specifics to ensure correct
 > - Add more flags
-> - Add option to export all ‘fixable’ flags to promote fixing issues in
->   GWELLS
 
 ### R package development
 
@@ -187,6 +188,7 @@ selected
   and that functions work as expected)
 - Adding documentation (help users use the app and/or functions)
   - Function documentation
+  - Internal documentation
   - pkgdown website
 
 > **Status** - Incomplete

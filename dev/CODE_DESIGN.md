@@ -27,10 +27,12 @@ of making collaboration and future modifications easier.
 - Use `@noRd` to document internal functions (documentation for
   developers that isn’t compiled into the docs)
 
-## Shiny helpers
+## Shiny helpers - `mod_utils.R`
 
 - `aq_tt()` is a helper function to create tooltips
 - `aq_theme()` is a helper to define the theme and additional styles
+- `aq_spinner()`
+- `aq_dt()`
 
 ## Fixes and Flags
 

@@ -18,7 +18,7 @@
 Source:
 [`inst/CITATION`](https://github.com/bcgov/bcaquiferdata/blob/dev/inst/CITATION)
 
-LaZerte S, Bieber C, Province of British Columbia (2025). *BC Aquifer
+LaZerte S, Bieber C, Province of British Columbia (2026). *BC Aquifer
 Data Tools*. R package version 0.0.3.9000,
 <http://bcgov.github.io/bcaquiferdata/>.
 
@@ -26,6 +26,6 @@ Data Tools*. R package version 0.0.3.9000,
       title = {BC Aquifer Data Tools},
       author = {Steffi LaZerte and Christine Bieber and {Province of British Columbia}},
       url = {http://bcgov.github.io/bcaquiferdata/},
-      year = {2025},
+      year = {2026},
       note = {R package version 0.0.3.9000},
     }
