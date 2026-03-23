@@ -10,6 +10,7 @@
 ## Working with elevation data
 * Add option to merge Lidar and TRIM elevation data (#3)
 * Add option to use custom DEM file (#20)
+* Add option to export cropped DEM file (#24)
 
 ## Data Quality
 * Update flags - Categorize, rename and add new 

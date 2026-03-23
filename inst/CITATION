@@ -7,6 +7,6 @@ bibentry(
   url      = "http://bcgov.github.io/bcaquiferdata/",
 
   # To be updated as needed
-  year     = "2025",
+  year     = "2026",
   note     = paste("R package version", packageVersion("bcaquiferdata"))
 )

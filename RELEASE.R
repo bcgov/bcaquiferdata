@@ -39,6 +39,7 @@ source("data-raw/test_data.R")
 
 # Update citation information!
 citation("bcaquiferdata")
+file.edit("inst/CITATION")
 
 # Compile README ---------------------------------
 unlink("README_files", recursive = TRUE)
