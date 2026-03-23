@@ -468,7 +468,18 @@ server_wells <- function(id, have_data) {
     )
 
     # Outputs
-    wells
+    list(
+      wells = wells,
+      watershed = watershed,
+      dem = reactive({
+        if (!is.null(dem2())) {
+          list(dem1(), dem2()) %>%
+            rlang::set_names(c(dem_source1(), dem_source2()))
+        } else {
+          list(dem1()) %>% rlang::set_names(dem_source1())
+        }
+      })
+    )
   })
 }
 

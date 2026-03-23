@@ -49,10 +49,11 @@ aq_app <- function() {
   server <- function(input, output, session) {
     have_data <- server_data("data")
     wells <- server_wells("wells", have_data)
+
     #wells <- reactive(readr::read_rds("misc/mills.rds"))
-    server_lithology("lithology", wells)
-    server_hydrostratigraphy("hydrostratigraphy", wells)
-    server_flags("flags", wells)
+    server_lithology("lithology", wells[["wells"]])
+    server_hydrostratigraphy("hydrostratigraphy", wells[["wells"]])
+    server_flags("flags", wells[["wells"]])
     server_export_data("export_data", wells)
   }
 
