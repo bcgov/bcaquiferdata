@@ -24,3 +24,6 @@
 ^Meta$
 ^\.vscode$
 ^[.]?air[.]toml$
+^log_duplicate_records
+^SCRATCH.R$
+^NOTES.md$

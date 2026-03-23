@@ -117,8 +117,8 @@ lith_duplicates <- function(lith) {
     message(
       "Omitting duplicate lithology records for ",
       length(dups_tags),
-      " wells.\nSee ",
-      lf,
+      " wells.\n  See ",
+      normalizePath(lf),
       " for the list of wells."
     )
 
