@@ -5,7 +5,7 @@ Export wells data for use in Strater and Voxler
 ## Usage
 
 ``` r
-wells_export(wells_sub, id, type, dir = ".", preview = FALSE)
+wells_export(wells_sub, id, type, dir = ".", zip = FALSE, preview = FALSE)
 ```
 
 ## Arguments
@@ -29,6 +29,10 @@ wells_export(wells_sub, id, type, dir = ".", preview = FALSE)
   Character. Directory where files should be exported to. Defaults to
   working directory.
 
+- zip:
+
+  Logical. Whether to export a zip archive of the files to `dir`.
+
 - preview:
 
   Logical. Whether to preview the exports (`TRUE`, return a list of data
@@ -37,8 +41,9 @@ wells_export(wells_sub, id, type, dir = ".", preview = FALSE)
 
 ## Value
 
-If `preview = FALSE`, a vector of file names, if `preview = TRUE`, a
-list of data frames.
+If `preview = FALSE`, a vector of file names (or if `zip = TRUE`, a
+single filename of the zipped archive); if `preview = TRUE`, a list of
+data frames.
 
 ## Examples
 
@@ -67,14 +72,17 @@ p[["strater_collars"]]
 p[["strater_wells"]]
 
 # Export data for Strater
-wells_export(creek_wells, id = "clinton", type = "strater")
+wells_export(creek_wells, id = "clinton", type = "strater", zip = TRUE)
+
+# Export data for Voxler
+wells_export(creek_wells, id = "clinton", type = "voxler", zip = TRUE)
 
 # Export Arc Hydro
-wells_export(creek_wells, id = "clinton", type = "archydro")
+wells_export(creek_wells, id = "clinton", type = "archydro", zip = TRUE)
 
 # Export Surver
-wells_export(creek_wells, id = "clinton", type = "surfer")
+wells_export(creek_wells, id = "clinton", type = "surfer", zip = TRUE)
 
-wells_export(creek_wells, id = "clinton", type = "leapfrog")
+wells_export(creek_wells, id = "clinton", type = "leapfrog", zip = TRUE)
 }
 ```
