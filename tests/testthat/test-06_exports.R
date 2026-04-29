@@ -12,7 +12,10 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-test_that("wells_export() Strater", {
+# Clean up
+unlink(list.files(tempdir()))
+
+test_that("wells_export() Strater - preview", {
   # Preview data
   expect_silent(
     p <- wells_export(
@@ -22,11 +25,11 @@ test_that("wells_export() Strater", {
       preview = TRUE
     )
   )
-  expect_named(p, c("strater_lith", "strater_collars", "strater_wells"))
+  expect_named(p, c("strater_lith", "strater_collars", "strater_wls"))
 
   expect_s3_class(p[["strater_lith"]], "data.frame")
   expect_s3_class(p[["strater_collars"]], "data.frame")
-  expect_s3_class(p[["strater_wells"]], "data.frame")
+  expect_s3_class(p[["strater_wls"]], "data.frame")
 
   expect_named(
     p[["strater_lith"]],
@@ -45,8 +48,11 @@ test_that("wells_export() Strater", {
     )
   )
 
-  expect_named(p[["strater_wells"]], c("well_tag_number", "water_depth_m"))
+  expect_named(p[["strater_wls"]], c("well_tag_number", "water_depth_m"))
+  expect_snapshot_value(p, style = "json2")
+})
 
+test_that("wells_export() Strater - save", {
   # Save data
   expect_message(
     wells_export(
@@ -55,7 +61,7 @@ test_that("wells_export() Strater", {
       type = "strater",
       dir = test_path()
     ),
-    "Writing Strater files"
+    "Writing Strater file\\(s\\)"
   )
   expect_equal(
     list.files(test_path(), "strater"),
@@ -66,13 +72,32 @@ test_that("wells_export() Strater", {
     )
   )
 
-  expect_snapshot_value(p, style = "json2")
+  unlink(list.files(test_path(), "^mill_strater", full.names = TRUE))
+})
+
+test_that("wells_export() Strater - zip", {
+  # Save data
+  expect_message(
+    f <- wells_export(
+      wells_eg_fixed,
+      id = "mill",
+      type = "strater",
+      dir = test_path(),
+      zip = TRUE
+    ),
+    "Writing Strater file\\(s\\)"
+  ) |>
+    expect_message("Zipping files...") |>
+    suppressMessages()
+
+  expect_true(file.exists(f))
+  expect_equal(list.files(test_path(), "strater"), "mill_strater.zip")
 
   unlink(list.files(test_path(), "^mill_strater", full.names = TRUE))
 })
 
 
-test_that("wells_export() Voxler", {
+test_that("wells_export() Voxler - preview", {
   # Preview data
   expect_silent(
     p <- wells_export(
@@ -96,7 +121,10 @@ test_that("wells_export() Voxler", {
       "Component"
     )
   )
+  expect_snapshot_value(p, style = "json2")
+})
 
+test_that("wells_export() Voxler - save", {
   # Save data
   expect_message(
     wells_export(
@@ -109,12 +137,30 @@ test_that("wells_export() Voxler", {
   )
   expect_equal(list.files(test_path(), "voxler"), "mill_voxler.csv")
 
-  expect_snapshot_value(p, style = "json2")
+  unlink(list.files(test_path(), "^mill_voxler", full.names = TRUE))
+})
+
+test_that("wells_export() Voxler - zip", {
+  # Save data
+  expect_message(
+    f <- wells_export(
+      wells_eg_fixed,
+      id = "mill",
+      type = "voxler",
+      dir = test_path(),
+      zip = TRUE
+    ),
+    "Writing Voxler file\\(s\\)"
+  ) |>
+    expect_message("Skipping zip for single Voxler file")
+
+  expect_true(file.exists(f))
+  expect_equal(list.files(test_path(), "voxler"), "mill_voxler.csv")
 
   unlink(list.files(test_path(), "^mill_voxler", full.names = TRUE))
 })
 
-test_that("wells_export() ArcHydro", {
+test_that("wells_export() ArcHydro - preview", {
   # Preview data
   expect_silent(
     p <- wells_export(
@@ -155,7 +201,11 @@ test_that("wells_export() ArcHydro", {
       "OriginalLithology"
     )
   )
+  expect_snapshot_value(p, style = "json2")
+})
 
+
+test_that("wells_export() ArcHydro - save", {
   # Save data
   expect_message(
     wells_export(
@@ -164,7 +214,7 @@ test_that("wells_export() ArcHydro", {
       type = "archydro",
       dir = test_path()
     ),
-    "Writing ArcHydro files"
+    "Writing ArcHydro file\\(s\\)"
   )
   expect_equal(
     list.files(test_path(), "archydro"),
@@ -175,12 +225,33 @@ test_that("wells_export() ArcHydro", {
     )
   )
 
-  expect_snapshot_value(p, style = "json2")
+  unlink(list.files(test_path(), "^mill_archydro", full.names = TRUE))
+})
+
+
+test_that("wells_export() ArcHydro - zip", {
+  # Save data
+  expect_message(
+    f <- wells_export(
+      wells_eg_fixed,
+      id = "mill",
+      type = "archydro",
+      dir = test_path(),
+      zip = TRUE
+    ),
+    "Writing ArcHydro file\\(s\\)"
+  ) |>
+    expect_message("Zipping files...") |>
+    suppressMessages()
+
+  expect_true(file.exists(f))
+  expect_equal(list.files(test_path(), "archydro"), "mill_archydro.zip")
 
   unlink(list.files(test_path(), "^mill_archydro", full.names = TRUE))
 })
 
-test_that("wells_export() Leapfrog", {
+
+test_that("wells_export() Leapfrog - preview", {
   # Preview data
   expect_message(
     p <- wells_export(
@@ -215,22 +286,6 @@ test_that("wells_export() Leapfrog", {
     c("Hole ID", "From", "To", "Lithology", "Lithology Raw")
   )
 
-  # Save data
-  expect_message(
-    wells_export(
-      wells_eg_fixed,
-      id = "mill",
-      type = "leapfrog",
-      dir = test_path()
-    ),
-    "Writing Leapfrog files"
-  ) %>%
-    suppressMessages()
-  expect_equal(
-    list.files(test_path(), "leapfrog"),
-    c("mill_leapfrog_collars.csv", "mill_leapfrog_intervals.csv")
-  )
-
   # Force fix if not fixed
   expect_message(
     p2 <- wells_export(
@@ -246,6 +301,46 @@ test_that("wells_export() Leapfrog", {
   expect_equal(p, p2)
 
   expect_snapshot_value(p, style = "json2")
+})
+
+test_that("wells_export() Leapfrog - save", {
+  # Save data
+  expect_message(
+    wells_export(
+      wells_eg_fixed,
+      id = "mill",
+      type = "leapfrog",
+      dir = test_path()
+    ),
+    "Writing Leapfrog file\\(s\\)"
+  ) %>%
+    suppressMessages()
+  expect_equal(
+    list.files(test_path(), "leapfrog"),
+    c("mill_leapfrog_collars.csv", "mill_leapfrog_intervals.csv")
+  )
+
+  unlink(list.files(test_path(), "^mill_leapfrog", full.names = TRUE))
+})
+
+
+test_that("wells_export() Leapfrog - zip", {
+  # Save data
+  expect_message(
+    f <- wells_export(
+      wells_eg_fixed,
+      id = "mill",
+      type = "leapfrog",
+      dir = test_path(),
+      zip = TRUE
+    ),
+    "Writing Leapfrog file\\(s\\)"
+  ) |>
+    expect_message("Zipping files...") |>
+    suppressMessages()
+
+  expect_true(file.exists(f))
+  expect_equal(list.files(test_path(), "leapfrog"), "mill_leapfrog.zip")
 
   unlink(list.files(test_path(), "^mill_leapfrog", full.names = TRUE))
 })
@@ -283,7 +378,7 @@ test_that("wells_export() Leapfrog duplicates Koksilha", {
   )
 })
 
-test_that("wells_export() Surfer", {
+test_that("wells_export() Surfer - preview", {
   # Preview data
   expect_silent(
     p <- wells_export(
@@ -301,7 +396,10 @@ test_that("wells_export() Surfer", {
     p[["surfer"]],
     c("well_tag_number", "X", "Y", "bedrock_depth_m", "water_depth_m")
   )
+  expect_snapshot_value(p, style = "json2")
+})
 
+test_that("wells_export() Surfer - save", {
   # Save data
   expect_message(
     wells_export(
@@ -310,11 +408,30 @@ test_that("wells_export() Surfer", {
       type = "surfer",
       dir = test_path()
     ),
-    "Writing Surfer file"
+    "Writing Surfer file\\(s\\)"
   )
   expect_equal(list.files(test_path(), "surfer"), "mill_surfer.csv")
 
-  expect_snapshot_value(p, style = "json2")
+  unlink(list.files(test_path(), "^mill_surfer", full.names = TRUE))
+})
+
+
+test_that("wells_export() Surfer - zip", {
+  # Save data
+  expect_message(
+    f <- wells_export(
+      wells_eg_fixed,
+      id = "mill",
+      type = "surfer",
+      dir = test_path(),
+      zip = TRUE
+    ),
+    "Writing Surfer file\\(s\\)"
+  ) |>
+    expect_message("Skipping zip for single Surfer file")
+
+  expect_true(file.exists(f))
+  expect_equal(list.files(test_path(), "surfer"), "mill_surfer.csv")
 
   unlink(list.files(test_path(), "^mill_surfer", full.names = TRUE))
 })

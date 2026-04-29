@@ -1,4 +1,4 @@
-# wells_export() Strater
+# wells_export() Strater - preview
 
     {
       "type": "list",
@@ -6,7 +6,7 @@
         "names": {
           "type": "character",
           "attributes": {},
-          "value": ["strater_lith", "strater_collars", "strater_wells"]
+          "value": ["strater_lith", "strater_collars", "strater_wls"]
         }
       },
       "value": [
@@ -144,7 +144,7 @@
       ]
     }
 
-# wells_export() Voxler
+# wells_export() Voxler - preview
 
     {
       "type": "list",
@@ -206,7 +206,7 @@
       ]
     }
 
-# wells_export() ArcHydro
+# wells_export() ArcHydro - preview
 
     {
       "type": "list",
@@ -387,7 +387,7 @@
       ]
     }
 
-# wells_export() Leapfrog
+# wells_export() Leapfrog - preview
 
     {
       "type": "list",
@@ -511,7 +511,7 @@
       ]
     }
 
-# wells_export() Surfer
+# wells_export() Surfer - preview
 
     {
       "type": "list",
