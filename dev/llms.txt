@@ -38,12 +38,14 @@ documentation.
 4.  **Install pak** In the console type the following and hit enter
 
     ``` r
+
     install.packages("pak", dependencies = TRUE)
     ```
 
 5.  **Check that your system is ready** Install build tools if prompted
 
     ``` r
+
     pkgbuild::check_build_tools()
     ```
 
@@ -51,6 +53,7 @@ documentation.
     enter (be sure to install all updates if prompted!)
 
     ``` r
+
     pak::pkg_install("bcgov/bcaquiferdata")
     ```
 
@@ -60,6 +63,7 @@ If you’re interested in testing out the developmental version of the
 package, you can install it with
 
 ``` r
+
 pak::pkg_install("bcgov/bcaquiferdata@dev")
 ```
 
@@ -69,6 +73,7 @@ If you run into errors right at the start, try **updating all packages
 required by bcaquiferdata**
 
 ``` r
+
 pak::pkg_install("bcgov/bcaquiferdata", upgrade = TRUE)
 ```
 
@@ -78,6 +83,7 @@ To lauch the Shiny User-Interface, type this line into the R console at
 the prompt (in the screen with `>`) and hit ‘Enter’.
 
 ``` r
+
 bcaquiferdata::aq_app() # Launch the app
 ```
 

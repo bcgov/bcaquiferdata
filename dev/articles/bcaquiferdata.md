@@ -12,6 +12,7 @@ In the R console type the following, hitting enter after the line. This
 will launch the Shiny App.
 
 ``` r
+
 bcaquiferdata::aq_app()
 ```
 

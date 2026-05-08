@@ -28,6 +28,7 @@ it works and for troubleshooting.
 ## Examples
 
 ``` r
+
 lith_fix("sandy gravel")
 #> # A tibble: 1 × 11
 #>   lithology_raw_combined lithology_clean lith_primary lith_secondary
