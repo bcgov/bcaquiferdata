@@ -78,22 +78,13 @@ ui_export_data <- function(id) {
           h4(aq_tt("File ID", "Prefix for the files to be exported")),
           value = "xxx"
         ),
-        p(),
-        h4(aq_tt("Output folder", "Where should the exported files be saved?")),
-        textOutput(ns("export_dir")),
-        p(),
-        shinyDirButton(
-          ns("choose_export_dir"),
-          "Choose output folder",
-          "Choose where to save files"
-        ),
         uiOutput(ns("fixes"), inline = TRUE)
       ),
 
       # UI - Strater -------------
       nav_panel(
         title = "Strater",
-        actionButton(ns("export_strater"), "Export", width = 150),
+        downloadButton(ns("export_strater"), "Export", width = 150),
         textOutput(ns("feedback_strater")),
         navset_card_tab(
           nav_panel(
@@ -128,7 +119,7 @@ ui_export_data <- function(id) {
       # UI - Voxler -------------
       nav_panel(
         title = "Voxler",
-        actionButton(ns("export_voxler"), "Export", width = 150),
+        downloadButton(ns("export_voxler"), "Export", width = 150),
         textOutput(ns("feedback_voxler")),
 
         h3("Voxler file (", textOutput(ns("voxler_f1"), container = code), ")"),
@@ -138,7 +129,7 @@ ui_export_data <- function(id) {
       # UI - ArcHydro -------------
       nav_panel(
         title = "ArcHydro",
-        actionButton(ns("export_archydro"), "Export", width = 150),
+        downloadButton(ns("export_archydro"), "Export", width = 150),
         textOutput(ns("feedback_archydro")),
         navset_card_tab(
           nav_panel(
@@ -173,7 +164,7 @@ ui_export_data <- function(id) {
       # UI - Leapfrog -------------
       nav_panel(
         title = "Leapfrog",
-        actionButton(ns("export_leapfrog"), "Export", width = 150),
+        downloadButton(ns("export_leapfrog"), "Export", width = 150),
         textOutput(ns("feedback_leapfrog")),
         navset_card_tab(
           nav_panel(
@@ -199,7 +190,7 @@ ui_export_data <- function(id) {
       # UI - Surfer -------------
       nav_panel(
         title = "Surfer",
-        actionButton(ns("export_surfer"), "Export", width = 150),
+        downloadButton(ns("export_surfer"), "Export", width = 150),
         textOutput(ns("feedback_surfer")),
 
         h3("Surfer file (", textOutput(ns("surfer_f1"), container = code), ")"),
@@ -221,51 +212,8 @@ server_export_data <- function(id, wells_list) {
     rlang::env_bind(rlang::current_env(), !!!wells_list)
     ns <- session$ns
 
-    # ShinyFiles -------------
-    # VPN fix adapted from ccviR: https://github.com/LandSciTech/ccviR
-
-    timeout <- R.utils::withTimeout(
-      {
-        volumes <- c(
-          `Working Directory` = fs::path_wd(),
-          Home = fs::path_home(),
-          `All Drives` = shinyFiles::getVolumes()()
-        )
-      },
-      timeout = 200,
-      onTimeout = "silent"
-    )
-
-    if (is.null(timeout)) {
-      stop(
-        "Unable to find drives",
-        "This can occur if a VPN was in use but disconnected.",
-        "To fix, either reconnect to the VPN or restart without connecting",
-        call. = FALSE
-      )
-    }
-
-    shinyDirChoose(
-      input,
-      "choose_export_dir",
-      session = session,
-      roots = volumes
-    )
-
     # Setup Directory ------------------
     export_id <- reactive(janitor::make_clean_names(input$export_id))
-
-    export_dir <- reactive({
-      if (is.integer(input$choose_export_dir)) {
-        NA_character_
-      } else {
-        parseDirPath(volumes, input$choose_export_dir)
-      }
-    })
-
-    output$export_dir <- renderText({
-      if (is.na(export_dir())) "No output directory selected" else export_dir()
-    })
 
     # Spatial UI ------------------------------------
     output$ui_dem <- renderUI({
@@ -312,32 +260,50 @@ server_export_data <- function(id, wells_list) {
       bindEvent(wells())
 
     # Functions
-    observe_export <- function(type) {
-      observe({
-        req(!is.na(export_dir()))
-        wells_export(wells(), id = export_id(), type = type, dir = export_dir())
-        f <- feedback()
-        f[[type]] <- paste(
-          stringr::str_to_title(type),
-          "files exported"
-        )
-        feedback(f)
-      }) %>%
-        bindEvent(input[[paste0("export_", type)]], ignoreInit = TRUE)
+    download_export <- function(
+      type,
+      ext = dplyr::if_else(type %in% c("voxler", "surfer"), "csv", "zip")
+    ) {
+      downloadHandler(
+        filename = \(x) paste0(export_id(), "_", type, ".", ext),
+        content = \(file) {
+          id <- showNotification(
+            tagList(
+              "Preparing export, this may take a moment...",
+              br(),
+              span(
+                "Message will disappear when your export is ready",
+                style = "font-size:80%;"
+              )
+            ),
+            type = "message",
+            duration = NULL,
+            closeButton = FALSE
+          )
+
+          Sys.setenv("bcaquiferdata_shiny_export_path" = file)
+          export_zip_file <- wells_export(
+            wells(),
+            id = export_id(),
+            type = type,
+            dir = tempdir(),
+            zip = TRUE
+          )
+          f <- feedback()
+          f[[type]] <- paste(
+            stringr::str_to_title(type),
+            "files exported"
+          )
+          feedback(f)
+          removeNotification(id)
+
+          Sys.unsetenv("bcaquiferdata_shiny_export_path")
+        }
+      )
     }
 
     feedback_output <- function(type) {
-      req(!is.null(volumes))
       renderText({
-        validate(need(
-          export_dir() != "No output directory selected",
-          "Please choose an output directory"
-        ))
-        validate(need(
-          dir.exists(export_dir()),
-          "The choose output directory does not exist, please
-                    choose another one"
-        ))
         feedback()[[type]]
       })
     }
@@ -531,18 +497,18 @@ server_export_data <- function(id, wells_list) {
     # Export files ---------------------
     ## Wells ------------------------
     output$feedback_strater <- feedback_output("strater")
-    observe_export("strater")
+    output$export_strater <- download_export("strater")
 
     output$feedback_voxler <- feedback_output("voxler")
-    observe_export("voxler")
+    output$export_voxler <- download_export("voxler")
 
     output$feedback_archydro <- feedback_output("archydro")
-    observe_export("archydro")
+    output$export_archydro <- download_export("archydro")
 
     output$feedback_leapfrog <- feedback_output("leapfrog")
-    observe_export("leapfrog")
+    output$export_leapfrog <- download_export("leapfrog")
 
     output$feedback_surfer <- feedback_output("surfer")
-    observe_export("surfer")
+    output$export_surfer <- download_export("surfer")
   })
 }

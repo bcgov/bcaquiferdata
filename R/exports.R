@@ -355,9 +355,21 @@ exp_save <- function(type, dfs, id, dir, zip) {
   }
 
   if (zip) {
+    # Override for Shiny Downloads - write to where Shiny wants it
+    shiny_dl <- Sys.getenv("bcaquiferdata_shiny_export_path")
+    if (shiny_dl != "") {
+      fzip <- shiny_dl
+    }
+
     if (length(f) == 1) {
       message("Skipping zip for single ", type, " file")
-      return(f)
+      if (shiny_dl != "") {
+        # Write the single csv to temp file to accessible by Shiny downloads
+        readr::write_csv(dfs[[1]], fzip)
+        return(fzip)
+      } else {
+        return(f)
+      }
     }
 
     message("Zipping files...")
