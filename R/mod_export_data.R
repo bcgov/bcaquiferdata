@@ -84,8 +84,7 @@ ui_export_data <- function(id) {
       # UI - Strater -------------
       nav_panel(
         title = "Strater",
-        downloadButton(ns("export_strater"), "Export", width = 150),
-        textOutput(ns("feedback_strater")),
+        export_download_btn("strater", ns),
         navset_card_tab(
           nav_panel(
             title = h5(
@@ -119,9 +118,7 @@ ui_export_data <- function(id) {
       # UI - Voxler -------------
       nav_panel(
         title = "Voxler",
-        downloadButton(ns("export_voxler"), "Export", width = 150),
-        textOutput(ns("feedback_voxler")),
-
+        export_download_btn("voxler", ns),
         h3("Voxler file (", textOutput(ns("voxler_f1"), container = code), ")"),
         aq_dt_output(ns("table_voxler_f1"))
       ),
@@ -129,8 +126,7 @@ ui_export_data <- function(id) {
       # UI - ArcHydro -------------
       nav_panel(
         title = "ArcHydro",
-        downloadButton(ns("export_archydro"), "Export", width = 150),
-        textOutput(ns("feedback_archydro")),
+        export_download_btn("archydro", ns),
         navset_card_tab(
           nav_panel(
             title = h5(
@@ -164,8 +160,7 @@ ui_export_data <- function(id) {
       # UI - Leapfrog -------------
       nav_panel(
         title = "Leapfrog",
-        downloadButton(ns("export_leapfrog"), "Export", width = 150),
-        textOutput(ns("feedback_leapfrog")),
+        export_download_btn("leapfrog", ns),
         navset_card_tab(
           nav_panel(
             title = h5(
@@ -190,9 +185,7 @@ ui_export_data <- function(id) {
       # UI - Surfer -------------
       nav_panel(
         title = "Surfer",
-        downloadButton(ns("export_surfer"), "Export", width = 150),
-        textOutput(ns("feedback_surfer")),
-
+        export_download_btn("surfer", ns),
         h3("Surfer file (", textOutput(ns("surfer_f1"), container = code), ")"),
         aq_dt_output(ns("table_surfer_f1"))
       ),
@@ -511,4 +504,22 @@ server_export_data <- function(id, wells_list) {
     output$feedback_surfer <- feedback_output("surfer")
     output$export_surfer <- download_export("surfer")
   })
+}
+
+
+export_download_btn <- function(type, ns) {
+  layout_column_wrap(
+    fill = FALSE,
+    style = css(grid_template_columns = "1fr 9fr"),
+    fixed_width = TRUE,
+    downloadButton(
+      ns(paste0("export_", type)),
+      "Export",
+      class = "btn-primary"
+    ),
+    div(
+      textOutput(ns(paste0("feedback_", type))),
+      style = "margin-top:auto; margin-bottom:auto;"
+    )
+  )
 }
