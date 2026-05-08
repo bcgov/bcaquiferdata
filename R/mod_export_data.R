@@ -269,17 +269,21 @@ server_export_data <- function(id, wells_list) {
 
     # Spatial UI ------------------------------------
     output$ui_dem <- renderUI({
-      btns <- purrr::map(names(dem()), \(s) {
-        actionButton(
-          ns(paste0("export_dem_", s)),
-          paste("Export", stringr::str_to_title(s), "DEM"),
-          width = 200
+      btns <- p(
+        "Unfortunately DEM exports are unavailable in the Shiny app due to the ",
+        "constraints of file management in Shiny.",
+        br(
+          "See the ",
+          a(
+            "Workflows",
+            href = "https://bcgov.github.io/bcaquiferdata/articles/Workflow-examples.html",
+            .noWS = "outside"
+          ),
+          " documentation for details on how to export these files via R"
         )
-      })
-
+      )
       cols <- purrr::map(names(dem()), \(s) {
         card(
-          textOutput(ns(paste0("feedback_dem_", s))),
           h3(
             stringr::str_to_title(s),
             "DEM file (",
@@ -320,47 +324,6 @@ server_export_data <- function(id, wells_list) {
         feedback(f)
       }) %>%
         bindEvent(input[[paste0("export_", type)]], ignoreInit = TRUE)
-    }
-
-    observe_export_dem <- function(source) {
-      observe({
-        req(!is.na(export_dir()))
-        dem_file <- file.path(
-          export_dir(),
-          stringr::str_subset(files(), source)
-        )
-
-        id <- showNotification(
-          tagList(
-            paste("Saving", stringr::str_to_title(source), "DEM..."),
-            br(),
-            span("File: ", dem_file, style = "font-size:80%"),
-            br(),
-            span(
-              "This may take a few minutes, message will disappear when complete",
-              style = "font-size:80%"
-            )
-          ),
-          closeButton = FALSE,
-          duration = NULL
-        )
-
-        dem_region(
-          watershed(),
-          source = source,
-          overwrite = TRUE,
-          out_file = dem_file
-        )
-
-        removeNotification(id)
-        f <- feedback()
-        f[[paste0("dem_", source)]] <- paste(
-          stringr::str_to_title(source),
-          "DEM file exported"
-        )
-        feedback(f)
-      }) %>%
-        bindEvent(input[[paste0("export_dem_", source)]], ignoreInit = TRUE)
     }
 
     feedback_output <- function(type) {
@@ -581,11 +544,5 @@ server_export_data <- function(id, wells_list) {
 
     output$feedback_surfer <- feedback_output("surfer")
     observe_export("surfer")
-
-    output$feedback_dem_lidar <- feedback_output("dem_lidar")
-    observe_export_dem("lidar")
-
-    output$feedback_dem_trim <- feedback_output("dem_trim")
-    observe_export_dem("trim")
   })
 }
