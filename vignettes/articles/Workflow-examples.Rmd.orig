@@ -11,7 +11,6 @@ knitr::opts_chunk$set(
 
 creek_sf <- sf::st_read(here::here("misc/data/Clinton_Creek.shp"))
 mill_sf <- sf::st_read(here::here("misc/data/MillBayWatershed.shp"))
-
 ```
 
 This article presents a couple examples of general workflows in R alone
@@ -26,7 +25,7 @@ Pick that which works best for you!
 Let's work through a couple of examples (note these examples are presented for illustration, but 
 the shape files are not included in the package).
 
-### Setup
+## Setup
 ```{r packages, message = FALSE}
 library(bcaquiferdata)
 library(stars) # For working with raster
@@ -35,14 +34,16 @@ library(ggplot2) # For plotting
 library(ggspatial) # For plotting with map tiles
 ```
 
-### Example 1: Clinton Creek (Lidar)
+## Example 1: Clinton Creek (Lidar)
 
+### Load shapefile
 Load a shape file defining the region of interest
 ```{r}
 #| eval: false
 creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 ```
 
+### Add elevation
 Fetch Lidar DEM (this may take a while the first time)
 
 ```{r}
@@ -73,6 +74,7 @@ ggplot() +
   geom_sf(data = creek_wells, size = 1, aes(colour = elev))
 ```
 
+### Export
 Export data for Strater, Voxler, and ArcHydro
 ```{r}
 wells_export(creek_wells, id = "clinton", type = "strater")
@@ -95,7 +97,9 @@ is much faster.
 dem_region(creek_sf, out_file = "clinton_lidar_dem.tif")
 ```
 
-### Example 2: Mill Bay Watershed (TRIM)
+## Example 2: Mill Bay Watershed (TRIM)
+
+### Load shapefile
 
 Load a shape file defining the region of interest
 ```{r}
@@ -114,6 +118,7 @@ g <- ggplot() +
 g
 ```
 
+### Add elevation
 Fetch Lidar DEM (this may take a while the first time)
 
 ```{r}
@@ -167,7 +172,7 @@ g +
   scale_color_viridis_c(na.value = "red")
 ```
 
-
+### Export
 Export data for Strater, Voxler, and ArcHydro
 ```{r}
 wells_export(mill_wells, id = "mill", type = "strater")
@@ -190,14 +195,17 @@ is much faster.
 dem_region(mill_sf, out_file = "mill_trim_dem.tif")
 ```
 
-### Example 3: Koksilah Watershed (Combinations and Custom DEM)
+## Example 3: Koksilah Watershed (Combinations and Custom DEM)
 
+### Load shapefile
 Load a shape file defining the region of interest
 ```{r}
 #| eval: false
 koksilah_sf <- st_read("misc/data/Koksilah_watershed4/Koksilah_watershed4.shp")
 ```
 
+
+### Add elevation
 Fetch Lidar DEM (this may take a while the first time)
 
 ```{r}
@@ -294,7 +302,7 @@ ggplot() +
   geom_sf(data = koksilah_wells, size = 1, aes(colour = elev))
 ```
 
-
+### Export
 Export data for Strater, Voxler, and ArcHydro
 ```{r}
 wells_export(koksilah_wells, id = "koksilah", type = "strater")
@@ -322,7 +330,7 @@ dem_region(koksilah_sf, out_file = "koksilah_custom_dem.tif")
 ```
 
 
-#### Extra tools
+## Extra tools
 
 ```{r, message = FALSE}
 library(dplyr)
