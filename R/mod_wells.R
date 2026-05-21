@@ -52,14 +52,12 @@ ui_wells <- function(id) {
             "Lidar",
             span("TRIM", style = "margin-right:150px"),
             "Lidar with TRIM",
-            "TRIM with Lidar",
             "Custom DEM"
           ),
           choiceValues = c(
             "lidar",
             "trim",
             "lidar_trim",
-            "trim_lidar",
             "custom"
           ),
           selected = character(0)
