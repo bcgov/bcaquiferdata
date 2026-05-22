@@ -269,14 +269,17 @@ export_leapfrog <- function(wells_sub, id, dir, zip, preview) {
   # Collars File
   f1 <- wells_sub %>%
     dplyr::select(
-      "Aquifer ID" = "aquifer_id",
       "Hole ID" = "well_tag_number",
       "East (X)" = "X",
       "North (Y)" = "Y",
       "Elev (Z)" = "elev",
       "Max Depth (m)" = "well_depth_m",
+      # Extra fields
+      "Water Depth (m)" = "water_depth_m",
+      "Well Yield" = "well_yield_usgpm",
       "Artesian Conditions" = "artesian_conditions",
-      "Artesian Pressure (Head Ft AGL)" = "artesian_pressure_head_ft_agl"
+      "Artesian Pressure (Head Ft AGL)" = "artesian_pressure_head_ft_agl",
+      "Aquifer ID" = "aquifer_id"
     ) %>%
     dplyr::distinct()
 

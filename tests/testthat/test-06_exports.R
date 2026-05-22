@@ -270,14 +270,16 @@ test_that("wells_export() Leapfrog - preview", {
   expect_named(
     p[["leapfrog_collars"]],
     c(
-      "Aquifer ID",
       "Hole ID",
       "East (X)",
       "North (Y)",
       "Elev (Z)",
       "Max Depth (m)",
+      "Water Depth (m)",
+      "Well Yield",
       "Artesian Conditions",
-      "Artesian Pressure (Head Ft AGL)"
+      "Artesian Pressure (Head Ft AGL)",
+      "Aquifer ID"
     )
   )
 

@@ -405,7 +405,7 @@
             "names": {
               "type": "character",
               "attributes": {},
-              "value": ["Aquifer ID", "Hole ID", "East (X)", "North (Y)", "Elev (Z)", "Max Depth (m)", "Artesian Conditions", "Artesian Pressure (Head Ft AGL)"]
+              "value": ["Hole ID", "East (X)", "North (Y)", "Elev (Z)", "Max Depth (m)", "Water Depth (m)", "Well Yield", "Artesian Conditions", "Artesian Pressure (Head Ft AGL)", "Aquifer ID"]
             },
             "row.names": {
               "type": "integer",
@@ -419,11 +419,6 @@
             }
           },
           "value": [
-            {
-              "type": "double",
-              "attributes": {},
-              "value": [203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 206, 206, 206, 206, 206, 206, 1143, 1143, 1143, 1143, 1143, "NA", "NA"]
-            },
             {
               "type": "double",
               "attributes": {},
@@ -450,6 +445,16 @@
               "value": [121.92, 121.92, 155.53, 155.53, 155.53, 155.53, 155.53, 155.53, 190.5, 190.5, 190.5, 191.5, 94.57, 94.57, 94.57, 94.57, 94.57, 94.57, 19.2, 19.2, 19.2, 19.2, 19.2, 19.2, 35.66, 35.66, 35.66, 35.66, 35.66, 60.96, 60.96]
             },
             {
+              "type": "double",
+              "attributes": {},
+              "value": [3, 3, 2.7, 2.7, 2.7, 2.7, 2.7, 2.7, 1.8, 1.8, 1.8, 1.8, 13.1, 13.1, 13.1, 13.1, 13.1, 13.1, "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", 7.1, 7.1]
+            },
+            {
+              "type": "double",
+              "attributes": {},
+              "value": [10, 10, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 2, 2, 2, 2, 11, 11, 11, 11, 11, 11, "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", 8.5, 8.5]
+            },
+            {
               "type": "logical",
               "attributes": {},
               "value": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
@@ -458,6 +463,11 @@
               "type": "double",
               "attributes": {},
               "value": ["NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"]
+            },
+            {
+              "type": "double",
+              "attributes": {},
+              "value": [203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 203, 206, 206, 206, 206, 206, 206, 1143, 1143, 1143, 1143, 1143, "NA", "NA"]
             }
           ]
         },

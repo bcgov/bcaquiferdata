@@ -22,7 +22,7 @@
 ## Exports
 * Fix download buttons (#1)
 * ArcHydro exports coordinates in BC Albers projection (#8)
-* Add Aquifer ID, Artesian Conditions, and Artesian Pressure to leapfrog collars (#22)
+* Add Aquifer ID, Water Depth, Well Yield, Artesian Conditions, and Artesian Pressure to leapfrog collars (#22)
 * Add argument for exporting as zip archive (`zip = TRUE`)
 * In `preview = TRUE` Strater data names now match the file names
 
