@@ -27,23 +27,23 @@ aq_dt <- function(data, filename = NULL, minimal = FALSE) {
     ext <- "Buttons"
   }
 
-  data %>%
-    DT::datatable(
-      rownames = FALSE,
-      fillContainer = TRUE,
-      options = append(
-        list(pageLength = 14, scrollX = TRUE),
-        opts
-      ),
-      extensions = ext
-    )
+  DT::datatable(
+    data,
+    rownames = FALSE,
+    fillContainer = TRUE,
+    options = append(
+      list(pageLength = 14, scrollX = TRUE),
+      opts
+    ),
+    extensions = ext
+  )
 }
 
 aq_spinner <- function(ui_element) {
   as_fill_carrier(
     shinycssloaders::withSpinner(
       type = 8,
-      color.background = bs_get_variables(sdm_theme(), "primary"),
+      color.background = bs_get_variables(aq_theme(), "primary"),
       ui_element
     )
   )

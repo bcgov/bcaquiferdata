@@ -249,7 +249,7 @@ server_export_data <- function(id, wells_list) {
 
     observe({
       feedback(list())
-    }) %>%
+    }) |>
       bindEvent(wells())
 
     # Functions

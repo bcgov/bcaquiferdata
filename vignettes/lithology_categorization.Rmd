@@ -15,46 +15,67 @@ library(bcaquiferdata)
 knitr::opts_chunk$set(echo = FALSE)
 
 lith_tbl <- function(d, colour = TRUE) {
-  
   lith_int <- c("lith_primary", "lith_secondary", "lith_tertiary")
-  
+
   d <- d |>
     select(-"flag_cat_missing") |>
-    mutate(across(contains("flag_"), ~if_else(.x, "TRUE", ""))) |>
+    mutate(across(contains("flag_"), \(x) if_else(x, "TRUE", ""))) |>
     gt() |>
     tab_spanner(
-      label = md("**Intermediate Categories**<br><small>(`lith_primary`,`lith_secondary`,`lith_tertiary`)</small>"),
-      columns = starts_with("lith_")) |>
+      label = md(
+        "**Intermediate Categories**<br><small>(`lith_primary`,`lith_secondary`,`lith_tertiary`)</small>"
+      ),
+      columns = starts_with("lith_")
+    ) |>
     tab_spanner(
       label = md("**Flags**"),
-      columns = contains("flag")) |>
+      columns = contains("flag")
+    ) |>
     cols_width(
-      any_of(c("lith_primary", "lith_secondary", "lith_tertiary")) ~ pct(10)) |>
+      any_of(c("lith_primary", "lith_secondary", "lith_tertiary")) ~ pct(10)
+    ) |>
     cols_align(
       align = "center",
-      columns = any_of(c("lith_primary", "lith_secondary", "lith_tertiary"))) |>
+      columns = any_of(c("lith_primary", "lith_secondary", "lith_tertiary"))
+    ) |>
     cols_label(
-      lithology_raw_combined = md("**Starting Description**<br><small>(`lithology_raw_combined`)</small>"),
-      lithology_clean = md("**Cleaned Description**<br><small>(`lithology_clean`)</small>"),
+      lithology_raw_combined = md(
+        "**Starting Description**<br><small>(`lithology_raw_combined`)</small>"
+      ),
+      lithology_clean = md(
+        "**Cleaned Description**<br><small>(`lithology_clean`)</small>"
+      ),
       lith_primary = md("1°"),
       lith_secondary = md("2°"),
       lith_tertiary = md("3°"),
-      lithology_category = md("**Final Category**<br><small>(`lithology_category`)</small>"),
+      lithology_category = md(
+        "**Final Category**<br><small>(`lithology_category`)</small>"
+      ),
       flag_cat_bedrock = "bedrock",
-      flag_cat_boulders = "boulders") |>
-    cols_hide(columns = c("lithology_clean", "lithology_extra", "yield_units",
-                          "flag_cat_boulders", "flag_cat_bedrock"))
-  
-  if(colour) {
+      flag_cat_boulders = "boulders"
+    ) |>
+    cols_hide(
+      columns = c(
+        "lithology_clean",
+        "lithology_extra",
+        "yield_units",
+        "flag_cat_boulders",
+        "flag_cat_bedrock"
+      )
+    )
+
+  if (colour) {
     d <- d |>
       tab_style_body(
         style = cell_fill(color = "lightblue", alpha = 0.6),
         columns = any_of(c("lith_primary", "lith_secondary", "lith_tertiary")),
-        fn = \(x) TRUE) |>
+        fn = \(x) TRUE
+      ) |>
       tab_style_body(
         style = cell_fill(color = "lightgreen", alpha = 0.6),
         columns = any_of(c("lithology_category")),
-        fn = \(x) TRUE)
+        fn = \(x) TRUE
+      )
   }
   d
 }
@@ -77,11 +98,21 @@ of intermediate steps are retained in the final data set.
 Here is a full example of lithology data.
 
 ```{r}
-lith_fix(desc = c("gravl w/ sands", "bentonite", "sand and roots",
-                  "muddy sand", "reddish sand with pink gravel")) |>
+lith_fix(
+  desc = c(
+    "gravl w/ sands",
+    "bentonite",
+    "sand and roots",
+    "muddy sand",
+    "reddish sand with pink gravel"
+  )
+) |>
   select(-yield_units) |>
   gt() |>
-  tab_style(style = cell_text(weight = "bold"), location = cells_column_labels())
+  tab_style(
+    style = cell_text(weight = "bold"),
+    location = cells_column_labels()
+  )
 ```
 
 
@@ -100,18 +131,23 @@ The lithology data contains columns reflecting these steps.
 
 ```{r}
 tribble(
-  ~ Column, ~ Description, ~ Step,
-  "lithology_raw_combined", "Original lithology descriptions from GWELLS (combination of `lithology_raw_data`, `lithology_description_code` and `lithology_material_code`)", "Original Data",
-  "lithology_clean", "Cleaned lithology description", "1. Cleaning",
-  "lith_primary, lith_secondary, lith_tertiary", "Intermediate categories created from `lithology_clean`", "2. Initial categorizing",
-  "lithology_extra", "Extra, potentially important descriptors extracted from the lithology description", "3. Final categorizing",
-  "lithology_category", "Final categorized lithology", "3. Final categorizing",
-  "flag_cat_bedrock, flag_cat_boulders, flag_cat_missing", "Columns flagging a particular observation as problematic", "3. Final categorizing") |>
+  ~Column                                                 , ~Description                                                                                                                                    , ~Step                     ,
+  "lithology_raw_combined"                                , "Original lithology descriptions from GWELLS (combination of `lithology_raw_data`, `lithology_description_code` and `lithology_material_code`)" , "Original Data"           ,
+  "lithology_clean"                                       , "Cleaned lithology description"                                                                                                                 , "1. Cleaning"             ,
+  "lith_primary, lith_secondary, lith_tertiary"           , "Intermediate categories created from `lithology_clean`"                                                                                        , "2. Initial categorizing" ,
+  "lithology_extra"                                       , "Extra, potentially important descriptors extracted from the lithology description"                                                             , "3. Final categorizing"   ,
+  "lithology_category"                                    , "Final categorized lithology"                                                                                                                   , "3. Final categorizing"   ,
+  "flag_cat_bedrock, flag_cat_boulders, flag_cat_missing" , "Columns flagging a particular observation as problematic"                                                                                      , "3. Final categorizing"
+) |>
   gt() |>
   tab_style(
     style = cell_text(font = system_fonts(name = "monospace-code")),
-    locations = cells_body(columns = "Column")) |>
-  tab_style(style = cell_text(weight = "bold"), location = cells_column_labels()) |>
+    locations = cells_body(columns = "Column")
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    location = cells_column_labels()
+  ) |>
   fmt_markdown(columns = 1:2)
 ```
 
@@ -123,8 +159,15 @@ tribble(
 
 For example...
 ```{r}
-lith_fix(desc = c("gravl w/ sands", "bentonite", "sand and roots",
-                  "muddy sand", "reddish sand with pink gravel")) |>
+lith_fix(
+  desc = c(
+    "gravl w/ sands",
+    "bentonite",
+    "sand and roots",
+    "muddy sand",
+    "reddish sand with pink gravel"
+  )
+) |>
   lith_tbl(colour = FALSE) |>
   cols_unhide("lithology_clean") |>
   cols_hide(columns = matches("cat|lith_"))
@@ -150,12 +193,16 @@ Create *primary*, *secondary* and *tertiary* categories from important terms
 - sandy, silty, clayey, tilly, bouldery
 
 ```{r, echo = FALSE}
-lith_fix(desc = c("sand", "sand with silt", "silty sand", "sand with silty clay")) |>
+lith_fix(
+  desc = c("sand", "sand with silt", "silty sand", "sand with silty clay")
+) |>
   lith_tbl() |>
   cols_hide(columns = matches("category")) |>
-  tab_source_note(source_note = md(
-    "**Note**: There can be multiple terms per category."
-  ))
+  tab_source_note(
+    source_note = md(
+      "**Note**: There can be multiple terms per category."
+    )
+  )
 ```
 
 
@@ -167,7 +214,9 @@ a set of rules
 For example...
 
 ```{r, echo = FALSE}
-lith_fix(desc = c("sand", "sand with silt", "silty sand", "sand with silty clay")) |>
+lith_fix(
+  desc = c("sand", "sand with silt", "silty sand", "sand with silty clay")
+) |>
   lith_tbl()
 ```
 
@@ -193,12 +242,14 @@ primary, secondary, and tertiary categories.
 > **Any** category is `fractured`, `weathered`, or `faulted`
 
 ```{r}
-lith_fix(desc = c("fractured bedrock", 
-                  "fractured",
-                  "fractured bedrock and sand")) |>
+lith_fix(
+  desc = c("fractured bedrock", "fractured", "fractured bedrock and sand")
+) |>
   lith_tbl() |>
   cols_unhide(contains("flag")) |>
-  tab_source_note(md("**Flags**: Flagged if present with any other **primary** categories except bedrock"))
+  tab_source_note(md(
+    "**Flags**: Flagged if present with any other **primary** categories except bedrock"
+  ))
 ```
 
 
@@ -209,13 +260,19 @@ lith_fix(desc = c("fractured bedrock",
 
 
 ```{r}
-lith_fix(desc = c("bedrock",
-                  "sand with bedrock",  # Flag
-                  "sandy bedrock",      # No flag
-                  "sand & bedrock")) |> # Flag
+lith_fix(
+  desc = c(
+    "bedrock",
+    "sand with bedrock", # Flag
+    "sandy bedrock", # No flag
+    "sand & bedrock"
+  )
+) |> # Flag
   lith_tbl() |>
   cols_unhide(contains("flag")) |>
-  tab_source_note(md("**Flags**: Flagged if present with any other **primary** categories"))
+  tab_source_note(md(
+    "**Flags**: Flagged if present with any other **primary** categories"
+  ))
 ```
 
 ## Boulders
@@ -223,21 +280,29 @@ lith_fix(desc = c("bedrock",
 > **Any** category is `boulders`
 
 ```{r}
-lith_fix(desc = c("boulders",            # No flag
-                  "sand with boulders",  # Flag
-                  "sandy boulders",      # No flag
-                  "sand & boulders",     # Flag
-                  "bouldery",            # No flag
-                  "bouldery sand",       # Flag
-                  "hardpan, gravel, boulders"))  |>  # Flag
+lith_fix(
+  desc = c(
+    "boulders", # No flag
+    "sand with boulders", # Flag
+    "sandy boulders", # No flag
+    "sand & boulders", # Flag
+    "bouldery", # No flag
+    "bouldery sand", # Flag
+    "hardpan, gravel, boulders"
+  )
+) |> # Flag
   lith_tbl() |>
   cols_unhide(contains("flag")) |>
   tab_source_note(
     md(paste0(
       "**Flags**: Flagged if present with any other **primary** categories<br>",
-      "**Extra**: Noted in 'Extra' column (`lithology_extra`) if present in any category"))) |>
-  tab_footnote(footnote = "Example of similar terms but different category",
-               locations = cells_body(columns = 1, rows = last_col()))
+      "**Extra**: Noted in 'Extra' column (`lithology_extra`) if present in any category"
+    ))
+  ) |>
+  tab_footnote(
+    footnote = "Example of similar terms but different category",
+    locations = cells_body(columns = 1, rows = last_col())
+  )
 ```
 
 ## Organics
@@ -245,13 +310,15 @@ lith_fix(desc = c("boulders",            # No flag
 > **Primary** is `organic`
 
 ```{r}
-lith_fix(desc = c("organic",
-                  "organic with sand",
-                  "sandy organic",
-                  "organic and sand")) |>
+lith_fix(
+  desc = c("organic", "organic with sand", "sandy organic", "organic and sand")
+) |>
   lith_tbl() |>
   tab_source_note(
-    md("**Extra**: Noted in 'Extra' column (`lithology_extra`) if present in any category"))
+    md(
+      "**Extra**: Noted in 'Extra' column (`lithology_extra`) if present in any category"
+    )
+  )
 ```
 
 ## Gravel, Sand, Clay, or Silt
@@ -260,7 +327,9 @@ lith_fix(desc = c("organic",
 > **No Secondary/Tertiary**  <small>(*Except `silty clay` and `clay with silt`*)</small>
 
 ```{r}
-lith_fix(desc = c("gravel", "sand", "clay", "silt", "silty clay", "clay with silt")) |>
+lith_fix(
+  desc = c("gravel", "sand", "clay", "silt", "silty clay", "clay with silt")
+) |>
   lith_tbl()
 ```
 
@@ -270,11 +339,15 @@ lith_fix(desc = c("gravel", "sand", "clay", "silt", "silty clay", "clay with sil
 > **Secondary/Tertiary** are `sand` or `gravel`
 
 ```{r}
-lith_fix(desc = c("silt with sand",
-                  "silt with gravel",
-                  "sandy silt", 
-                  "gravely silt", 
-                  "gravely silt with sand")) |>
+lith_fix(
+  desc = c(
+    "silt with sand",
+    "silt with gravel",
+    "sandy silt",
+    "gravely silt",
+    "gravely silt with sand"
+  )
+) |>
   lith_tbl()
 ```
 
@@ -283,13 +356,20 @@ lith_fix(desc = c("silt with sand",
 > **Both (and only)** `sand` and `gravel` are both present in **any** category
 
 ```{r}
-lith_fix(desc = c("sand & gravel", "gravel & sand", "sand, gravel", 
-                  "sandy with gravel",
-                  "sand & gravel & silt"
-                  )) |>
+lith_fix(
+  desc = c(
+    "sand & gravel",
+    "gravel & sand",
+    "sand, gravel",
+    "sandy with gravel",
+    "sand & gravel & silt"
+  )
+) |>
   lith_tbl() |>
-  tab_footnote(footnote = "Example of similar terms but different category",
-               locations = cells_body(columns = 1, rows = last_col()))
+  tab_footnote(
+    footnote = "Example of similar terms but different category",
+    locations = cells_body(columns = 1, rows = last_col())
+  )
 ```
 
 ## Sand and Gravel (Dirty)
@@ -300,13 +380,21 @@ lith_fix(desc = c("sand & gravel", "gravel & sand", "sand, gravel",
 
 
 ```{r}
-lith_fix(desc = c("gravel & sand with silt", "gravel & sand with clay", 
-                  "silty gravel & sand ", "clayey gravel & sand ", 
-                  "gravel & sand & silt", "gravel & sand & clay",
-                  "gravelly sand with silt", "clayey sand with gravel"))  |>
+lith_fix(
+  desc = c(
+    "gravel & sand with silt",
+    "gravel & sand with clay",
+    "silty gravel & sand ",
+    "clayey gravel & sand ",
+    "gravel & sand & silt",
+    "gravel & sand & clay",
+    "gravelly sand with silt",
+    "clayey sand with gravel"
+  )
+) |>
   lith_tbl() #|>
- # tab_footnote(footnote = "Example of similar terms but different category",
- #             locations = cells_body(columns = 1, rows = last_col()))
+# tab_footnote(footnote = "Example of similar terms but different category",
+#             locations = cells_body(columns = 1, rows = last_col()))
 ```
 
 ## Sand and Fines
@@ -316,14 +404,22 @@ lith_fix(desc = c("gravel & sand with silt", "gravel & sand with clay",
 > **Primary** is **both** `sand` and `silt` (*not* `clay`)
 
 ```{r}
-lith_fix(desc = c("sand with silt", "sand with clay", "silty sand", 
-                  "clayey sand", "sand & silt", 
-                  "gravelly sand with silt", # something else
-                  "sand & clay"))  |>   # something else
+lith_fix(
+  desc = c(
+    "sand with silt",
+    "sand with clay",
+    "silty sand",
+    "clayey sand",
+    "sand & silt",
+    "gravelly sand with silt", # something else
+    "sand & clay"
+  )
+) |> # something else
   lith_tbl() |>
-  tab_footnote(footnote = "Example of similar terms but different category",
-               locations = cells_body(columns = 1, 
-                                      rows = c(last_col() - 1, last_col())))
+  tab_footnote(
+    footnote = "Example of similar terms but different category",
+    locations = cells_body(columns = 1, rows = c(last_col() - 1, last_col()))
+  )
 ```
 
 ## Gravel (Dirty)
@@ -333,12 +429,21 @@ lith_fix(desc = c("sand with silt", "sand with clay", "silty sand",
 > **Primary** is **both** `gravel` and `silt` (*not* `clay`)
 
 ```{r}
-lith_fix(desc = c("gravel with silt", "gravel with clay", "silty gravel", 
-                  "clayey gravel", "gravel & silt", 
-                  "gravel & clay")) |>   # something else
+lith_fix(
+  desc = c(
+    "gravel with silt",
+    "gravel with clay",
+    "silty gravel",
+    "clayey gravel",
+    "gravel & silt",
+    "gravel & clay"
+  )
+) |> # something else
   lith_tbl() |>
-  tab_footnote(footnote = "Example of similar terms but different category",
-               locations = cells_body(columns = 1, rows = last_col()))
+  tab_footnote(
+    footnote = "Example of similar terms but different category",
+    locations = cells_body(columns = 1, rows = last_col())
+  )
 ```
 
 
@@ -353,17 +458,27 @@ lith_fix(desc = c("gravel with silt", "gravel with clay", "silty gravel",
 > **Primary** is `compact` and **any** category is `sand` or `gravel`  
 
 ```{r}
-lith_fix(desc = c("sgtill", 
-                  "till with gravel and sand seam",
-                  "till with sand", "clay with gravel", "sand with till", 
-                  "tilly gravel",
-                  "compact sand", "compact gravel",
-                  "compact with sand",
-                  "clay & gravel", "clay & sand",
-                  "gravel & sand & silt"))  |>
+lith_fix(
+  desc = c(
+    "sgtill",
+    "till with gravel and sand seam",
+    "till with sand",
+    "clay with gravel",
+    "sand with till",
+    "tilly gravel",
+    "compact sand",
+    "compact gravel",
+    "compact with sand",
+    "clay & gravel",
+    "clay & sand",
+    "gravel & sand & silt"
+  )
+) |>
   lith_tbl() |>
-  tab_footnote(footnote = "Example of similar terms but different category",
-               locations = cells_body(columns = 1, rows = last_col()))
+  tab_footnote(
+    footnote = "Example of similar terms but different category",
+    locations = cells_body(columns = 1, rows = last_col())
+  )
 ```
 
 
@@ -383,17 +498,31 @@ lith_fix(desc = c("sgtill",
 
 
 ```{r}
-lith_fix(desc = c("till", "hard pan", "hard earth",
-                  "silt with till", "tilly silt", 
-                  "clay & till", "tilly clay", 
-                  "compact silt", "compact clay", 
-                  "compact with silt", "compact with clay", 
-                  "silt & clay", "silt with clay", "clayey silt",
-                  "silty clay", "clay with silt")) |>
-  lith_tbl()|>
-  tab_footnote(footnote = "Example of similar terms but different category",
-               locations = cells_body(columns = 1, 
-                                      rows = c(last_col() - 1, last_col())))
+lith_fix(
+  desc = c(
+    "till",
+    "hard pan",
+    "hard earth",
+    "silt with till",
+    "tilly silt",
+    "clay & till",
+    "tilly clay",
+    "compact silt",
+    "compact clay",
+    "compact with silt",
+    "compact with clay",
+    "silt & clay",
+    "silt with clay",
+    "clayey silt",
+    "silty clay",
+    "clay with silt"
+  )
+) |>
+  lith_tbl() |>
+  tab_footnote(
+    footnote = "Example of similar terms but different category",
+    locations = cells_body(columns = 1, rows = c(last_col() - 1, last_col()))
+  )
 ```
 
 
@@ -406,9 +535,14 @@ lith_fix(desc = c("till", "hard pan", "hard earth",
 lith_fix(desc = c("shells", "shells & sand")) |>
   lith_tbl() |>
   tab_source_note(
-    md("**Extra**: Noted in 'Extra' column (`lithology_extra`) if present in any category")) |>
-  tab_footnote(footnote = "Example of similar terms but different category",
-               locations = cells_body(columns = 1, rows = last_col()))
+    md(
+      "**Extra**: Noted in 'Extra' column (`lithology_extra`) if present in any category"
+    )
+  ) |>
+  tab_footnote(
+    footnote = "Example of similar terms but different category",
+    locations = cells_body(columns = 1, rows = last_col())
+  )
 ```
 
 ## Overburden
@@ -419,8 +553,10 @@ lith_fix(desc = c("shells", "shells & sand")) |>
 ```{r}
 lith_fix(desc = c("overburden", "overburden & sand")) |>
   lith_tbl() |>
-  tab_footnote(footnote = "Example of similar terms but different category",
-               locations = cells_body(columns = 1, rows = last_col()))
+  tab_footnote(
+    footnote = "Example of similar terms but different category",
+    locations = cells_body(columns = 1, rows = last_col())
+  )
 ```
 
 ## No category

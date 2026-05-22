@@ -28,8 +28,8 @@ test_that("lith_fix()", {
     "extdata",
     "test_lithology_cleaning.csv",
     package = "bcaquiferdata"
-  ) %>%
-    readr::read_csv(col_types = "cc") %>%
+  ) |>
+    readr::read_csv(col_types = "cc") |>
     suppressWarnings()
 
   expect_silent(l <- lith_fix(t$desc[1])) |>
@@ -79,7 +79,7 @@ test_that("lith_yield()", {
     "0.6 gpm at 100metres"                           , "gpm"        , ""                 , FALSE                ,  0.6     ,         100 , "m"          ,
     "0.6 gpm at 100meter"                            , "gpm"        , ""                 , FALSE                ,  0.6     ,         100 , "m"          ,
     "0.6 gpm at 100 m"                               , "gpm"        , ""                 , FALSE                ,  0.6     ,         100 , "m"          ,
-  ) %>%
+  ) |>
     dplyr::select(
       "lithology_raw_combined",
       "flag_yield_digits",

@@ -1,5 +1,6 @@
 #' Create Excel Drawdown template file
 #'
+#' **This function is still in development. Use at your own risk!**
 #' Creates an Excel file with formulas for calculating drawdown. File is
 #' pre-filled with wells within 100km of `location` (well or coordinates).
 #'
@@ -8,13 +9,14 @@
 #' @param rate Numeric. The pumping rate in m3/day (defaults to `NA`, fillable in Excel file).
 #' @param duration Numeric. The duration of pumping in days (defaults to `NA`, fillable in Excel file).
 #' @param overwrite Logical. Overwrite existing file?
+#' @param file_name Character. Optional file name for created excel file.
 #'
 #' @inheritParams common_docs
 #'
 #' @return Creates excel file
 #' @export
 #'
-#' @examples
+#' @examplesIf interactive()
 #' drawdown(85199, rate = 343, duration = 180)
 #' drawdown(85199, rate = 343, duration = 180, overwrite = TRUE)
 #' drawdown(22966, rate = 343, duration = 180)
@@ -31,6 +33,13 @@ drawdown <- function(
   file_name = NULL,
   update = FALSE
 ) {
+  warning(
+    "`drawdown()` is still experimental, use at your own risk!",
+    call. = FALSE
+  )
+
+  rlang::check_installed(c("glue", "openxlsx"))
+
   if (!is.numeric(location)) {
     stop(
       "`location` must be a number. Either a pair of longitude/latitude, ",
@@ -134,11 +143,11 @@ col_nms <- function(df = NULL, types = NULL) {
     "Comments"                                              , "comments"                     , "hg"   , "TEXT"  ,     40
   ) |>
     dplyr::mutate(
-      style = purrr::map(numFmt, \(x) openxlsx::createStyle(numFmt = x)),
-      width = tidyr::replace_na(width, 5)
+      style = purrr::map(.data$numFmt, \(x) openxlsx::createStyle(numFmt = x)),
+      width = tidyr::replace_na(.data$width, 5)
     )
 
-  if (!is.null(df) & !is.null(types)) {
+  if (!is.null(df) && !is.null(types)) {
     cols <- cols |>
       dplyr::filter(
         .data$sheet %in% .env$types,
@@ -235,9 +244,9 @@ dd_aquifers <- function(focal_aquifer, aquifer_ids, update) {
         "https://apps.nrs.gov.bc.ca/gwells/aquifers/",
         .data$aquifer_id
       ),
-      material = stringr::str_remove(material, "^[A-Z]+ - "),
-      subtype = stringr::str_remove(subtype, "^\\d[a-z]+ - "),
-      vulnerability = stringr::str_remove(vulnerability, "^[A-Z]+ - ")
+      material = stringr::str_remove(.data$material, "^[A-Z]+ - "),
+      subtype = stringr::str_remove(.data$subtype, "^\\d[a-z]+ - "),
+      vulnerability = stringr::str_remove(.data$vulnerability, "^[A-Z]+ - ")
     )
 
   # Reload wells data to get *all* wells in an aquifer, not just those close to the focal
@@ -270,12 +279,10 @@ dd_aquifers <- function(focal_aquifer, aquifer_ids, update) {
 
 #' Prepare well data
 #'
-#' @returns Data frame of well data
-#' @noRd
-#' Title
+#' @param location Lon/lat or well tag number
+#' @param wells Wells data frame see examples
 #'
-#' @param location
-#' @param wells
+#' @returns Data frame of well data
 #'
 #' @noRd
 #'
@@ -290,7 +297,10 @@ dd_wells <- function(location, update = FALSE) {
 
   # Get focal location as well or point
   if (length(location) == 1) {
-    wells <- dplyr::mutate(wells, focal = well_tag_number == .env$location)
+    wells <- dplyr::mutate(
+      wells,
+      focal = .data$well_tag_number == .env$location
+    )
     if (sum(wells$focal) == 0) {
       stop(
         "`location` seemed to be a well tag number but was not ",
@@ -373,15 +383,11 @@ dd_wells_testing <- function(wells, update = FALSE) {
     dd_pretty_names()
 }
 
-#' Title
-#'
-#' @param location
-#' @param wells
+#' Add transmissivity and storativity
 #'
 #' @noRd
 #'
 #' @examples
-#'
 #' f <- dd_focal(85199, data_read("wells_sf"))
 #' dd_trans_store(f)
 #'
@@ -411,7 +417,7 @@ dd_trans_store <- function(focal, update = FALSE) {
   aq <- data_read(type = "aquifers", update = update)
 
   if (!is.null(focal$aquifer_id) && !is.na(focal$aquifer_id)) {
-    aq <- dplyr::filter(aq, aquifer_id == focal$aquifer_id)
+    aq <- dplyr::filter(aq, .data$aquifer_id == focal$aquifer_id)
   } else {
     aq <- aq |>
       sf::st_filter(focal) |>
@@ -457,7 +463,7 @@ dd_drawdown <- function(wells, locs) {
 
   # Drawdown columns and formulae
   dd <- wells |>
-    dplyr::arrange(dist) |>
+    dplyr::arrange(.data$dist) |>
     dplyr::select(dplyr::all_of(nms$name[nms$sheet %in% c("all", "dd")]))
 
   dd <- dd |>
@@ -483,9 +489,13 @@ dd_drawdown <- function(wells, locs) {
         "))"
       ),
       drawdown = dplyr::if_else(
-        as.numeric(dist) == 0,
-        stringr::str_replace(drawdown, "[A-Z]{1}\\d\\*[A-Z]{1}\\d", "0.1*0.1"),
-        drawdown
+        as.numeric(.data$dist) == 0,
+        stringr::str_replace(
+          .data$drawdown,
+          "[A-Z]{1}\\d\\*[A-Z]{1}\\d",
+          "0.1*0.1"
+        ),
+        .data$drawdown
       ),
 
       safe = glue::glue(
@@ -540,9 +550,16 @@ dd_sheet_inputs <- function(wb, location, inputs, locs, space, s = "Inputs") {
   ) |>
     dplyr::mutate(
       Value = dplyr::case_when(
-        Name == "EQ1" ~ paste0("=2.303*", locs$Q, "/(4*PI()*", locs$T),
-        Name == "EQ2" ~ paste0("=2.25*", locs$T, "*", locs$t, "/", locs$S),
-        .default = Value
+        .data$Name == "EQ1" ~ paste0("=2.303*", locs$Q, "/(4*PI()*", locs$T),
+        .data$Name == "EQ2" ~ paste0(
+          "=2.25*",
+          locs$T,
+          "*",
+          locs$t,
+          "/",
+          locs$S
+        ),
+        .default = .data$Value
       )
     )
 
@@ -1030,9 +1047,13 @@ dd_sheet_metadata <- function(wb, s = "Metadata") {
     values_transform = as.character
   ) |>
     dplyr::mutate(
-      key = stringr::str_replace_all(key, "_", " "),
-      key = stringr::str_to_title(key),
-      key = stringr::str_replace_all(key, "Bcaquiferdata", "bcaquiferdata")
+      key = stringr::str_replace_all(.data$key, "_", " "),
+      key = stringr::str_to_title(.data$key),
+      key = stringr::str_replace_all(
+        .data$key,
+        "Bcaquiferdata",
+        "bcaquiferdata"
+      )
     )
 
   # Add sheet and data

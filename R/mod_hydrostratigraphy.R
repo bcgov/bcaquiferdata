@@ -83,10 +83,10 @@ server_hydrostratigraphy <- function(id, wells) {
           cols <- c(cols, "flag_yield_mismatch", "flag_yield_digits")
         }
 
-        wells() %>%
-          sf::st_drop_geometry() %>%
-          wells_yield() %>%
-          dplyr::select(dplyr::all_of(cols)) %>%
+        wells() |>
+          sf::st_drop_geometry() |>
+          wells_yield() |>
+          dplyr::select(dplyr::all_of(cols)) |>
           aq_dt(filename = "hydrostratigraphy")
       },
       server = FALSE

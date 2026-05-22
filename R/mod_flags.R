@@ -49,16 +49,16 @@ server_flags <- function(id, wells) {
     output$flags_table <- DT::renderDataTable(
       {
         cols <- stringr::str_subset(names(wells()), "flag_")
-        wells() %>%
-          sf::st_drop_geometry() %>%
+        wells() |>
+          sf::st_drop_geometry() |>
           dplyr::select(
             "well_tag_number",
             "lithology_from_m",
             "lithology_to_m",
             dplyr::starts_with("flag")
-          ) %>%
-          dplyr::filter(dplyr::if_any(dplyr::starts_with("flag"))) %>%
-          aq_dt(filename = "flags") %>%
+          ) |>
+          dplyr::filter(dplyr::if_any(dplyr::starts_with("flag"))) |>
+          aq_dt(filename = "flags") |>
           DT::formatStyle(
             cols,
             backgroundColor = DT::styleEqual(TRUE, "#f8d7da")

@@ -109,8 +109,8 @@ wells_export <- function(
     id <- stringr::str_replace_all(tolower(id), " ", "_")
   }
 
-  wells_sub <- wells_sub %>%
-    dplyr::bind_cols(as.data.frame(sf::st_coordinates(.))) %>%
+  wells_sub <- wells_sub |>
+    dplyr::bind_cols(as.data.frame(sf::st_coordinates(wells_sub))) |>
     sf::st_drop_geometry()
 
   # Export with appropriate function
@@ -119,7 +119,7 @@ wells_export <- function(
 
 export_strater <- function(wells_sub, id, dir, zip, preview) {
   # Strater Lithology
-  f1 <- wells_sub %>%
+  f1 <- wells_sub |>
     dplyr::select(
       "Hole_ID" = "well_tag_number",
       "From" = "lithology_from_m",
@@ -129,13 +129,13 @@ export_strater <- function(wells_sub, id, dir, zip, preview) {
     )
 
   # Strater Collars
-  f2 <- wells_sub %>%
-    dplyr::group_by(.data$well_tag_number, .data$X, .data$Y, .data$elev) %>%
+  f2 <- wells_sub |>
+    dplyr::group_by(.data$well_tag_number, .data$X, .data$Y, .data$elev) |>
     dplyr::summarize(
       Starting_Depth = min(.data$lithology_from_m),
       Ending_Depth = max(.data$lithology_to_m),
       .groups = "drop"
-    ) %>%
+    ) |>
     dplyr::select(
       "Hole_ID" = "well_tag_number",
       "Easting_Albers" = "X",
@@ -145,7 +145,7 @@ export_strater <- function(wells_sub, id, dir, zip, preview) {
       "Elevation" = "elev"
     )
 
-  f3 <- wells_sub %>%
+  f3 <- wells_sub |>
     dplyr::select("well_tag_number", "water_depth_m")
 
   dfs <- exp_name_dfs(list(f1, f2, f3), "strater", c("lith", "collars", "wls"))
@@ -160,26 +160,26 @@ export_strater <- function(wells_sub, id, dir, zip, preview) {
 }
 
 export_voxler <- function(wells_sub, id, dir, zip, preview) {
-  voxler <- wells_sub %>%
+  voxler <- wells_sub |>
     dplyr::mutate(
       Water_Elevation = .data$elev - .data$water_depth_m,
       Component = 0
-    ) %>%
-    dplyr::filter(!is.na(.data$Water_Elevation)) %>%
+    ) |>
+    dplyr::filter(!is.na(.data$Water_Elevation)) |>
     dplyr::select(
       "well_tag_number",
       "Easting_Albers" = "X",
       "Northing_Albers" = "Y",
       "Water_Elevation",
       "Component"
-    ) %>%
+    ) |>
     dplyr::distinct()
 
-  f1 <- voxler %>%
+  f1 <- voxler |>
     dplyr::mutate(
       Component = 2,
       Water_Elevation = .data$Water_Elevation + 1
-    ) %>%
+    ) |>
     dplyr::bind_rows(voxler)
 
   dfs <- exp_name_dfs(list(f1), "voxler")
@@ -195,7 +195,7 @@ export_voxler <- function(wells_sub, id, dir, zip, preview) {
 
 
 export_archydro <- function(wells_sub, id, dir, zip, preview) {
-  w <- wells_sub %>%
+  w <- wells_sub |>
     dplyr::mutate(
       HydroID = .data$well_tag_number,
       HydroCode = paste0("w", .data$well_tag_number),
@@ -223,14 +223,14 @@ export_archydro <- function(wells_sub, id, dir, zip, preview) {
   ) |>
     dplyr::distinct()
 
-  f2 <- w %>%
-    dplyr::select("Description", "HGUName") %>%
-    dplyr::distinct() %>%
-    dplyr::mutate(HGUID = 1:dplyr::n(), HGUCode = .data$HGUID) %>%
+  f2 <- w |>
+    dplyr::select("Description", "HGUName") |>
+    dplyr::distinct() |>
+    dplyr::mutate(HGUID = 1:dplyr::n(), HGUCode = .data$HGUID) |>
     dplyr::relocate("HGUID", "HGUCode", .before = "Description")
 
-  f3 <- w %>%
-    dplyr::left_join(dplyr::select(f2, "HGUName", "HGUID"), by = "HGUName") %>%
+  f3 <- w |>
+    dplyr::left_join(dplyr::select(f2, "HGUName", "HGUID"), by = "HGUName") |>
     dplyr::select(
       "WellID" = "HydroID",
       "WellCode" = "HydroCode",
@@ -261,13 +261,13 @@ export_archydro <- function(wells_sub, id, dir, zip, preview) {
 
 export_leapfrog <- function(wells_sub, id, dir, zip, preview) {
   # Check for un-fixed problems
-  wells_sub <- wells_sub %>%
-    fix_bottom_intervals() %>%
-    fix_depth_missing() %>%
+  wells_sub <- wells_sub |>
+    fix_bottom_intervals() |>
+    fix_depth_missing() |>
     fix_depth_mismatch()
 
   # Collars File
-  f1 <- wells_sub %>%
+  f1 <- wells_sub |>
     dplyr::select(
       "Hole ID" = "well_tag_number",
       "East (X)" = "X",
@@ -280,18 +280,18 @@ export_leapfrog <- function(wells_sub, id, dir, zip, preview) {
       "Artesian Conditions" = "artesian_conditions",
       "Artesian Pressure (Head Ft AGL)" = "artesian_pressure_head_ft_agl",
       "Aquifer ID" = "aquifer_id"
-    ) %>%
+    ) |>
     dplyr::distinct()
 
   # Intervals File
-  f2 <- wells_sub %>%
+  f2 <- wells_sub |>
     dplyr::select(
       "Hole ID" = "well_tag_number",
       "From" = "lithology_from_m",
       "To" = "lithology_to_m",
       "Lithology" = "lithology_category",
       "Lithology Raw" = "lithology_raw_combined"
-    ) %>%
+    ) |>
     dplyr::distinct()
 
   dfs <- exp_name_dfs(list(f1, f2), "leapfrog", c("collars", "intervals"))
@@ -306,14 +306,14 @@ export_leapfrog <- function(wells_sub, id, dir, zip, preview) {
 }
 
 export_surfer <- function(wells_sub, id, dir, zip, preview) {
-  f1 <- wells_sub %>%
+  f1 <- wells_sub |>
     dplyr::select(
       "well_tag_number",
       "X",
       "Y",
       "bedrock_depth_m",
       "water_depth_m"
-    ) %>%
+    ) |>
     dplyr::distinct()
 
   dfs <- exp_name_dfs(list(f1), "surfer")

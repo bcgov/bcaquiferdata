@@ -297,8 +297,8 @@ test_that("wells_export() Leapfrog - preview", {
       preview = TRUE
     ),
     "Fixing wells with a bottom lithology"
-  ) %>%
-    expect_message("Fixing wells missing depth") %>%
+  ) |>
+    expect_message("Fixing wells missing depth") |>
     expect_message("Fixing wells where depth")
   expect_equal(p, p2)
 
@@ -315,7 +315,7 @@ test_that("wells_export() Leapfrog - save", {
       dir = test_path()
     ),
     "Writing Leapfrog file\\(s\\)"
-  ) %>%
+  ) |>
     suppressMessages()
   expect_equal(
     list.files(test_path(), "leapfrog"),

@@ -65,9 +65,9 @@ fix_depth_missing <- function(wells_sub, fix = TRUE) {
     if (fix) {
       message("Fixing wells missing depth: ", w_pretty)
 
-      w <- wells_sub %>%
-        sf::st_drop_geometry() %>%
-        dplyr::filter(.data$well_tag_number %in% .env$w) %>%
+      w <- wells_sub |>
+        sf::st_drop_geometry() |>
+        dplyr::filter(.data$well_tag_number %in% .env$w) |>
         dplyr::mutate(
           well_depth_m = .data$lithology_to_m[.data$lith_rec == .data$lith_n],
           finished_well_depth_ft_bgl = .data$lithology_to_ft_bgl[
@@ -78,8 +78,8 @@ fix_depth_missing <- function(wells_sub, fix = TRUE) {
         )
 
       if (inherits(wells_sub, "sf")) {
-        wells_sub <- dplyr::as_tibble(wells_sub) %>%
-          dplyr::rows_upsert(w, by = c("well_tag_number", "lith_rec")) %>%
+        wells_sub <- dplyr::as_tibble(wells_sub) |>
+          dplyr::rows_upsert(w, by = c("well_tag_number", "lith_rec")) |>
           sf::st_as_sf()
       } else {
         wells_sub <- dplyr::rows_upsert(
@@ -149,9 +149,9 @@ fix_depth_mismatch <- function(wells_sub) {
     w_pretty
   )
 
-  w <- wells_sub %>%
-    sf::st_drop_geometry() %>%
-    dplyr::filter(.data$well_tag_number %in% .env$w) %>%
+  w <- wells_sub |>
+    sf::st_drop_geometry() |>
+    dplyr::filter(.data$well_tag_number %in% .env$w) |>
     dplyr::mutate(
       well_depth_m = .data$lithology_to_m[.data$lith_rec == .data$lith_n],
       finished_well_depth_ft_bgl = .data$lithology_to_ft_bgl[
@@ -162,8 +162,8 @@ fix_depth_mismatch <- function(wells_sub) {
     )
 
   if (inherits(wells_sub, "sf")) {
-    wells_sub <- dplyr::as_tibble(wells_sub) %>%
-      dplyr::rows_upsert(w, by = c("well_tag_number", "lith_rec")) %>%
+    wells_sub <- dplyr::as_tibble(wells_sub) |>
+      dplyr::rows_upsert(w, by = c("well_tag_number", "lith_rec")) |>
       sf::st_as_sf()
   } else {
     wells_sub <- dplyr::rows_upsert(
@@ -202,7 +202,7 @@ fix_yield_zero <- function(wells_sub, fix = TRUE) {
     if (fix) {
       message("Fixing wells where yield 0 should be NA: ", w_pretty)
 
-      wells_sub <- wells_sub %>%
+      wells_sub <- wells_sub |>
         dplyr::mutate(
           well_yield_usgpm = dplyr::na_if(.data$well_yield_usgpm, 0),
           fix_yield_zero = TRUE

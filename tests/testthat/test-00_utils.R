@@ -21,7 +21,7 @@ test_that("fix_range()", {
 
 test_that("fix_fraction()", {
   x <- c("1 3/4", "1/2", "1.5", "6 1/2", "3.5", "1 /2", "1 /2", "1 / 2")
-  y <- c(1.75, 0.5, 1.5, 6.5, 3.5, 0.5, 0.5, 0.5) %>% as.character()
+  y <- c(1.75, 0.5, 1.5, 6.5, 3.5, 0.5, 0.5, 0.5) |> as.character()
   expect_equal(fix_fraction(x), y)
 
   x <- list(c("1 3/4", "1/2"), c("1.5", "6 1/2", "3.5"), c("1 /2"))
@@ -35,7 +35,7 @@ test_that("fix_fraction()", {
 
 test_that("fix_leading_zero()", {
   x <- c(".5", ".25", "0.5", "5.5")
-  y <- c(0.5, 0.25, 0.5, 5.5) %>% as.character()
+  y <- c(0.5, 0.25, 0.5, 5.5) |> as.character()
   expect_equal(fix_leading_zero(x), y)
 
   x <- list(c(".5", ".25"), c(".5"), c("5.5", ".5", ".25"))

@@ -69,11 +69,11 @@ aq_theme <- function() {
     secondary = "#AAB1B8",
     font_scale = 0.9,
     "nav-link-font-size" = "110%",
-  ) %>%
+  ) |>
     bs_add_variables(
       "nav-tabs-link-border-color" = "$primary",
       .where = "declarations"
-    ) %>%
+    ) |>
     bs_add_rules(
       list(
         "div.nopad .value-box-area { padding: 0; }",
@@ -86,9 +86,9 @@ aq_theme <- function() {
 
 mod_test <- function(which, data = "fixed") {
   if (data == "fixed") {
-    wells_eg <- wells_eg_fixed
+    wells_eg <- bcaquiferdata::wells_eg_fixed
   } else {
-    wells_eg <- wells_eg_unfixed
+    wells_eg <- bcaquiferdata::wells_eg_unfixed
   }
   ui <- tagList(
     page_navbar(

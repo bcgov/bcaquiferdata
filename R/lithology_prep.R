@@ -27,21 +27,21 @@ lith_prep <- function(file = NULL) {
     file <- file.path(cache_dir(), "GWELLS/lithology.csv")
   }
 
-  file %>%
+  file |>
     readr::read_csv(
       guess_max = Inf,
       show_col_types = FALSE,
       progress = FALSE
-    ) %>%
-    janitor::clean_names() %>%
+    ) |>
+    janitor::clean_names() |>
 
     # Replace NA with 0 (very few cases where NA and not 0)
     dplyr::mutate(dplyr::across(dplyr::matches("from|to"), \(x) {
       tidyr::replace_na(x, 0)
-    })) %>%
+    })) |>
 
     # Find duplicates and log them
-    lith_duplicates() %>%
+    lith_duplicates() |>
 
     # Convert to metric
     convert_m(
@@ -49,25 +49,25 @@ lith_prep <- function(file = NULL) {
         "lithology_from_m" = "lithology_from_ft_bgl",
         "lithology_to_m" = "lithology_to_ft_bgl"
       )
-    ) %>%
+    ) |>
 
     # Collect and combine lithology descriptions
-    lith_desc_combine() %>%
+    lith_desc_combine() |>
 
     # Arrange and label intervals
     dplyr::arrange(
       .data$well_tag_number,
       .data$lithology_from_m,
       .data$lithology_to_m
-    ) %>%
+    ) |>
     dplyr::mutate(
       lith_n = dplyr::n(),
       lith_rec = dplyr::row_number(),
       .by = "well_tag_number"
-    ) %>%
+    ) |>
 
     # Create flags
-    lith_flags_interval() %>%
+    lith_flags_interval() |>
     lith_flags_well()
 }
 
@@ -89,12 +89,14 @@ lith_desc_combine <- function(lith) {
     lith,
     dplyr::across(
       .cols = dplyr::all_of(.env$fields_lith_combine),
-      ~ as.character(.x) %>%
-        tidyr::replace_na("") %>%
-        stringr::str_to_lower() %>%
-        stringr::str_replace("^(0 nothing entered)|(nothing provided)$", "")
+      \(x) {
+        as.character(x) |>
+          tidyr::replace_na("") |>
+          stringr::str_to_lower() |>
+          stringr::str_replace("^(0 nothing entered)|(nothing provided)$", "")
+      }
     )
-  ) %>%
+  ) |>
     dplyr::mutate(
       lithology_raw_combined = purrr::pmap(
         dplyr::pick(dplyr::all_of(.env$fields_lith_combine)),
@@ -131,24 +133,24 @@ lith_duplicates <- function(lith) {
 
   # By lithology record only - 4025 duplicate record groups
   # d <- tidyr::nest(lith, record = -"well_tag_number")
-  # dd1 <- d %>%
-  #   dplyr::group_by(record) %>%
-  #   dplyr::summarize(n = dplyr::n()) %>%
-  #   dplyr::filter(n > 1) %>%
-  #   dplyr::mutate(dup_group = dplyr::row_number()) %>%
+  # dd1 <- d |>
+  #   dplyr::group_by(record) |>
+  #   dplyr::summarize(n = dplyr::n()) |>
+  #   dplyr::filter(n > 1) |>
+  #   dplyr::mutate(dup_group = dplyr::row_number()) |>
   #   dplyr::left_join(d, by = "record")
   #
   # # By lithology and locations - 42 exact duplicates including lat/lon with different well number
   # d <- dplyr::left_join(lith,
   #                       dplyr::select(data_read("wells"), "well_tag_number",
   #                                     "longitude_decdeg", "latitude_decdeg"),
-  #                       by = "well_tag_number") %>%
+  #                       by = "well_tag_number") |>
   #   tidyr::nest(record = -"well_tag_number")
-  # dd2 <- d %>%
-  #   dplyr::group_by(record) %>%
-  #   dplyr::summarize(n = dplyr::n()) %>%
-  #   dplyr::filter(n > 1) %>%
-  #   dplyr::mutate(dup_group = dplyr::row_number()) %>%
+  # dd2 <- d |>
+  #   dplyr::group_by(record) |>
+  #   dplyr::summarize(n = dplyr::n()) |>
+  #   dplyr::filter(n > 1) |>
+  #   dplyr::mutate(dup_group = dplyr::row_number()) |>
   #   dplyr::left_join(d, by = "record")
   #
   # TODO: Flag these wells? Have a user fix them?

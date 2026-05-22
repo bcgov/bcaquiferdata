@@ -62,7 +62,7 @@ test_lith_flags <- function(type = "all") {
                    8 ,                 0 ,              10 , "first layer"           ,
                    8 ,                 0 ,              20 , "secondc layer"         ,
                    8 ,                 0 ,              30 , "third layer"
-  ) %>%
+  ) |>
     dplyr::mutate(
       lith_n = dplyr::n(),
       lith_rec = dplyr::row_number(),

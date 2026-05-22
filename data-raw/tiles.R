@@ -17,22 +17,24 @@
 #bcdata::bcdc_get_record("bcgs-1-20-000-grid")
 #bcdata::bcdc_tidy_resources('a61976ac-d8e8-4862-851e-d105227b6525')
 
-tiles <- bcdata::bcdc_query_geodata('a61976ac-d8e8-4862-851e-d105227b6525') %>%
-  dplyr::collect() %>%
-  janitor::clean_names() %>%
-  dplyr::select(map_tile) %>%
+tiles <- bcdata::bcdc_query_geodata('a61976ac-d8e8-4862-851e-d105227b6525') |>
+  dplyr::collect() |>
+  janitor::clean_names() |>
+  dplyr::select(map_tile) |>
   dplyr::mutate(map_tile = tolower(map_tile))
 
-tile_utm <- tiles %>%
-  sf::st_set_agr("constant") %>% # Suppress warnings about constant geometries
-  sf::st_centroid() %>%
-  sf::st_transform(4326) %>%
+tile_utm <- tiles |>
+  sf::st_set_agr("constant") |> # Suppress warnings about constant geometries
+  sf::st_centroid() |>
+  sf::st_transform(4326)
+
+tile_utm <- tile_utm |>
   dplyr::mutate(
-    coords = purrr::map(geometry, ~ as.data.frame(sf::st_coordinates(.)))
-  ) %>%
-  tidyr::unnest(coords) %>%
-  dplyr::mutate(utm = (floor((.data$X + 180) / 6) %% 60) + 1) %>%
-  sf::st_drop_geometry() %>%
+    coords = purrr::map(geometry, \(x) as.data.frame(sf::st_coordinates(x)))
+  ) |>
+  tidyr::unnest(coords) |>
+  dplyr::mutate(utm = (floor((.data$X + 180) / 6) %% 60) + 1) |>
+  sf::st_drop_geometry() |>
   dplyr::select(map_tile, utm)
 
 
@@ -95,7 +97,7 @@ tile_files <- tile_files |>
 
 # Find any other problems
 #test <- tile_files |>
-#  dplyr::mutate(test = purrr::map_lgl(url, ~identical(httr::status_code(httr::HEAD(.x)), 200L)))
+#  dplyr::mutate(test = purrr::map_lgl(url, \(x) identical(httr::status_code(httr::HEAD(x)), 200L)))
 #test <- verify(test, test)
 #dplyr::filter(test, !test)
 

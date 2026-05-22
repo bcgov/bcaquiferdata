@@ -63,7 +63,7 @@ test_that("lith_desc_combine()", {
       guess_max = Inf,
       show_col_types = FALSE,
       progress = FALSE
-    ) %>%
+    ) |>
     janitor::clean_names()
 
   expect_silent(l <- lith_desc_combine(l))

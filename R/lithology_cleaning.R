@@ -35,7 +35,7 @@
 #'
 lith_fix <- function(desc = NULL) {
   # Initial cleanup -----------------------------------------------------------
-  lith_desc <- dplyr::tibble(lithology_raw_combined = desc) %>%
+  lith_desc <- dplyr::tibble(lithology_raw_combined = desc) |>
     dplyr::mutate(
       lithology_raw_combined = stringr::str_to_lower(
         .data$lithology_raw_combined
@@ -44,9 +44,9 @@ lith_fix <- function(desc = NULL) {
         .data$lithology_raw_combined,
         "^aquifer data(:)*"
       )
-    ) %>%
-    dplyr::select("lithology_raw_combined") %>%
-    dplyr::distinct() %>%
+    ) |>
+    dplyr::select("lithology_raw_combined") |>
+    dplyr::distinct() |>
     dplyr::mutate(
       lith_clean = .data$lithology_raw_combined,
       # omit numbers and quotes
@@ -60,7 +60,7 @@ lith_fix <- function(desc = NULL) {
 
   # Get terms -----------------------------
   terms_good <- lith_define_terms()
-  list2env(terms_good, envir = rlang::current_env())
+  list2env(terms_good, envir = rlang::current_env()) # Split out into separate objects
   terms_good <- purrr::list_flatten(terms_good, name_spec = "{inner}")
   lith_terms <- lith_get_terms(lith_desc$lith_clean, not = names(terms_good))
 
@@ -76,68 +76,70 @@ lith_fix <- function(desc = NULL) {
   # applies them at the end (BASIC TERMS - Apply fix).
 
   ## Spelling in basic terms -----
-  terms_sp_basic <- c(all_terms(terms_good_main), all_terms(terms_good_org)) %>%
+  terms_sp_basic <- c(all_terms(terms_good_main), all_terms(terms_good_org)) |>
     # No sandy, no pea, no rock(s)
     lith_fix_spelling(
       terms = lith_terms,
       omit = "(y$)|(diryt)|(\\bpea\\b)|(\\brock\\b)|(\\brocks\\b)|(\\bgood\\b)|(\\bmed\\b)"
-    ) %>%
+    ) |>
     # Add Clay specifically because odd ending
-    merge_lists(lith_fix_spelling("clay", lith_terms, omit = "yy|ey")) %>%
+    merge_lists(lith_fix_spelling("clay", lith_terms, omit = "yy|ey")) |>
     # Specific spelling fixes
     merge_lists(list(
       "pebbles" = c("peb", "pebbs", "pebb"),
       "gravel" = c("gravesls", "gralve"),
       "silt" = "siltys"
-    )) %>%
+    )) |>
     lith_prep_regex()
 
   ## Spelling in basic "ly" terms -----
-  terms_sp_basic_ly <- terms_good_main_y %>%
-    all_terms() %>%
-    lith_fix_spelling(lith_terms, include = "y$") %>%
-    merge_lists(lith_fix_spelling("clayey", lith_terms, include = "yy|ey")) %>%
+  terms_sp_basic_ly <- terms_good_main_y |>
+    all_terms() |>
+    lith_fix_spelling(lith_terms, include = "y$") |>
+    merge_lists(lith_fix_spelling("clayey", lith_terms, include = "yy|ey")) |>
     # Specific spelling fixes
-    merge_lists(list("sandy" = "sandier", "silty" = "siltier")) %>%
+    merge_lists(list("sandy" = "sandier", "silty" = "siltier")) |>
     lith_prep_regex()
 
   ## Spelling in sgtill terms ----
-  terms_sp_sgtill <- terms_good_sgtill %>%
-    all_terms() %>%
-    lith_fix_spelling(lith_terms, omit = "still") %>%
+  terms_sp_sgtill <- terms_good_sgtill |>
+    all_terms() |>
+    lith_fix_spelling(lith_terms, omit = "still") |>
     lith_prep_regex()
 
   ## Spelling in bedrock terms ----
-  terms_sp_bedrock <- c(terms_good_bedrock_desc, terms_good_bedrock) %>%
-    all_terms() %>%
+  terms_sp_bedrock <- c(terms_good_bedrock_desc, terms_good_bedrock) |>
+    all_terms() |>
     lith_fix_spelling(
       lith_terms,
       omit = "graphite|scale|col|coat|cal|coar|coral|frass|\\brock\\b"
-    ) %>%
+    ) |>
     # Specific spelling fixes
     merge_lists(list(
       "fractures" = c("fracutres", "fractues"),
       "sandstone" = c("sandst", "sandsto", "sandsome", "sandstn"),
       "argillite" = "arglite",
       "schist" = "shst"
-    )) %>%
+    )) |>
     lith_prep_regex()
 
   ## Spelling in other terms ------------------
-  terms_sp_other <- c(terms_good_other, terms_good_first) %>%
-    all_terms() %>%
+  terms_sp_other <- c(terms_good_other, terms_good_first) |>
+    all_terms() |>
     lith_fix_spelling(
       lith_terms,
       omit = "shelfs|(\\brock\\b)|(\\brocks\\b)|(\\brocky\\b)"
-    ) %>%
+    ) |>
     lith_prep_regex()
 
   ## Spelling in extra terms ------------------
-  terms_sp_extra <- terms_good_extra %>%
-    all_terms() %>%
-    # don't look for spelling issues in wet or wb (too small)
-    .[!. %in% c("wet", "wb", "w\\.b\\.")] %>%
-    lith_fix_spelling(lith_terms, omit = "slowing|low|slow|blow") %>%
+  terms_sp_extra <- all_terms(terms_good_extra)
+
+  # don't look for spelling issues in wet or wb (too small)
+  terms_sp_extra <- terms_sp_extra[
+    !terms_sp_extra %in% c("wet", "wb", "w\\.b\\.")
+  ] |>
+    lith_fix_spelling(lith_terms, omit = "slowing|low|slow|blow") |>
     lith_prep_regex()
 
   ## Consolidate main terms ------
@@ -152,56 +154,56 @@ lith_fix <- function(desc = NULL) {
     terms_good_other,
     terms_good_extra,
     terms_good_yield
-  ) %>%
+  ) |>
     lith_prep_regex()
 
   ## Missing spaces in basic terms -----
   # fix known multi-term problems (i.e. where terms should be split or combined)
   # Reminder, left hand side is good term to keep, right hand side is term to fix
 
-  terms_multi <- c(
+  # Terms Multi
+  tm <- c(
     names(terms_good_main),
     names(terms_good_main_y),
     names(terms_good_org),
     names(terms_good_bedrock)
-  ) %>%
-    stringr::str_c(collapse = "(s*)|") %>%
-    stringr::str_c("(", ., ")") %>%
-    list(
-      "\\1 \\2" = stringr::str_c(., .),
-      "\\1 and" = stringr::str_c(., "and"),
-      "and \\1" = stringr::str_c("and", .),
-      "\\1 and \\2" = stringr::str_c(., "and", .),
-      "with \\1" = stringr::str_c("with", .),
-      "\\1 with" = stringr::str_c(., "with"),
-      "\\1 with\\2" = stringr::str_c(., "with", .),
-      "bearing gravel" = "bearinggravel",
-      "clean gravel" = "cleangravel",
-      "sandstone layers" = "sandstonelayers",
-      "coarse sand" = "coarsesand",
-      "fine sand" = "finesand",
-      "hard sand" = "hardsand",
-      "hard shale" = "hardshale",
-      "grey sand" = "greysand",
-      "black mud" = "blackmud",
-      "black sand" = "blacksand",
-      "grey sand" = "greysand",
-      "coarse gravel" = "coarsegravel",
-      "brown sandy" = "brownsandy",
-      "brown silty" = "brownsilty",
-      "gravel brown" = "gravelbrown",
-      "bouldery fill" = "boulderyfill",
-      "shaley mica" = "shaleymica",
-      "shaley sandstone" = "shaleysandstone",
-      "waterbearing" = "water bearing",
-      "wb" = "w b"
-    ) %>%
-    .[-1] %>%
+  ) |>
+    stringr::str_c(collapse = "(s*)|")
+  tm <- stringr::str_c("(", tm, ")")
+  tm <- list(
+    "\\1 \\2" = stringr::str_c(tm, tm),
+    "\\1 and" = stringr::str_c(tm, "and"),
+    "and \\1" = stringr::str_c("and", tm),
+    "\\1 and \\2" = stringr::str_c(tm, "and", tm),
+    "with \\1" = stringr::str_c("with", tm),
+    "\\1 with" = stringr::str_c(tm, "with"),
+    "\\1 with\\2" = stringr::str_c(tm, "with", tm),
+    "bearing gravel" = "bearinggravel",
+    "clean gravel" = "cleangravel",
+    "sandstone layers" = "sandstonelayers",
+    "coarse sand" = "coarsesand",
+    "fine sand" = "finesand",
+    "hard sand" = "hardsand",
+    "hard shale" = "hardshale",
+    "grey sand" = "greysand",
+    "black mud" = "blackmud",
+    "black sand" = "blacksand",
+    "coarse gravel" = "coarsegravel",
+    "brown sandy" = "brownsandy",
+    "brown silty" = "brownsilty",
+    "gravel brown" = "gravelbrown",
+    "bouldery fill" = "boulderyfill",
+    "shaley mica" = "shaleymica",
+    "shaley sandstone" = "shaleysandstone",
+    "waterbearing" = "water bearing",
+    "wb" = "w b"
+  )
+  terms_multi <- tm[-1] |>
     lith_prep_regex()
 
   ## BASIC TERMS - Apply fix ----
   # Note that order is order of priority
-  lith_desc <- lith_desc %>%
+  lith_desc <- lith_desc |>
     dplyr::mutate(
       # Consolidate joins
       lith_clean = lith_replace(
@@ -258,7 +260,7 @@ lith_fix <- function(desc = NULL) {
   )
 
   ## FIDDLY TERMS - Apply fix ----
-  lith_desc <- lith_desc %>%
+  lith_desc <- lith_desc |>
     dplyr::mutate(
       lith_clean = lith_replace(.data$lith_clean, terms_compound),
       lith_clean = stringr::str_squish(.data$lith_clean)
@@ -290,8 +292,8 @@ lith_fix <- function(desc = NULL) {
     "rust",
     "brick",
     "pink"
-  ) %>%
-    append(., paste0(., "ish")) %>%
+  )
+  terms_omit <- append(terms_omit, paste0(terms_omit, "ish")) |>
     append(list(
       "colour",
       "dark",
@@ -344,26 +346,29 @@ lith_fix <- function(desc = NULL) {
       "interbedded",
       "thin",
       "dissolve"
-    )) %>%
+    )) |>
     purrr::map(
-      ~ lith_fix_spelling(
-        .,
-        str_dist = dplyr::if_else(nchar(.) > 4, 3, 2),
-        terms = lith_terms
-      )
-    ) %>%
-    unlist() %>%
-    unique() %>%
-    .[!. %in% terms_good]
+      \(x) {
+        lith_fix_spelling(
+          x,
+          str_dist = dplyr::if_else(nchar(x) > 4, 3, 2),
+          terms = lith_terms
+        )
+      }
+    ) |>
+    unlist() |>
+    unique()
+
+  terms_omit <- terms_omit[!terms_omit %in% terms_good]
 
   ## Output remaining terms ---------------
-  # lith_terms <- dplyr::select(lith_desc, "lith_clean") %>%
-  #   dplyr::distinct() %>%
-  #   dplyr::mutate(lith_clean = stringr::str_split(.data$lith_clean, pattern = "\\b")) %>%
-  #   tidyr::unnest("lith_clean") %>%
+  # lith_terms <- dplyr::select(lith_desc, "lith_clean") |>
+  #   dplyr::distinct() |>
+  #   dplyr::mutate(lith_clean = stringr::str_split(.data$lith_clean, pattern = "\\b")) |>
+  #   tidyr::unnest("lith_clean") |>
   #   dplyr::filter(!.data$lith_clean %in% c(names(terms_good), terms_omit,
-  #                                          "", " ", " & ", "and")) %>%
-  #   dplyr::count(.data$lith_clean) %>%
+  #                                          "", " ", " & ", "and")) |>
+  #   dplyr::count(.data$lith_clean) |>
   #   dplyr::arrange(dplyr::desc(.data$n))
   #
   # readr::write_csv(lith_terms, "lith_terms.csv")
@@ -372,7 +377,7 @@ lith_fix <- function(desc = NULL) {
   #dplyr::filter(lith_desc, stringr::str_detect(lith_clean, "sandand"))
 
   ## Remove all non 'good' terms --------------
-  lith_desc2 <- lith_desc %>%
+  lith_desc2 <- lith_desc |>
     dplyr::mutate(
       lith_clean = stringr::str_extract_all(
         .data$lith_clean,
@@ -389,7 +394,7 @@ lith_fix <- function(desc = NULL) {
   orphaned <- "(^with$)|(^\\bwith )|( with\\b$)|(^&$)|(^& )|( &$)"
   orphaned <- stringr::str_c(orphaned, "|(^layers$)")
 
-  lith_desc2 <- lith_desc2 %>%
+  lith_desc2 <- lith_desc2 |>
     dplyr::mutate(
       # Run twice in case we have "with & sand" for example
       lith_clean = stringr::str_remove(.data$lith_clean, orphaned),
@@ -403,10 +408,10 @@ lith_fix <- function(desc = NULL) {
     "( (& )*",
     names(terms_good),
     "\\b)+"
-  ) %>%
-    stats::setNames(names(terms_good), .)
+  )
+  terms_dup <- stats::setNames(names(terms_good), terms_dup)
 
-  lith_desc2 <- lith_desc2 %>%
+  lith_desc2 <- lith_desc2 |>
     dplyr::mutate(
       lith_clean = lith_replace(.data$lith_clean, terms_dup)
     )
@@ -420,12 +425,12 @@ lith_fix <- function(desc = NULL) {
     "boulders",
     "bouldery",
     "organic"
-  ) %>%
-    stats::setNames(., .)
+  )
+  terms_extra_flags <- stats::setNames(nm = terms_extra_flags)
 
-  lith_cats <- lith_desc2 %>%
-    dplyr::select("lith_clean") %>%
-    dplyr::distinct() %>%
+  lith_cats <- lith_desc2 |>
+    dplyr::select("lith_clean") |>
+    dplyr::distinct() |>
     dplyr::mutate(
       # Get primary/secondary/tertiary terms
       primary = lith_primary(
@@ -468,27 +473,29 @@ lith_fix <- function(desc = NULL) {
         terms_to_use = append(terms_good_extra, terms_extra_flags)
       ),
       yield = lith_cat_terms(.data$lith_clean, terms_to_use = terms_good_yield),
-      primary = purrr::map(.data$primary, ~ .[!. %in% names(terms_good_extra)]),
+      primary = purrr::map(.data$primary, \(x) {
+        x[!x %in% names(terms_good_extra)]
+      }),
 
       # Apply categorizing based on primary/secondary/tertiary
       lithology_category = purrr::pmap_chr(
         list(.data$primary, .data$secondary, .data$tertiary),
         lith_categorize
       )
-    ) %>%
+    ) |>
     tidyr::unnest("flags")
 
   # For comparing
   lith_combo <- dplyr::left_join(lith_desc2, lith_cats, by = "lith_clean")
 
-  lith_combo %>%
+  lith_combo |>
     dplyr::mutate(
       lith_primary = purrr::map_chr(.data$primary, collapse_nested),
       lith_secondary = purrr::map_chr(.data$secondary, collapse_nested),
       lith_tertiary = purrr::map_chr(.data$tertiary, collapse_nested),
       lithology_extra = purrr::map_chr(.data$extra, collapse_nested),
       yield_units = purrr::map_chr(.data$yield, collapse_nested)
-    ) %>%
+    ) |>
     # Bind to lithology data and return
     dplyr::select(
       "lithology_raw_combined",
@@ -732,10 +739,10 @@ lith_yield <- function(lith, flatten = FALSE) {
   p_yield <- paste0("(", p_range(), "|", p_dbl(), ")", p_units_yield)
   p_depth <- paste0("\\d+", p_units_depth)
 
-  l <- lith %>%
-    sf::st_drop_geometry() %>%
-    dplyr::filter(.data$yield_units != "") %>%
-    dplyr::select("lithology_raw_combined") %>%
+  l <- lith |>
+    sf::st_drop_geometry() |>
+    dplyr::filter(.data$yield_units != "") |>
+    dplyr::select("lithology_raw_combined") |>
     dplyr::mutate(
       flag_yield_digits = stringr::str_squish(.data$lithology_raw_combined),
       flag_yield_digits = fix_fraction(.data$flag_yield_digits),
@@ -750,7 +757,7 @@ lith_yield <- function(lith, flatten = FALSE) {
       ),
       yield_chr = purrr::map(
         .data$yield_chr,
-        ~ stringr::str_remove_all(., .env$p_units_yield)
+        \(x) stringr::str_remove_all(x, .env$p_units_yield)
       ),
       depth = stringr::str_extract_all(.data$flag_yield_digits, .env$p_depth),
       flag_yield_digits = stringr::str_remove_all(
@@ -763,32 +770,34 @@ lith_yield <- function(lith, flatten = FALSE) {
       ),
       flag_yield_digits = purrr::map_chr(
         .data$flag_yield_digits,
-        ~ paste0(.x, collapse = ";")
+        \(x) paste0(x, collapse = ";")
       ),
       depth_units = purrr::map_chr(
         .data$depth,
-        ~ stringr::str_extract_all(.x, .env$p_units_depth) %>%
-          stringr::str_replace_all(c(
-            stats::setNames("m", p_units_depth_m),
-            stats::setNames("ft", p_units_depth_ft)
-          )) %>%
-          stringr::str_trim() %>%
-          unique() %>%
-          paste0("")
+        \(x) {
+          stringr::str_extract_all(x, .env$p_units_depth) |>
+            stringr::str_replace_all(c(
+              stats::setNames("m", p_units_depth_m),
+              stats::setNames("ft", p_units_depth_ft)
+            )) |>
+            stringr::str_trim() |>
+            unique() |>
+            paste0("")
+        }
       ),
       depth = purrr::map(
         .data$depth,
-        ~ stringr::str_remove_all(.x, .env$p_units_depth) %>% as.numeric()
+        \(x) stringr::str_remove_all(x, .env$p_units_depth) |> as.numeric()
       ),
       yield = purrr::map(.data$yield_chr, fix_range)
-    ) %>%
+    ) |>
     dplyr::select(-"yield_chr")
 
   # Checks and flags
-  l <- l %>%
+  l <- l |>
     dplyr::mutate(
-      n_yield = purrr::map_int(.data$yield, length),
-      n_depth = purrr::map_int(.data$depth, length),
+      n_yield = lengths(.data$yield),
+      n_depth = lengths(.data$depth),
       # Flag yields where the depths and yields don't match and there are at
       # least one of each
       flag_yield_mismatch = .data$n_yield != .data$n_depth &
@@ -796,12 +805,12 @@ lith_yield <- function(lith, flatten = FALSE) {
         .data$n_depth != 0,
       yield = replace(.data$yield, .data$flag_yield_mismatch, NA),
       depth = replace(.data$depth, .data$flag_yield_mismatch, NA)
-    ) %>%
-    dplyr::select(-"n_yield", -"n_depth") %>%
+    ) |>
+    dplyr::select(-"n_yield", -"n_depth") |>
     tidyr::unnest(cols = c("yield", "depth"), keep_empty = TRUE)
 
-  dplyr::left_join(lith, l, by = "lithology_raw_combined") %>%
-    dplyr::relocate("yield_units", .after = "yield") %>%
+  dplyr::left_join(lith, l, by = "lithology_raw_combined") |>
+    dplyr::relocate("yield_units", .after = "yield") |>
     dplyr::relocate("flag_yield_mismatch", .before = "depth")
 }
 
@@ -814,34 +823,36 @@ lith_yield <- function(lith, flatten = FALSE) {
 lith_bedrock <- function(l) {
   l <- dplyr::mutate(l, n = 1:dplyr::n())
 
-  l |>
+  ll <- l |>
     dplyr::mutate(
       bedrock = .data$lithology_category %in%
         c("Bedrock", "Weathered, Fractured or Faulted Bedrock")
-    ) %>%
-    dplyr::arrange(.data$well_tag_number, .data$lithology_from_m) %>%
-    dplyr::group_by(.data$well_tag_number) %>%
-    dplyr::filter(any(.data$bedrock)) %>%
+    ) |>
+    dplyr::arrange(.data$well_tag_number, .data$lithology_from_m) |>
+    dplyr::group_by(.data$well_tag_number) |>
+    dplyr::filter(any(.data$bedrock)) |>
     dplyr::mutate(
       bedrock_above = dplyr::lag(.data$bedrock, default = FALSE),
       flg = !.data$bedrock & .data$bedrock_above,
       bedrock_depth_m = min(.data$lithology_from_m[.data$bedrock]),
       flg = any(.data$flg)
-    ) %>%
-    dplyr::ungroup() %>%
-    dplyr::select("n", "flg", "bedrock_depth_m") %>%
-    dplyr::left_join(l, ., by = "n") %>%
-    dplyr::mutate(flag_pos_bedrock = tidyr::replace_na(.data$flg, FALSE)) %>%
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::select("n", "flg", "bedrock_depth_m")
+
+  dplyr::left_join(l, ll, by = "n") |>
+    dplyr::mutate(flag_pos_bedrock = tidyr::replace_na(.data$flg, FALSE)) |>
     dplyr::select(-"n", -"flg")
 }
 
 
 lith_get_terms <- function(from, not) {
-  unique(from) %>%
-    stringr::str_split(., pattern = "\\b") %>%
-    unlist() %>%
-    unique() %>%
-    .[!. %in% c(not, "", " ", " & ")] %>%
+  t <- unique(from) |>
+    stringr::str_split(pattern = "\\b") |>
+    unlist() |>
+    unique()
+
+  t[!t %in% c(not, "", " ", " & ")] |>
     stats::na.omit()
 }
 
@@ -852,13 +863,12 @@ lith_fix_spelling <- function(
   omit = NULL,
   include = NULL
 ) {
-  t <- to_fix %>%
-    stats::setNames(., .) %>%
-    purrr::map(~ terms[stringdist::stringdist(., terms) < str_dist])
+  t <- stats::setNames(nm = to_fix) |>
+    purrr::map(\(x) terms[stringdist::stringdist(x, terms) < str_dist])
   if (!is.null(omit)) {
-    t <- purrr::map(t, ~ stringr::str_subset(., omit, negate = TRUE))
+    t <- purrr::map(t, \(x) stringr::str_subset(x, omit, negate = TRUE))
   } else if (!is.null(include)) {
-    t <- purrr::map(t, ~ stringr::str_subset(., include))
+    t <- purrr::map(t, \(x) stringr::str_subset(x, include))
   }
 
   t[purrr::map(t, length) > 0] # Omit those with no corrections
@@ -873,7 +883,7 @@ lith_prep_regex <- function(fix, noname = FALSE) {
     }
     fix <- purrr::map_chr(
       fix,
-      ~ stringr::str_c("\\b", ., "\\b", collapse = "|")
+      \(x) stringr::str_c("\\b", x, "\\b", collapse = "|")
     )
     if (!noname) fix <- stats::setNames(names(fix), fix)
   }
@@ -889,8 +899,8 @@ lith_find <- function(x, word, verbose = FALSE) {
 }
 
 lith_combo <- function(x, terms) {
-  term <- expand.grid(terms, terms) %>%
-    dplyr::filter(.data$Var1 != .data$Var2) %>%
+  term <- expand.grid(terms, terms) |>
+    dplyr::filter(.data$Var1 != .data$Var2) |>
     dplyr::summarize(
       term = stringr::str_c(
         "\\b",
@@ -900,7 +910,7 @@ lith_combo <- function(x, terms) {
         "\\b",
         collapse = "|"
       )
-    ) %>%
+    ) |>
     dplyr::pull(.data$term)
   stringr::str_detect(x, term)
 }
@@ -914,76 +924,53 @@ lith_replace <- function(terms, pattern, replacement) {
 
 lith_primary <- function(terms, terms_to_use) {
   # Get all primary terms (i.e. good terms, not 'y' and do not have a 'with' before
-  names(terms_to_use) %>% # Good terms
-    paste0("(?<!with )", .) %>% # Cannot have a 'with ' right before the term
-    lith_prep_regex(noname = TRUE) %>%
-    stringr::str_extract_all(terms, pattern = .)
+  t <- names(terms_to_use) # Good terms
+  p <- paste0("(?<!with )", t) |> # Cannot have a 'with ' right before the term
+    lith_prep_regex(noname = TRUE)
 
-  # # Get all combo primary terms
-  # # (i.e. "sand & gravel", "clay & sand", "clay & sand & silt", etc.)
-  # p <- stringr::str_extract_all(terms, "\\w+(?= &)|(?<=& )\\w+") %>%
-  #   purrr::map(~sort(stringr::str_to_title(.))) %>%
-  #   purrr::map_chr(~stringr::str_c(., collapse = " and "))
-  #
-  # # Get all solo primary terms
-  # # (i.e. "sand", "sand with clay", "clayey sand" would all be "sand")
-  # p_solo <- stringr::str_extract_all(terms,
-  #                                    "^\\w+$|\\w+(?= with)|(?<=[etdlr]{1}+y )\\w+") %>%
-  #   purrr::map(~.[. %in% names(c(terms_good_main,
-  #                                terms_good_bedrock,
-  #                                terms_good_org,
-  #                                terms_good_extra))]) %>%
-  #   purrr::map_chr(~stringr::str_c(stringr::str_to_title(.), collapse = ""))
-  #
-  # p[p == ""] <- p_solo[p == ""]
-  #p
+  stringr::str_extract_all(terms, pattern = p)
 }
 
 lith_secondary <- function(terms, terms_to_use) {
   # Get all secondary terms
   # i.e. good terms, no "y", but "with " before
   #      OR for bedrock, a descriptive term like fractured
-  with <- names(terms_to_use) %>%
-    paste0("(?<=with )", .) %>% # Must have a 'with ' right before the term
+  with <- names(terms_to_use)
+  with <- paste0("(?<=with )", with) |> # Must have a 'with ' right before the term
     lith_prep_regex(noname = TRUE)
-  #
-  #   # Create regex for matching bedrock terms
-  #   desc <- names(terms_good_bedrock) %>%
-  #     lith_prep_regex(noname = TRUE)
-  #
-  #   # Grab descriptive terms that appear before the bedrock term
-  #   desc <- names(terms_good_bedrock_desc) %>%
-  #     stringr::str_c(collapse = "|") %>%
-  #     stringr::str_c("(", ., ")(?= (", desc, "))")
 
   stringr::str_extract_all(terms, pattern = paste0("(", with, ")"))
 }
 
 lith_tertiary <- function(terms, terms_to_use) {
   # Get all tertiary terms (i.e. good terms ending in "y"
-  names(terms_to_use) %>%
-    lith_prep_regex(noname = TRUE) %>%
-    stringr::str_extract_all(terms, pattern = .) %>%
+  p <- names(terms_to_use) |>
+    lith_prep_regex(noname = TRUE)
+
+  stringr::str_extract_all(terms, pattern = p) |>
     # Remove y ends
     purrr::map(
-      ~ lith_replace(
-        .,
-        c(
-          "clayey" = "clay",
-          "silty" = "silt",
-          "sandy" = "sand",
-          "gravely" = "gravel",
-          "tilly" = "till",
-          "bouldery" = "boulders"
+      \(x) {
+        lith_replace(
+          x,
+          c(
+            "clayey" = "clay",
+            "silty" = "silt",
+            "sandy" = "sand",
+            "gravely" = "gravel",
+            "tilly" = "till",
+            "bouldery" = "boulders"
+          )
         )
-      )
+      }
     )
 }
 
 lith_cat_terms <- function(terms, terms_to_use) {
-  names(terms_to_use) %>%
-    lith_prep_regex(noname = TRUE) %>%
-    stringr::str_extract_all(terms, pattern = .)
+  p <- names(terms_to_use) |>
+    lith_prep_regex(noname = TRUE)
+
+  stringr::str_extract_all(terms, pattern = p)
 }
 
 lith_categorize <- function(p, s, t) {
@@ -996,9 +983,8 @@ lith_categorize <- function(p, s, t) {
   cat <- NA_character_
 
   # Bedrock etc. - Contains bedrock and (optionally) weathered/fractured/faulted
-  if (
-    any(wch <- c(p, s, t) %in% names(lith_define_terms()$terms_good_bedrock))
-  ) {
+  wch <- c(p, s, t) %in% names(lith_define_terms()$terms_good_bedrock)
+  if (any(wch)) {
     cat <- unique(stringr::str_to_title(c(p, s, t)[wch]))
     if (length(cat) > 1) {
       cat <- cat[cat != "Bedrock"]
@@ -1023,18 +1009,18 @@ lith_categorize <- function(p, s, t) {
 
     # Sand and Gravel
   } else if (
-    ("sand" %in% p & "gravel" %in% c(p, s, t) & dirty) |
-      ("gravel" %in% p & "sand" %in% c(p, s, t) & dirty) |
+    ("sand" %in% p && "gravel" %in% c(p, s, t) && dirty) ||
+      ("gravel" %in% p && "sand" %in% c(p, s, t) && dirty) ||
       (all(c("sand", "gravel") %in% p) & any(c("silt", "clay") %in% p))
   ) {
     cat <- "Sand and Gravel (Dirty)"
 
     # Sand or Gravel Till or Diamicton
   } else if (
-    sg_till |
-      (any(p %in% c("till", "clay")) & (any_sand | any_gravel)) |
-      (any(c("sand", "gravel") %in% p) & "till" %in% c(s, t)) |
-      ("compact" %in% p & (any(c("sand", "gravel") %in% c(p, s))))
+    sg_till ||
+      (any(p %in% c("till", "clay")) && (any_sand || any_gravel)) ||
+      (any(c("sand", "gravel") %in% p) && "till" %in% c(s, t)) ||
+      ("compact" %in% p && (any(c("sand", "gravel") %in% c(p, s))))
   ) {
     cat <- "Sand or Gravel Till or Diamicton"
 
@@ -1049,26 +1035,26 @@ lith_categorize <- function(p, s, t) {
 
     # Clay and Till
   } else if (
-    any(p %in% c("till", "hardpan", "hard earth")) |
-      (any(c("silt", "clay") %in% p) & "till" %in% c(s, t)) |
-      ("compact" %in% p & any(c("silt", "clay") %in% c(p, s, t))) |
+    any(p %in% c("till", "hardpan", "hard earth")) ||
+      (any(c("silt", "clay") %in% p) && "till" %in% c(s, t)) ||
+      ("compact" %in% p && any(c("silt", "clay") %in% c(p, s, t))) ||
       all(c("silt", "clay") %in% unique(c(p, t, s)))
   ) {
     cat <- "Medium to Clay Till or Diamicton"
 
     # Sand and Fines
   } else if (
-    (any(p %in% "sand") & dirty) |
+    (any(p %in% "sand") && dirty) ||
       all(c("sand", "silt") %in% p)
   ) {
     cat <- "Sand and Fines"
-  } else if (any(p %in% "gravel") & dirty | all(c("gravel", "silt") %in% p)) {
+  } else if (any(p %in% "gravel") && dirty || all(c("gravel", "silt") %in% p)) {
     # Gravel (dirty)
     cat <- "Gravel (Dirty)"
-  } else if (gravelly & "silt" %in% p) {
+  } else if (gravelly && "silt" %in% p) {
     # Silts
     cat <- "Sandy or Gravelly Silt"
-  } else if (any_gravel & any_sand) {
+  } else if (any_gravel && any_sand) {
     cat <- "Sand and Gravel (Clean)"
 
     # Boulders
@@ -1087,7 +1073,7 @@ lith_categorize <- function(p, s, t) {
 
     # If only one of mains left, apply as category
   } else if (
-    length(unique(c(p, s, t))) == 1 &
+    length(unique(c(p, s, t))) == 1 &&
       any(c("gravel", "silt", "sand", "clay") %in% c(p, s, t))
   ) {
     cat <- stringr::str_to_title(unique(c(p, s, t)))
@@ -1122,8 +1108,8 @@ collapse_nested <- function(x) {
 
 
 all_terms <- function(terms) {
-  c(names(terms), unlist(terms)) %>%
-    stats::setNames(nm = NULL) %>%
+  c(names(terms), unlist(terms)) |>
+    stats::setNames(nm = NULL) |>
     unique()
 }
 

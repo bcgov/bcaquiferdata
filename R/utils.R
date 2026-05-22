@@ -41,19 +41,21 @@ p_range <- function() {
 
 
 fix_fraction <- function(x) {
-  f <- stringr::str_extract_all(x, p_fraction()) %>%
-    unlist() %>%
+  f <- stringr::str_extract_all(x, p_fraction()) |>
+    unlist() |>
     unique()
 
   if (length(unlist(f)) > 0) {
-    n <- f %>%
+    n <- f |>
       purrr::map_chr(
-        ~ stringr::str_replace_all(.x, "( )?/( )?", "/") %>%
-          stringr::str_split(" ") %>%
-          purrr::map(\(x) purrr::map_vec(x, \(x) eval(parse(text = x)))) %>%
-          purrr::map_dbl(~ sum(.x)) %>%
-          as.character()
-      ) %>%
+        \(x) {
+          stringr::str_replace_all(x, "( )?/( )?", "/") |>
+            stringr::str_split(" ") |>
+            purrr::map(\(y) purrr::map_vec(y, \(z) eval(parse(text = z)))) |>
+            purrr::map_dbl(\(y) sum(y)) |>
+            as.character()
+        }
+      ) |>
       stats::setNames(paste0("(?<!\\d( )?)", f, "(?!( )?\\d)"))
 
     x <- stringr::str_replace_all(x, n)
@@ -62,7 +64,7 @@ fix_fraction <- function(x) {
 }
 
 fix_range <- function(x) {
-  stringr::str_replace(x, p_range(), "mean(c(\\2,\\7))") %>%
+  stringr::str_replace(x, p_range(), "mean(c(\\2,\\7))") |>
     purrr::map_vec(\(x) eval(parse(text = x)))
 }
 

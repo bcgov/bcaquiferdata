@@ -97,7 +97,7 @@ data_update <- function(
 
   meta <- cache_meta()
   if (
-    meta$bcaquiferdata_version != packageVersion("bcaquiferdata") &&
+    meta$bcaquiferdata_version != utils::packageVersion("bcaquiferdata") &&
       type[1] != "all"
   ) {
     message(
@@ -120,7 +120,8 @@ data_update <- function(
       message("Downloading Aquifers")
 
       message("  Standard data")
-      download.file(
+      # jarl-ignore download_file: Afraid to change
+      utils::download.file(
         "https://apps.nrs.gov.bc.ca/gwells/api/v1/aquifers/csv",
         file.path(cache_dir(), "aquifers.csv")
       )
@@ -170,7 +171,7 @@ data_update <- function(
 }
 
 fetch_gwells <- function() {
-  "https://s3.ca-central-1.amazonaws.com/gwells-export/export/v2/gwells.zip" %>%
+  "https://s3.ca-central-1.amazonaws.com/gwells-export/export/v2/gwells.zip" |>
     httr::GET(
       httr::write_disk(
         file.path(cache_dir(), "GWELLS", "gwells.zip"),
@@ -187,8 +188,6 @@ fetch_gwells <- function() {
   #unlink(file.path(cache_dir(), "GWELLS", "gwells.zip"))
 }
 
-fetch_aquifers <- function() {}
-
 clean_wells <- function(file = NULL) {
   if (is.null(file)) {
     file <- file.path(cache_dir(), "GWELLS/well.csv")
@@ -199,12 +198,12 @@ clean_wells <- function(file = NULL) {
     guess_max = Inf,
     show_col_types = FALSE,
     progress = FALSE
-  ) %>%
-    janitor::clean_names() %>%
+  ) |>
+    janitor::clean_names() |>
     dplyr::filter(
       !is.na(.data$latitude_decdeg),
       !is.na(.data$longitude_decdeg)
-    ) %>%
+    ) |>
     # Convert to metric
     convert_m(
       cols = c(
@@ -212,7 +211,7 @@ clean_wells <- function(file = NULL) {
         "water_depth_m" = "static_water_level_ft_btoc"
       ),
       digits = 1
-    ) %>%
+    ) |>
     dplyr::select(dplyr::all_of(fields_wells))
 
   wells_sf <- sf::st_as_sf(
@@ -236,7 +235,7 @@ clean_wells_testing <- function(file = NULL) {
     guess_max = Inf,
     show_col_types = FALSE,
     progress = FALSE
-  ) %>%
+  ) |>
     janitor::clean_names()
 
   message("Wells Testing - Saving data to cache")
@@ -279,13 +278,13 @@ clean_aquifers <- function(files = NULL) {
     guess_max = Inf,
     show_col_types = FALSE,
     progress = FALSE
-  ) %>%
+  ) |>
     janitor::clean_names()
 
-  sf::st_read(file[2], quiet = TRUE) %>%
-    janitor::clean_names() %>%
+  sf::st_read(file[2], quiet = TRUE) |>
+    janitor::clean_names() |>
     dplyr::select("aquifer_id") |>
-    dplyr::mutate(aquifer_id = as.numeric(aquifer_id)) %>%
+    dplyr::mutate(aquifer_id = as.numeric(.data$aquifer_id)) |>
     dplyr::left_join(aq, by = "aquifer_id") |>
     readr::write_rds(file.path(cache_dir(), "aquifers_nice.rds"))
 }
@@ -368,12 +367,14 @@ cache_clean <- function(bcmaps_cded = FALSE) {
   }
 
   if (bcmaps_cded) {
+    # jarl-ignore internal_function: Must use
     f <- list.files(file.path(bcmaps:::data_dir(), "cded"), recursive = TRUE)
     if (length(f) > 0) {
       message(
         "Removing bcmaps cache files related to CDED: \n",
         paste0(paste0(" - ", f), sep = "\n")
       )
+      # jarl-ignore internal_function: Must use
       unlink(file.path(bcmaps:::data_dir(), "cded"), recursive = TRUE)
     } else {
       message("No bcmaps CDED cache directory to remove")
@@ -384,10 +385,10 @@ cache_clean <- function(bcmaps_cded = FALSE) {
 cache_meta <- function() {
   f <- file.path(cache_dir(), "meta.csv")
   if (file.exists(f)) {
-    m <- readr::read_csv(f, show_col_types = FALSE, progress = FALSE) %>%
+    m <- readr::read_csv(f, show_col_types = FALSE, progress = FALSE) |>
       dplyr::mutate(dplyr::across(
         dplyr::where(lubridate::is.POSIXct),
-        ~ round(.x, units = "secs")
+        \(x) round(x, units = "secs")
       ))
   } else {
     m <- data.frame(

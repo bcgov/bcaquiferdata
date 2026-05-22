@@ -68,6 +68,7 @@ server_data <- function(id) {
     data_check <- reactiveVal(TRUE)
 
     # Cache status ----
+    # jarl-ignore internal_function: Must use it
     output$cache_status <- renderUI({
       data_check()
 
@@ -86,12 +87,12 @@ server_data <- function(id) {
     })
 
     # Check data status ----
-    meta <- reactive(cache_meta()) %>% bindEvent(data_check())
-    have_data <- reactive(data_ready()) %>% bindEvent(data_check())
+    meta <- reactive(cache_meta()) |> bindEvent(data_check())
+    have_data <- reactive(data_ready()) |> bindEvent(data_check())
 
     # Output metadata ----
     output$data_meta <- renderTable({
-      meta() %>%
+      meta() |>
         tidyr::pivot_longer(
           cols = dplyr::everything(),
           values_transform = as.character,
@@ -121,7 +122,7 @@ server_data <- function(id) {
       }
       data_check(FALSE)
       v
-    }) %>%
+    }) |>
       bindEvent(data_check())
 
     # Download -----------
@@ -147,7 +148,7 @@ server_data <- function(id) {
       )
 
       removeNotification(msg_id)
-    }) %>%
+    }) |>
       bindEvent(input$data_download)
 
     # Delete cache -----------------
@@ -165,7 +166,7 @@ server_data <- function(id) {
           modalButton("Cancel")
         )
       ))
-    }) %>%
+    }) |>
       bindEvent(input$data_cache)
 
     # Proceed
@@ -181,7 +182,7 @@ server_data <- function(id) {
       )
 
       data_check(TRUE)
-    }) %>%
+    }) |>
       bindEvent(input$data_cache_confirm)
 
     # Outputs -----------

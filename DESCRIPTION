@@ -19,7 +19,6 @@ Imports:
     httr (>= 1.4.2),
     janitor (>= 2.1.0),
     lubridate (>= 1.9.2),
-    magrittr,
     shinycssloaders (>= 1.1.0),
     purrr (>= 0.3.4),
     rappdirs (>= 0.3.3),
@@ -39,16 +38,20 @@ Imports:
     ggthemes (>= 4.2.4),
     shinyjs (>= 2.1.0),
     htmltools (>= 0.5.7),
-    markdown,
-    rmarkdown,
-    wk (>= 0.9.1),
-    bsicons (>= 0.1.2)
+    bsicons (>= 0.1.2),
+    R.utils (>= 2.13.0),
+    bcdata (>= 0.5.2),
+    units (>= 1.0.1)
 Depends: 
-    R (>= 4.0)
+    R (>= 4.1)
 Suggests: 
     knitr,
     gt,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    glue,
+    markdown,
+    rmarkdown,
+    openxlsx
 LazyData: true
 Config/testthat/edition: 3
 URL: https://bcgov.github.io/bcaquiferdata/, https://github.com/bcgov/bcaquiferdata

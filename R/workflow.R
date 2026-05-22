@@ -39,7 +39,6 @@
 #'   `region`.
 #' @param overwrite Logical. If `out_file` supplied, whether to overwrite this
 #'   file if it already exists.
-#'
 #' @param progress Function. Progress bar to use. Generally leave as is.
 #'
 #' @inheritParams common_docs
@@ -118,14 +117,8 @@ dem_region <- function(
   buffer = 1,
   lidar_dir = NULL,
   only_new = TRUE,
-  progress = httr::progress(),
-  type
+  progress = httr::progress()
 ) {
-  if (!missing(type)) {
-    warning("`type` is deprecated, please use `source` instead", call. = FALSE)
-    source <- type
-  }
-
   if (tolower(source) %in% c("lidar", "trim")) {
     source <- tolower(source)
   }
@@ -159,7 +152,7 @@ dem_region <- function(
       region,
       out_dir = lidar_dir,
       progress = progress
-    ) %>%
+    ) |>
       dplyr::pull(.data$out_file)
   } else if (source == "trim") {
     message("Get TRIM data")
@@ -171,9 +164,9 @@ dem_region <- function(
 
   dem_path <- normalizePath(dem_path)
 
-  dem <- dem_path %>%
-    stars::st_mosaic() %>%
-    stars::read_stars(proxy = TRUE) %>%
+  dem <- dem_path |>
+    stars::st_mosaic() |>
+    stars::read_stars(proxy = TRUE) |>
     stats::setNames("elev")
 
   message("Cropping DEM to region\n")
@@ -226,7 +219,7 @@ dem_region <- function(
     )
     message("  DEM created: ", out_file)
 
-    dem <- stars::read_stars(out_file, proxy = TRUE) %>%
+    dem <- stars::read_stars(out_file, proxy = TRUE) |>
       stats::setNames("elev")
   }
 
@@ -272,9 +265,9 @@ wells_subset <- function(
 
   # Subset wells to creek area
   message("Subset wells")
-  w <- data_read(type = "wells_sf", update = update) %>%
-    sf::st_transform(sf::st_crs(region)) %>%
-    sf::st_filter(region) %>%
+  w <- data_read(type = "wells_sf", update = update) |>
+    sf::st_transform(sf::st_crs(region)) |>
+    sf::st_filter(region) |>
     dplyr::left_join(
       data_read("lithology") |> dplyr::select(-"well_yield_unit_code"),
       by = "well_tag_number"
@@ -296,8 +289,8 @@ wells_subset <- function(
 #' @noRd
 
 wells_flag <- function(wells) {
-  wells %>%
-    dplyr::mutate(flag_lith_missing = is.na(.data$lithology_from_m)) %>%
+  wells |>
+    dplyr::mutate(flag_lith_missing = is.na(.data$lithology_from_m)) |>
 
     # Additional flags
     # TODO: Consider joining in cleaning stage and putting these there...
@@ -308,14 +301,14 @@ wells_flag <- function(wells) {
       flag_depth_missing = is.na(.data$well_depth_m),
       flag_depth_mismatch = .data$well_depth_m != .data$lithology_to_m,
       flag_yield_zero = .data$well_yield_usgpm == 0
-    ) %>%
+    ) |>
     dplyr::mutate(
       # Only applies to final lith depth interval
       flag_depth_mismatch = .data$flag_depth_mismatch[
         .data$lith_rec == .data$lith_n
       ],
       .by = "well_tag_number"
-    ) %>%
+    ) |>
 
     # All missing flags are NA
     dplyr::mutate(dplyr::across(dplyr::starts_with("flag_"), \(x) {
@@ -407,10 +400,10 @@ wells_flag <- function(wells) {
 #' koksilah_wells <- wells_elev(koksilah_wells, dem = koksilah_dem)
 #'
 #' # Plot
-#' p <- koksilah_wells %>%
+#' p <- koksilah_wells |>
 #'   st_transform(crs = st_crs(koksilah_dem))
 #' plot(koksilah_dem, reset = FALSE, key.pos = NULL)
-#' plot(p["elev"], add = TRUE, pal = viridisLite::viridis, pch = 20)
+#' plot(p["elev"], add = TRUE, pch = 20)
 
 wells_elev <- function(wells_sub, dem, dem_extra = NULL, update = FALSE) {
   # Checks
@@ -437,9 +430,11 @@ wells_elev <- function(wells_sub, dem, dem_extra = NULL, update = FALSE) {
   }
 
   message("Add elevation")
-  e1 <- wells_sub %>%
-    sf::st_transform(sf::st_crs(dem)) %>% # Faster to transform wells than dem
-    dplyr::mutate(elev = round(stars::st_extract(dem, .)[[1]], 2)) %>%
+  # Faster to transform wells than dem
+  e1 <- sf::st_transform(wells_sub, sf::st_crs(dem))
+
+  e1 <- e1 |>
+    dplyr::mutate(elev = round(stars::st_extract(dem, e1)[[1]], 2)) |>
     sf::st_transform(crs = 3005) # Transform wells back to BC albers
 
   if (!is.null(dem_extra)) {
@@ -450,15 +445,17 @@ wells_elev <- function(wells_sub, dem, dem_extra = NULL, update = FALSE) {
       call. = FALSE
     )
 
-    e2 <- wells_sub %>%
-      dplyr::select("well_tag_number", "geometry") %>%
-      dplyr::distinct() %>% # Get rid of lithology-levels
-      sf::st_transform(sf::st_crs(dem_extra)) %>%
-      dplyr::mutate(elev2 = round(stars::st_extract(dem_extra, .)[[1]], 2)) %>%
+    e2 <- wells_sub |>
+      dplyr::select("well_tag_number", "geometry") |>
+      dplyr::distinct() |> # Get rid of lithology-levels
+      sf::st_transform(sf::st_crs(dem_extra))
+
+    e2 <- e2 |>
+      dplyr::mutate(elev2 = round(stars::st_extract(dem_extra, e2)[[1]], 2)) |>
       sf::st_drop_geometry()
 
-    e1 <- e1 %>%
-      dplyr::rename(elev1 = "elev") %>%
+    e1 <- e1 |>
+      dplyr::rename(elev1 = "elev") |>
       dplyr::left_join(e2, by = "well_tag_number") |>
       dplyr::mutate(elev = dplyr::coalesce(.data[["elev1"]], .data[["elev2"]]))
   }
@@ -491,11 +488,11 @@ wells_elev <- function(wells_sub, dem, dem_extra = NULL, update = FALSE) {
 #' creek_yield <- wells_yield(creek_wells)
 
 wells_yield <- function(wells_sub) {
-  wells_sub %>%
+  wells_sub |>
     dplyr::mutate(
       fractured = .data$lithology_category ==
         "Weathered, Fractured or Faulted Bedrock"
-    ) %>%
+    ) |>
     dplyr::select(
       "well_tag_number",
       dplyr::any_of("elev"),
@@ -509,8 +506,8 @@ wells_yield <- function(wells_sub) {
       "lithology_raw_combined",
       dplyr::starts_with("flag"),
       dplyr::starts_with("fix")
-    ) %>%
-    lith_yield() %>%
+    ) |>
+    lith_yield() |>
     dplyr::mutate(
       flag_yield_mismatch = tidyr::replace_na(.data$flag_yield_mismatch, FALSE)
     )

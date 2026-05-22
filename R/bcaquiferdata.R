@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-#' @importFrom magrittr %>%
 #' @importFrom rlang .data .env
 NULL
 
@@ -27,7 +26,21 @@ NULL
       # Vars used in Non-Standard Evaluations, declare here to
       # avoid CRAN warnings
       c(
-        "." # piping requires '.' at times
+        # Expaneded lists in lithology_cleaning.R
+        "terms_good_main",
+        "terms_good_org",
+        "terms_good_main_y",
+        "terms_good_sgtill",
+        "terms_good_bedrock_desc",
+        "terms_good_bedrock",
+        "terms_good_other",
+        "terms_good_first",
+        "terms_good_extra",
+        "terms_good_yield",
+        "terms_good_joins",
+        "dem", # expanded list of reactives in mod_export_data.R
+        "wells"
+        # "." # piping requires '.' at times
       )
     )
   }

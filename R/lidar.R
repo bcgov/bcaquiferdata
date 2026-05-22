@@ -69,18 +69,24 @@ lidar_fetch <- function(
     )
   }
 
-  fetch <- fetch %>%
-    sf::st_drop_geometry() %>%
+  fetch <- fetch |>
+    sf::st_drop_geometry() |>
     dplyr::mutate(
       tif_good = purrr::map_lgl(.data$url, url_exists),
       out_file = file.path(.env$out_dir, .data$tile_name)
     )
 
   # Warn if cannot find a tile
-  if (any(!fetch$tif_good)) {
-    problems <- stringr::str_remove(fetch$map_tile[!fetch$tif_good], "^0") %>%
-      stringr::str_replace("(.*)(\\d{3})", "\\1.\\2") %>%
-      paste0("\n- ", fetch$map_tile[!fetch$tif_good], " (", ., ")")
+  if (!all(fetch$tif_good)) {
+    problems <- stringr::str_remove(fetch$map_tile[!fetch$tif_good], "^0") |>
+      stringr::str_replace("(.*)(\\d{3})", "\\1.\\2")
+    problems <- paste0(
+      "\n- ",
+      fetch$map_tile[!fetch$tif_good],
+      " (",
+      problems,
+      ")"
+    )
 
     problems <- paste(
       "Could not find a lidar image for map tile(s):",

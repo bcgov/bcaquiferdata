@@ -87,8 +87,6 @@ ui_wells <- function(id) {
           ns("fixes"),
           label = strong("Fix common problems"),
           inline = TRUE,
-          #choices = list("Zero-width bottom lithology intervals" = "fix_bottom",
-          #              "Missing well depth" = "fix_depth"),
           choiceNames = list(
             aq_tt(
               "Zero-width bottom lithology intervals",
@@ -99,8 +97,8 @@ ui_wells <- function(id) {
               "Fixed by using the final lithology depth, if it exists"
             )
           ),
-          choiceValues = list("fix_bottom", "fix_depth"),
-          selected = c("fix_bottom", "fix_depth")
+          choiceValues = list("fix_bottom_intervals", "fix_depth_missing"),
+          selected = c("fix_bottom_intervals", "fix_depth_missing")
         ),
 
         h4("Messages"),
@@ -221,8 +219,8 @@ server_wells <- function(id, have_data) {
     # fixes ---------------------------
     fixes <- reactive({
       list(
-        "fix_bottom" = "fix_bottom" %in% input$fixes,
-        "fix_depth" = "fix_depth" %in% input$fixes
+        "fix_bottom_intervals" = "fix_bottom_intervals" %in% input$fixes,
+        "fix_depth_missing" = "fix_depth_missing" %in% input$fixes
       )
     })
 
@@ -246,8 +244,8 @@ server_wells <- function(id, have_data) {
       } else if (nrow(input$spatial_file) == 1 && type == "zip") {
         f <- utils::unzip(input$spatial_file$datapath, list = TRUE)
         utils::unzip(input$spatial_file$datapath, exdir = tempdir())
-        f <- stringr::str_subset(f$Name, "shp$") %>%
-          file.path(tempdir(), .)
+        f <- stringr::str_subset(f$Name, "shp$")
+        f <- file.path(tempdir(), f)
       } else {
         validate(need(
           FALSE,
@@ -323,20 +321,20 @@ server_wells <- function(id, have_data) {
     # Down sample and convert to points
     dem_tiles1 <- reactive({
       ds <- nrow(dem1()) / 150
-      stars::st_downsample(dem1(), n = ds) %>%
+      stars::st_downsample(dem1(), n = ds) |>
         sf::st_as_sf(as_points = FALSE)
-    }) %>%
+    }) |>
       bindCache(input$spatial_file, dem_source1())
 
     dem_tiles2 <- reactive({
       if (!is.null(dem_source2())) {
         ds <- nrow(dem2()) / 150
-        stars::st_downsample(dem2(), n = ds) %>%
+        stars::st_downsample(dem2(), n = ds) |>
           sf::st_as_sf(as_points = FALSE)
       } else {
         NULL
       }
-    }) %>%
+    }) |>
       bindCache(input$spatial_file, dem_source2())
 
     output$map_plot <- renderPlot(
@@ -418,7 +416,7 @@ server_wells <- function(id, have_data) {
         g
       },
       res = 100
-    ) %>%
+    ) |>
       bindCache(input$spatial_file, input$dem_combo, input$dem_file)
 
     # wells ----------------------------------
@@ -439,9 +437,9 @@ server_wells <- function(id, have_data) {
           message("Wells - Start")
           w <- wells_subset(
             watershed(),
-            fix_bottom = fixes()$fix_bottom,
-            fix_depth = fixes()$fix_depth
-          ) %>%
+            fix_bottom_intervals = fixes()$fix_bottom_intervals,
+            fix_depth_missing = fixes()$fix_depth_missing
+          ) |>
             wells_elev(dem1(), dem2())
           message("Wells - Done")
         },
@@ -452,14 +450,14 @@ server_wells <- function(id, have_data) {
 
       removeNotification(id)
       w
-    }) %>%
+    }) |>
       bindCache(input$spatial_file, input$dem_combo, input$dem_file, fixes())
 
     # wells table -------------------------------
     output$wells_table <- DT::renderDataTable(
       {
-        wells() %>%
-          sf::st_drop_geometry() %>%
+        wells() |>
+          sf::st_drop_geometry() |>
           aq_dt(filename = "wells")
       },
       server = FALSE
@@ -471,10 +469,10 @@ server_wells <- function(id, have_data) {
       watershed = watershed,
       dem = reactive({
         if (!is.null(dem2())) {
-          list(dem1(), dem2()) %>%
+          list(dem1(), dem2()) |>
             rlang::set_names(c(dem_source1(), dem_source2()))
         } else {
-          list(dem1()) %>% rlang::set_names(dem_source1())
+          list(dem1()) |> rlang::set_names(dem_source1())
         }
       })
     )
