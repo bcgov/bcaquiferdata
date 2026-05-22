@@ -18,8 +18,7 @@ dem_region(
   buffer = 1,
   lidar_dir = NULL,
   only_new = TRUE,
-  progress = httr::progress(),
-  type
+  progress = httr::progress()
 )
 ```
 

@@ -111,9 +111,9 @@ koksilah_dem <- dem_region(
 koksilah_wells <- wells_elev(koksilah_wells, dem = koksilah_dem)
 
 # Plot
-p <- koksilah_wells %>%
+p <- koksilah_wells |>
   st_transform(crs = st_crs(koksilah_dem))
 plot(koksilah_dem, reset = FALSE, key.pos = NULL)
-plot(p["elev"], add = TRUE, pal = viridisLite::viridis, pch = 20)
+plot(p["elev"], add = TRUE, pch = 20)
 }
 ```
