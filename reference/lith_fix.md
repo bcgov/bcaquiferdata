@@ -7,18 +7,14 @@ internally when loading and cleaning GWELLS lithology.
 ## Usage
 
 ``` r
-lith_fix(file = "lithology.csv", desc = NULL)
+lith_fix(desc = NULL)
 ```
 
 ## Arguments
 
-- file:
-
-  Character. Lithology file name stored in cache
-
 - desc:
 
-  Character. Text string to convert (overrides `file`).
+  Character. Text string to convert/fix.
 
 ## Value
 
@@ -32,20 +28,23 @@ it works and for troubleshooting.
 ## Examples
 
 ``` r
-lith_fix(desc = "sandy gravel")
-#>   lithology_raw_data lithology_clean lith_primary lith_secondary lith_tertiary
-#> 1       sandy gravel    sandy gravel       gravel                         sand
-#>   lithology_extra      lithology_category yield_units flag_bedrock
-#> 1                 Sand and Gravel (Clean)                    FALSE
-#>   flag_boulders flag_missing_cats
-#> 1         FALSE             FALSE
+
+lith_fix("sandy gravel")
+#> # A tibble: 1 × 11
+#>   lithology_raw_combined lithology_clean lith_primary lith_secondary
+#>   <chr>                  <chr>           <chr>        <chr>         
+#> 1 sandy gravel           sandy gravel    gravel       ""            
+#> # ℹ 7 more variables: lith_tertiary <chr>, lithology_extra <chr>,
+#> #   lithology_category <chr>, yield_units <chr>, flag_cat_bedrock <lgl>,
+#> #   flag_cat_boulders <lgl>, flag_cat_missing <lgl>
 
 # basic spell checks
-lith_fix(desc = "saandy gravel")
-#>   lithology_raw_data lithology_clean lith_primary lith_secondary lith_tertiary
-#> 1      saandy gravel    sandy gravel       gravel                         sand
-#>   lithology_extra      lithology_category yield_units flag_bedrock
-#> 1                 Sand and Gravel (Clean)                    FALSE
-#>   flag_boulders flag_missing_cats
-#> 1         FALSE             FALSE
+lith_fix("saandy gravel")
+#> # A tibble: 1 × 11
+#>   lithology_raw_combined lithology_clean lith_primary lith_secondary
+#>   <chr>                  <chr>           <chr>        <chr>         
+#> 1 saandy gravel          sandy gravel    gravel       ""            
+#> # ℹ 7 more variables: lith_tertiary <chr>, lithology_extra <chr>,
+#> #   lithology_category <chr>, yield_units <chr>, flag_cat_bedrock <lgl>,
+#> #   flag_cat_boulders <lgl>, flag_cat_missing <lgl>
 ```

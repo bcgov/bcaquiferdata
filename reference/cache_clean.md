@@ -19,6 +19,7 @@ cache_clean(bcmaps_cded = FALSE)
 ## Examples
 
 ``` r
+
 # cache_clean()
 # cache_clean(bcmaps_cded = TRUE)
 ```

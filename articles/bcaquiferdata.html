@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Shiny App Walkthrough • bcaquiferdata</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Shiny App Walkthrough">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">bcaquiferdata</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/flags.html">Flags</a></li>
     <li><a class="dropdown-item" href="../articles/lithology_categorization.html">Lithology Cleaning and Categorizing</a></li>
+    <li><a class="dropdown-item" href="../articles/roadmap.html">Roadmap: Workflow and Design Plan</a></li>
     <li><a class="dropdown-item" href="../articles/shiny_apps.html">Shiny Apps Workshop</a></li>
     <li><a class="dropdown-item" href="../articles/Workflow-examples.html">Workflow Examples</a></li>
   </ul>
@@ -63,7 +64,7 @@
       <h1>Shiny App Walkthrough</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/bcgov/bcaquiferdata/blob/main/vignettes/bcaquiferdata.Rmd" class="external-link"><code>vignettes/bcaquiferdata.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bcgov/bcaquiferdata/blob/dev/vignettes/bcaquiferdata.Rmd" class="external-link"><code>vignettes/bcaquiferdata.Rmd</code></a></small>
       <div class="d-none name"><code>bcaquiferdata.Rmd</code></div>
     </div>
 
@@ -123,8 +124,11 @@ data.</p>
 <p>First we’ll take a look at the lithology. These data
 (<code>lithology_clean</code> and <code>lithology_category</code>) are
 categorized from the raw GWELLS lithology descriptions
-(<code>lithology_raw_data</code>) and refer to lithology for different
-sections of a well.</p>
+(<code>lithology_raw_combined</code>, which is a combination of the
+original <code>lithology_raw_data</code>,
+<code>lithology_description_code</code> and
+<code>lithology_material_code</code> columns) and refer to lithology for
+different sections of a well.</p>
 <p>See the “Info” tab for more details on what these columns are and the
 “Lithology Cleaning and Categorizing” article for more details on how
 these are created.</p>
@@ -198,7 +202,7 @@ see, or if there are any problems you find.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Steffi LaZerte, Christine Bieber.</p>
+  <p>Developed by Steffi LaZerte, Christine Bieber, David van Everdingen, Andarge Baye.</p>
 </div>
 
 <div class="pkgdown-footer-right">

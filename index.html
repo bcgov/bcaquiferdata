@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>BC Aquifer data tools • bcaquiferdata</title>
+<title>BC Aquifer Data Tools • bcaquiferdata</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="BC Aquifer data tools">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="BC Aquifer Data Tools">
 <meta name="description" content="Set of tools for processing BC Aquifer lithology and yield data.">
 <meta property="og:description" content="Set of tools for processing BC Aquifer lithology and yield data.">
 </head>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">bcaquiferdata</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/flags.html">Flags</a></li>
     <li><a class="dropdown-item" href="articles/lithology_categorization.html">Lithology Cleaning and Categorizing</a></li>
+    <li><a class="dropdown-item" href="articles/roadmap.html">Roadmap: Workflow and Design Plan</a></li>
     <li><a class="dropdown-item" href="articles/shiny_apps.html">Shiny Apps Workshop</a></li>
     <li><a class="dropdown-item" href="articles/Workflow-examples.html">Workflow Examples</a></li>
   </ul>
@@ -63,7 +64,7 @@
 <p>This is an R package for processing BC Gov GWELLS data into formats more suitable for other analyses (e.g., Strater, Voxler, ArcHydro).</p>
 <p>The functions provided here allow users to filter GWELLS data by region (shapefile), calculate and add elevation data from Lidar or TRIM, and clean and categorize GWELLS lithology and yield data.</p>
 <p>The Shiny app (a graphical user interface), provides a tool for data exploration and exporting.</p>
-<p>We’re still actively refining and adding to this tool, but it is maturing.</p>
+<p>We’re still actively refining and adding to this tool, but it is maturing. See the <a href="https://bcgov.github.io/bcaquiferdata">bcaquiferdata website</a> for tutorials and documentation.</p>
 <div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
@@ -102,24 +103,33 @@
 </ol>
 </div>
 <div class="section level2">
+<h2 id="development-version">Development version<a class="anchor" aria-label="anchor" href="#development-version"></a>
+</h2>
+<p>If you’re interested in testing out the developmental version of the package, you can install it with</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"bcgov/bcaquiferdata@dev"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="troubleshooting">Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
 </h2>
 <p>If you run into errors right at the start, try <strong>updating all packages required by bcaquiferdata</strong></p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"bcgov/bcaquiferdata"</span>, upgrade <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="shiny-user-interface">Shiny User-Interface<a class="anchor" aria-label="anchor" href="#shiny-user-interface"></a>
 </h2>
 <p>To lauch the Shiny User-Interface, type this line into the R console at the prompt (in the screen with <code>&gt;</code>) and hit ‘Enter’.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">bcaquiferdata</span><span class="fu">::</span><span class="fu"><a href="reference/aq_app.html">aq_app</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Launch the app</span></span></code></pre></div>
-<p><strong>See the <a href="https://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.html" class="external-link">tutorial</a> for a more in-depth look at how to use the User Interface</strong></p>
+<p><strong>See the <a href="https://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.html">tutorial</a> for a more in-depth look at how to use the User Interface</strong></p>
 </div>
 <div class="section level2">
-<h2 id="vignettetutorials">Vignette/Tutorials<a class="anchor" aria-label="anchor" href="#vignettetutorials"></a>
+<h2 id="citing-bcaquiferdata">Citing <code>bcaquiferdata</code>
+<a class="anchor" aria-label="anchor" href="#citing-bcaquiferdata"></a>
 </h2>
-<p>See more details on the <a href="https://bcgov.github.io/bcaquiferdata" class="external-link">bcaquiferdata website</a></p>
+<p>You can cite this software as follows:</p>
+<p>LaZerte S, Bieber C, Province of British Columbia (2026). <em>BC Aquifer Data Tools</em>. R package version 0.0.3.9000, <a href="http://bcgov.github.io/bcaquiferdata/" class="external-link uri">http://bcgov.github.io/bcaquiferdata/</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
@@ -165,24 +175,20 @@
 <ul class="list-unstyled">
 <li>Steffi LaZerte <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-7690-8360" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>Christine Bieber <br><small class="roles"> Author </small>   </li>
+<li>David van Everdingen <br><small class="roles"> Author </small>   </li>
+<li>Andarge Baye <br><small class="roles"> Author </small>   </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md" class="external-link"><img src="https://img.shields.io/badge/Lifecycle-Experimental-339999" alt="Lifecycle"></a></li>
-<li><a href="https://github.com/bcgov/bcaquiferdata/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/bcgov/bcaquiferdata/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-</ul>
-</div>
+
 
   </aside>
 </div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Steffi LaZerte, Christine Bieber.</p>
+  <p>Developed by Steffi LaZerte, Christine Bieber, David van Everdingen, Andarge Baye.</p>
 </div>
 
 <div class="pkgdown-footer-right">

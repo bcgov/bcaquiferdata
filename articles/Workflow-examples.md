@@ -1,34 +1,49 @@
 # Workflow Examples
 
 This article presents a couple examples of general workflows in R alone
-(without using the app), running through the various steps using the
-functions directly.
+(without using the Shiny app), running through the various steps using
+the functions directly.
 
 This gives you a bit more flexibility in how you explore and/or filter
 your data.
+
+Note that we also show different ways of plotting the various datasets.
+Pick that which works best for you!
 
 Let’s work through a couple of examples (note these examples are
 presented for illustration, but the shape files are not included in the
 package).
 
+## Setup
+
 ``` r
+
 library(bcaquiferdata)
-library(sf)
-library(ggplot2)
-library(ggspatial)
+library(stars) # For working with raster
+library(sf) # For working with spatial vectors
+library(ggplot2) # For plotting
+library(ggspatial) # For plotting with map tiles
+#> Error in `library()`:
+#> ! there is no package called 'ggspatial'
 ```
 
-**Clinton Creek**
+## Example 1: Clinton Creek (Lidar)
+
+### Load shapefile
 
 Load a shape file defining the region of interest
 
 ``` r
+
 creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 ```
+
+### Add elevation
 
 Fetch Lidar DEM (this may take a while the first time)
 
 ``` r
+
 creek_lidar <- dem_region(creek_sf)
 #> Get Lidar data
 #> Saving new tiles to cache directory: ~/.local/share/bcaquiferdata
@@ -44,78 +59,131 @@ creek_lidar <- dem_region(creek_sf)
 Plot to double check
 
 ``` r
+
 plot(creek_lidar)
 #> downsample set to 44
 ```
 
-![plot of chunk
-unnamed-chunk-5](articles/articles/figures/workflow-unnamed-chunk-5-1.png)
-
-plot of chunk unnamed-chunk-5
+![Lidar DEM model of Clinton
+Creek](figures/workflow-unnamed-chunk-3-1.png)
 
 Collect wells in this region with added elevation from Lidar
 
 ``` r
+
 creek_wells <- creek_sf |>
-  wells_subset() |>        # Subset to region
-  wells_elev(creek_lidar)  # Add Lidar
+  wells_subset() |> # Subset to region
+  wells_elev(creek_lidar) # Add Lidar
 #> Subset wells
+#> Fixing wells with a bottom lithology interval of zero thickness: 37685
+#> Fixing wells where yield 0 should be NA: 4235, 44960, 57075, 57950, 75863
 #> Add elevation
 ```
 
 Plot again to double check
 
 ``` r
+
 ggplot() +
   geom_sf(data = creek_sf) +
-  geom_sf(data = creek_wells, size= 1, aes(colour = elev))
+  geom_sf(data = creek_wells, size = 1, aes(colour = elev))
 ```
 
-![plot of chunk
-unnamed-chunk-7](articles/articles/figures/workflow-unnamed-chunk-7-1.png)
+![Clinton Creek watershed with location of wells. Well colour indicates
+elevation](figures/workflow-unnamed-chunk-5-1.png)
 
-plot of chunk unnamed-chunk-7
+### Export
 
 Export data for Strater, Voxler, and ArcHydro
 
 ``` r
+
 wells_export(creek_wells, id = "clinton", type = "strater")
-#> Writing Strater files ./clinton_strater_lith.csv, ./clinton_strater_collars.csv, ./clinton_strater_wls.csv
+#> Writing Strater file(s) ./clinton_strater_lith.csv, ./clinton_strater_collars.csv, ./clinton_strater_wls.csv
 #> [1] "./clinton_strater_lith.csv"    "./clinton_strater_collars.csv" "./clinton_strater_wls.csv"
 wells_export(creek_wells, id = "clinton", type = "voxler")
-#> Writing Voxler file ./clinton_voxler.csv
+#> Writing Voxler file(s) ./clinton_voxler.csv
 #> [1] "./clinton_voxler.csv"
 wells_export(creek_wells, id = "clinton", type = "archydro")
-#> Writing ArcHydro files ./clinton_archydro_well.csv, ./clinton_archydro_hguid.csv, ./clinton_archydro_bh.csv
+#> Writing ArcHydro file(s) ./clinton_archydro_well.csv, ./clinton_archydro_hguid.csv, ./clinton_archydro_bh.csv
 #> [1] "./clinton_archydro_well.csv"  "./clinton_archydro_hguid.csv" "./clinton_archydro_bh.csv"
 ```
 
-**Mill Bay Watershed**
+If we want to export the Lidar DEM file cropped to the watershed, we can
+use
+[`write_stars()`](https://r-spatial.github.io/stars/reference/write_stars.html),
+but up until now we’ve been using stars proxy objects, so doing this
+will take a **long** time.
+
+``` r
+
+write_stars(creek_lidar, "clinton_lidar_dem.tif", progress = TRUE)
+```
+
+A better option is to use
+[`dem_region()`](https://bcgov.github.io/bcaquiferdata/reference/dem_region.md)
+with the `out_file` argument. This leverages
+[`sf::gdal_utils()`](https://r-spatial.github.io/sf/reference/gdal_utils.html)
+to use the local gdal software directly which is much faster.
+
+``` r
+
+dem_region(creek_sf, out_file = "clinton_lidar_dem.tif")
+#> Get Lidar data
+#> Saving new tiles to cache directory: ~/.local/share/bcaquiferdata
+#> Checking for matching tifs
+#> Fetching bc_092p002_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
+#> Fetching bc_092p013_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
+#> Fetching bc_092p012_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
+#> Fetching bc_092i092_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
+#> Fetching bc_092p003_xli1m_utm10_2019.tif - skipping (new_only = TRUE)
+#> Cropping DEM to region
+#> Creating local dem 'clinton_lidar_dem.tif', this may take a while...
+#>   Saving region shape to temp...
+#>   Creating DEM...
+#>   DEM created: clinton_lidar_dem.tif
+#> stars_proxy object with 1 attribute in 1 file(s):
+#> $elev
+#> [1] "clinton_lidar_dem.tif"
+#> 
+#> dimension(s):
+#>   from    to  offset delta                       refsys point x/y
+#> x    1 21366  585093     1 North_American_1983_CSRS_... FALSE [x]
+#> y    1 24694 5672060    -1 North_American_1983_CSRS_... FALSE [y]
+```
+
+## Example 2: Mill Bay Watershed (TRIM)
+
+### Load shapefile
 
 Load a shape file defining the region of interest
 
 ``` r
+
 mill_sf <- st_read("misc/data/MillBayWatershed.shp")
 ```
 
 We’ll check against some tiles
 
 ``` r
+
 g <- ggplot() +
   annotation_map_tile(type = "osm", zoomin = -1) +
   geom_sf(data = mill_sf, fill = NA, linewidth = 1.5) +
   labs(caption = "Data from OpenStreet Map")
+#> Error in `annotation_map_tile()`:
+#> ! could not find function "annotation_map_tile"
 g
+#> Error:
+#> ! object 'g' not found
 ```
 
-![plot of chunk
-unnamed-chunk-10](articles/articles/figures/workflow-unnamed-chunk-10-1.png)
-
-plot of chunk unnamed-chunk-10
+### Add elevation
 
 Fetch Lidar DEM (this may take a while the first time)
 
 ``` r
+
 mill_lidar <- dem_region(mill_sf)
 #> Get Lidar data
 #> Saving new tiles to cache directory: ~/.local/share/bcaquiferdata
@@ -128,18 +196,15 @@ mill_lidar <- dem_region(mill_sf)
 Add to our plot to double check
 
 ``` r
+
 mill_lidar_sf <- stars::st_downsample(mill_lidar, n = 12) |> # Downsample first
-  st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
+  st_as_sf(as_points = FALSE, merge = TRUE) # Convert to polygons
 #> for stars_proxy objects, downsampling only happens for dimensions x and y
 
 g + geom_sf(data = mill_lidar_sf, aes(fill = elev), colour = NA)
-#> Zoom: 13
+#> Error:
+#> ! object 'g' not found
 ```
-
-![plot of chunk
-unnamed-chunk-12](articles/articles/figures/workflow-unnamed-chunk-12-1.png)
-
-plot of chunk unnamed-chunk-12
 
 Looks like we don’t have elevation data for the whole region. This can
 be confirmed by checking the online [LidarBC
@@ -148,7 +213,9 @@ map](https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b
 Let’s take a look our our options using TRIM data.
 
 ``` r
+
 mill_trim <- dem_region(mill_sf, type = "trim")
+#> Warning: `type` is deprecated, please use `source` instead
 #> Get TRIM data
 #> checking your existing tiles for mapsheet 92b are up to date
 #> Cropping DEM to region
@@ -157,17 +224,14 @@ mill_trim <- dem_region(mill_sf, type = "trim")
 Add to our plot to double check
 
 ``` r
+
 mill_trim_sf <- mill_trim |>
-  st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
+  st_as_sf(as_points = FALSE, merge = TRUE) # Convert to polygons
 
 g + geom_sf(data = mill_trim_sf, aes(fill = elev), colour = NA)
-#> Zoom: 13
+#> Error:
+#> ! object 'g' not found
 ```
-
-![plot of chunk
-unnamed-chunk-14](articles/articles/figures/workflow-unnamed-chunk-14-1.png)
-
-plot of chunk unnamed-chunk-14
 
 TRIM is at a coarser resolution, but covers our entire area. Let’s use
 it instead.
@@ -175,10 +239,14 @@ it instead.
 Collect wells in this region with added elevation from TRIM.
 
 ``` r
+
 mill_wells <- mill_sf |>
   wells_subset() |>
   wells_elev(mill_trim)
 #> Subset wells
+#> Fixing wells with a bottom lithology interval of zero thickness: 8966, 29709, 36777, 37733, 48853, 48941, 55042, 56015, 56016, 68632, 69137, 69139, 69141, 75028, 75042, 84493, 84495, 84496, 84498, 84499, 84503, 84536
+#> Fixing wells missing depth: 80040, 80041, 80043, 81555, 88357, 94353, 94356
+#> Fixing wells where yield 0 should be NA: 8076, 8119, 8175, 8940, 8966, 14047, 14281, 21993, 29560, 29564, 29566, 29567, 35727, 36730, 36913, 36914, 36915, 53169, 54308, 55393, 64033, 75052, 80040, 80041, 80043
 #> Add elevation
 ```
 
@@ -186,34 +254,263 @@ Plot again to double check, see that we now elevation data for all
 wells.
 
 ``` r
+
 g +
   geom_sf(data = mill_wells, size = 1, aes(colour = elev)) +
   scale_color_viridis_c(na.value = "red")
-#> Zoom: 13
+#> Error:
+#> ! object 'g' not found
 ```
 
-![plot of chunk
-unnamed-chunk-16](articles/articles/figures/workflow-unnamed-chunk-16-1.png)
-
-plot of chunk unnamed-chunk-16
+### Export
 
 Export data for Strater, Voxler, and ArcHydro
 
 ``` r
+
 wells_export(mill_wells, id = "mill", type = "strater")
-#> Writing Strater files ./mill_strater_lith.csv, ./mill_strater_collars.csv, ./mill_strater_wls.csv
+#> Writing Strater file(s) ./mill_strater_lith.csv, ./mill_strater_collars.csv, ./mill_strater_wls.csv
 #> [1] "./mill_strater_lith.csv"    "./mill_strater_collars.csv" "./mill_strater_wls.csv"
 wells_export(mill_wells, id = "mill", type = "voxler")
-#> Writing Voxler file ./mill_voxler.csv
+#> Writing Voxler file(s) ./mill_voxler.csv
 #> [1] "./mill_voxler.csv"
 wells_export(mill_wells, id = "mill", type = "archydro")
-#> Writing ArcHydro files ./mill_archydro_well.csv, ./mill_archydro_hguid.csv, ./mill_archydro_bh.csv
+#> Writing ArcHydro file(s) ./mill_archydro_well.csv, ./mill_archydro_hguid.csv, ./mill_archydro_bh.csv
 #> [1] "./mill_archydro_well.csv"  "./mill_archydro_hguid.csv" "./mill_archydro_bh.csv"
 ```
 
-#### Extra tools
+As with Clinton Creek, if we want to export the TRIM DEM file cropped to
+the watershed, we can use
+[`write_stars()`](https://r-spatial.github.io/stars/reference/write_stars.html),
+but up until now we’ve been using stars proxy objects, so doing this
+could take a **long** time.
 
 ``` r
+
+write_stars(mill_trim, "mill_trim_dem.tif", progress = TRUE)
+```
+
+A better option is to use
+[`dem_region()`](https://bcgov.github.io/bcaquiferdata/reference/dem_region.md)
+with the `out_file` argument. This leverages
+[`sf::gdal_utils()`](https://r-spatial.github.io/sf/reference/gdal_utils.html)
+to use the local gdal software directly which is much faster.
+
+``` r
+
+dem_region(mill_sf, out_file = "mill_trim_dem.tif")
+#> Get Lidar data
+#> Saving new tiles to cache directory: ~/.local/share/bcaquiferdata
+#> Checking for matching tifs
+#> Fetching bc_092b063_xl1m_utm10_2019.tif - skipping (new_only = TRUE)
+#> Fetching bc_092b062_xl1m_utm10_2019.tif - skipping (new_only = TRUE)
+#> Cropping DEM to region
+#> Creating local dem 'mill_trim_dem.tif', this may take a while...
+#>   Saving region shape to temp...
+#>   Creating DEM...
+#>   DEM created: mill_trim_dem.tif
+#> stars_proxy object with 1 attribute in 1 file(s):
+#> $elev
+#> [1] "mill_trim_dem.tif"
+#> 
+#> dimension(s):
+#>   from   to  offset delta                     refsys point x/y
+#> x    1 5742  454400     1 NAD83(CSRS) / UTM zone 10N FALSE [x]
+#> y    1 5648 5389647    -1 NAD83(CSRS) / UTM zone 10N FALSE [y]
+```
+
+## Example 3: Koksilah Watershed (Combinations and Custom DEM)
+
+### Load shapefile
+
+Load a shape file defining the region of interest
+
+``` r
+
+koksilah_sf <- st_read("misc/data/Koksilah_watershed4/Koksilah_watershed4.shp")
+```
+
+### Add elevation
+
+Fetch Lidar DEM (this may take a while the first time)
+
+``` r
+
+koksilah_lidar <- dem_region(koksilah_sf)
+#> Error:
+#> ! object 'koksilah_sf' not found
+```
+
+Plot to double check. Hmm, we only have some Lidar
+
+``` r
+
+plot(koksilah_lidar, reset = FALSE)
+#> Error:
+#> ! object 'koksilah_lidar' not found
+plot(
+  st_transform(koksilah_sf, crs = st_crs(koksilah_lidar)),
+  add = TRUE,
+  border = "red",
+  col = NA
+)
+#> Error:
+#> ! object 'koksilah_sf' not found
+```
+
+We could use TRIM instead.
+
+``` r
+
+koksilah_trim <- dem_region(koksilah_sf, source = "trim")
+#> Error:
+#> ! object 'koksilah_sf' not found
+```
+
+``` r
+
+plot(koksilah_trim, reset = FALSE)
+#> Error:
+#> ! object 'koksilah_trim' not found
+plot(
+  st_transform(koksilah_sf, crs = st_crs(koksilah_trim)),
+  add = TRUE,
+  border = "red",
+  col = NA
+)
+#> Error:
+#> ! object 'koksilah_sf' not found
+```
+
+But the TRIM resolution is lower than Lidar.
+
+We could also use Lidar where we have it and TRIM for the rest. But be
+careful! Combining different sources could result in artifacts unrelated
+to actual elevation differences and simply to methodology.
+
+Here we’ll provide the TRIM DEM as `dem_extra`, so the Lidar DEM takes
+priority.
+
+``` r
+
+koksilah_wells <- koksilah_sf |>
+  wells_subset() |> # Subset to region
+  wells_elev(dem = koksilah_lidar, dem_extra = koksilah_trim) # Add Lidar and TRIM
+#> Error:
+#> ! object 'koksilah_sf' not found
+```
+
+Plot to check elevations
+
+``` r
+
+ggplot() +
+  geom_sf(data = koksilah_sf) +
+  geom_sf(data = koksilah_wells, size = 1, aes(colour = elev))
+#> Error:
+#> ! object 'koksilah_sf' not found
+```
+
+And finally, perhaps it’s best if we source our own, complete DEM file.
+
+``` r
+
+koksilah_custom <- dem_region(
+  koksilah_sf,
+  source = "misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif"
+)
+#> Error:
+#> ! `source` must be one of 'lidar', 'trim', or a path to local DEM
+```
+
+``` r
+
+plot(koksilah_custom, reset = FALSE)
+#> Error:
+#> ! object 'koksilah_custom' not found
+plot(
+  st_transform(koksilah_sf, crs = st_crs(koksilah_custom)),
+  add = TRUE,
+  border = "red",
+  col = NA
+)
+#> Error:
+#> ! object 'koksilah_sf' not found
+```
+
+``` r
+
+koksilah_wells <- koksilah_sf |>
+  wells_subset() |> # Subset to region
+  wells_elev(dem = koksilah_custom) # Add Custom DEM
+#> Error:
+#> ! object 'koksilah_sf' not found
+```
+
+Plot to check elevations
+
+``` r
+
+ggplot() +
+  geom_sf(data = koksilah_sf) +
+  geom_sf(data = koksilah_wells, size = 1, aes(colour = elev))
+#> Error:
+#> ! object 'koksilah_sf' not found
+```
+
+### Export
+
+Export data for Strater, Voxler, and ArcHydro
+
+``` r
+
+wells_export(koksilah_wells, id = "koksilah", type = "strater")
+#> Error:
+#> ! object 'koksilah_wells' not found
+wells_export(koksilah_wells, id = "koksilah", type = "voxler")
+#> Error:
+#> ! object 'koksilah_wells' not found
+wells_export(koksilah_wells, id = "koksilah", type = "archydro")
+#> Error:
+#> ! object 'koksilah_wells' not found
+```
+
+If we want to export any of the DEM files cropped to the watershed, we
+can use
+[`write_stars()`](https://r-spatial.github.io/stars/reference/write_stars.html),
+but up until now we’ve been using stars proxy objects, so doing this
+will take a **long** time.
+
+``` r
+
+write_stars(koksilah_lidar, "koksilah_lidar_dem.tif", progress = TRUE)
+write_stars(koksilah_trim, "koksilah_trim_dem.tif", progress = TRUE)
+write_stars(koksilah_custom, "koksilah_custom_dem.tif", progress = TRUE)
+```
+
+A better option is to use
+[`dem_region()`](https://bcgov.github.io/bcaquiferdata/reference/dem_region.md)
+with the `out_file` argument. This leverages
+[`sf::gdal_utils()`](https://r-spatial.github.io/sf/reference/gdal_utils.html)
+to use the local gdal software directly which is much faster.
+
+``` r
+
+dem_region(koksilah_sf, out_file = "koksilah_lidar_dem.tif")
+#> Error:
+#> ! object 'koksilah_sf' not found
+dem_region(koksilah_sf, out_file = "koksilah_trim_dem.tif")
+#> Error:
+#> ! object 'koksilah_sf' not found
+dem_region(koksilah_sf, out_file = "koksilah_custom_dem.tif")
+#> Error:
+#> ! object 'koksilah_sf' not found
+```
+
+## Extra tools
+
+``` r
+
 library(dplyr)
 library(readr)
 ```
@@ -221,38 +518,43 @@ library(readr)
 Load cleaned data (will fetch if doesn’t already exist)
 
 ``` r
+
 wells_lith <- data_read("lithology")
 ```
 
 Explore the lithology standardization performed by bcaquiferdata
 
 ``` r
+
 lith_std <- wells_lith |>
   select(well_tag_number, contains("lith")) |>
   arrange(!is.na(lithology_category))
 lith_std
-#> # A tibble: 618,156 × 17
-#>    well_tag_number lithology_from_ft_bgl lithology_to_ft_bgl lithology_raw_data                 lithology_description…¹
-#>              <dbl>                 <dbl>               <dbl> <chr>                              <chr>                  
-#>  1              11                   164                 187 "red ash"                          <NA>                   
-#>  2              13                     1                 120 "\""                               <NA>                   
-#>  3              49                     0                  15  <NA>                              <NA>                   
-#>  4              62                     0                   0 "backfilled to 217 foot deep well" <NA>                   
-#>  5              73                    25                 170 "delimite w/copper ore"            <NA>                   
-#>  6              73                   190                 380 "copper ore w/delimite"            <NA>                   
-#>  7              88                     0                  65  <NA>                              <NA>                   
-#>  8              98                     0                  15  <NA>                              <NA>                   
-#>  9             105                     0                  15  <NA>                              <NA>                   
-#> 10             163                   200                 210 "gray,clean a little coarser"      <NA>                   
-#> # ℹ 618,146 more rows
+#> # A tibble: 637,624 × 23
+#>    well_tag_number lithology_from_ft_bgl lithology_to_ft_bgl lithology_raw_data                 lithology_descriptio…¹
+#>              <dbl>                 <dbl>               <dbl> <chr>                              <chr>                 
+#>  1              11                   164                 187 "red ash"                          ""                    
+#>  2              13                     1                 120 "\""                               ""                    
+#>  3              49                     0                  15 ""                                 ""                    
+#>  4              62                     0                   0 "backfilled to 217 foot deep well" ""                    
+#>  5              73                    25                 170 "delimite w/copper ore"            ""                    
+#>  6              73                   190                 380 "copper ore w/delimite"            ""                    
+#>  7              88                     0                  65 ""                                 ""                    
+#>  8              98                     0                  15 ""                                 ""                    
+#>  9             105                     0                  15 ""                                 ""                    
+#> 10             163                   200                 210 "gray,clean a little coarser"      ""                    
+#> # ℹ 637,614 more rows
 #> # ℹ abbreviated name: ¹​lithology_description_code
-#> # ℹ 12 more variables: lithology_material_code <chr>, lithology_hardness_code <chr>, lithology_colour_code <chr>,
-#> #   lithology_observation <chr>, lithology_from_m <dbl>, lithology_to_m <dbl>, lithology_clean <chr>,
-#> #   lith_primary <chr>, lith_secondary <chr>, lith_tertiary <chr>, lithology_extra <chr>, lithology_category <chr>
+#> # ℹ 18 more variables: lithology_material_code <chr>, lithology_hardness_code <chr>, lithology_colour_code <chr>,
+#> #   lithology_observation <chr>, lithology_from_m <dbl>, lithology_to_m <dbl>, lithology_raw_combined <chr>,
+#> #   lith_n <int>, lith_rec <int>, flag_lith_nodepths <lgl>, flag_lith_overruns <lgl>, flag_lith_intervals <lgl>,
+#> #   lithology_clean <chr>, lith_primary <chr>, lith_secondary <chr>, lith_tertiary <chr>, lithology_extra <chr>,
+#> #   lithology_category <chr>
 ```
 
 Save it to peruse later
 
 ``` r
+
 write_csv(lith_std, "lith_categorization.csv")
 ```

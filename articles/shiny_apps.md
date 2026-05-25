@@ -58,6 +58,7 @@ To do this, we’re going to send some commands to the R console.
   following and hit Enter
 
 ``` r
+
 install.packages("pak", dependencies = TRUE)
 ```
 
@@ -80,6 +81,7 @@ Run the following at the prompt (`>`), and install build tools if
 prompted.
 
 ``` r
+
 pkgbuild::check_build_tools()
 ```
 
@@ -109,6 +111,7 @@ Again in the console, at the prompt (`>`) we’ll type the following
 commands and hit Enter after each.
 
 ``` r
+
 pak::pkg_install("bcgov/bcgwcat", upgrade = TRUE)
 pak::pkg_install("bcgov/bcaquiferdata", upgrade = TRUE)
 ```
@@ -131,6 +134,7 @@ is to try installing that package directly with pak. For example, if we
 have a hard time with the ‘dplyr’ package, we could try…
 
 ``` r
+
 pak:pkg_install("dplyr")
 ```
 
@@ -138,6 +142,7 @@ If that succeeds, we’ll try again with the installation of our focal
 package…
 
 ``` r
+
 pak:pkg_install("bcgov/bcgwcat")
 ```
 
@@ -159,6 +164,7 @@ currently under development.
 - **To launch the Shiny App**
 
   ``` r
+
   bcgwcat::gw_app()
   ```
 
@@ -194,6 +200,7 @@ E255156, E311344
 - **To launch the Shiny App**
 
   ``` r
+
   bcaquiferdata::aq_app()
   ```
 

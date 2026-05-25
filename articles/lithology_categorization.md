@@ -18,13 +18,13 @@ the outputs of intermediate steps are retained in the final data set.
 
 Here is a full example of lithology data.
 
-| lithology_raw_data            | lithology_clean  | lith_primary  | lith_secondary | lith_tertiary | lithology_extra | lithology_category      | flag_bedrock | flag_boulders | flag_missing_cats |
-|-------------------------------|------------------|---------------|----------------|---------------|-----------------|-------------------------|--------------|---------------|-------------------|
-| gravl w/ sands                | gravel with sand | gravel        | sand           |               |                 | Sand and Gravel (Clean) | FALSE        | FALSE         | FALSE             |
-| bentonite                     | bedrock          | bedrock       |                |               |                 | Bedrock                 | FALSE        | FALSE         | FALSE             |
-| sand and roots                | sand & organic   | sand, organic |                |               | organic         | Organics                | FALSE        | FALSE         | FALSE             |
-| muddy sand                    | silty sand       | sand          |                | silt          |                 | Sand and Fines          | FALSE        | FALSE         | FALSE             |
-| reddish sand with pink gravel | sand with gravel | sand          | gravel         |               |                 | Sand and Gravel (Clean) | FALSE        | FALSE         | FALSE             |
+| lithology_raw_combined | lithology_clean | lith_primary | lith_secondary | lith_tertiary | lithology_extra | lithology_category | flag_cat_bedrock | flag_cat_boulders | flag_cat_missing |
+|----|----|----|----|----|----|----|----|----|----|
+| gravl w/ sands | gravel with sand | gravel | sand |  |  | Sand and Gravel (Clean) | FALSE | FALSE | FALSE |
+| bentonite |  |  |  |  |  | NA | FALSE | FALSE | TRUE |
+| sand and roots | sand & organic | sand, organic |  |  | organic | Organics | FALSE | FALSE | FALSE |
+| muddy sand | silty sand | sand |  | silt |  | Sand and Fines | FALSE | FALSE | FALSE |
+| reddish sand with pink gravel | sand with gravel | sand | gravel |  |  | Sand and Gravel (Clean) | FALSE | FALSE | FALSE |
 
 > In this article we will explain how this data is created.
 
@@ -38,14 +38,14 @@ Categorizing lithology happens over three steps:
 
 The lithology data contains columns reflecting these steps.
 
-| Column                                         | Description                                                                       | Step                     |
-|------------------------------------------------|-----------------------------------------------------------------------------------|--------------------------|
-| lithology_raw_data                             | Original lithology description from GWELLS                                        | Original Data            |
-| lithology_clean                                | Cleaned lithology description                                                     | 1\. Cleaning             |
-| lith_primary, lith_secondary, lith_tertiary    | Intermediate categories created from `lithology_clean`                            | 2\. Initial categorizing |
-| lithology_extra                                | Extra, potentially important descriptors extracted from the lithology description | 3\. Final categorizing   |
-| lithology_category                             | Final categorized lithology                                                       | 3\. Final categorizing   |
-| flag_bedrock, flag_boulders, flag_missing_cats | Columns flagging a particular observation as problematic                          | 3\. Final categorizing   |
+| Column | Description | Step |
+|----|----|----|
+| lithology_raw_combined | Original lithology descriptions from GWELLS (combination of `lithology_raw_data`, `lithology_description_code` and `lithology_material_code`) | Original Data |
+| lithology_clean | Cleaned lithology description | 1\. Cleaning |
+| lith_primary, lith_secondary, lith_tertiary | Intermediate categories created from `lithology_clean` | 2\. Initial categorizing |
+| lithology_extra | Extra, potentially important descriptors extracted from the lithology description | 3\. Final categorizing |
+| lithology_category | Final categorized lithology | 3\. Final categorizing |
+| flag_cat_bedrock, flag_cat_boulders, flag_cat_missing | Columns flagging a particular observation as problematic | 3\. Final categorizing |
 
 #### 1. Cleaning
 

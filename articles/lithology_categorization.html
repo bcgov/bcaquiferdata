@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Lithology Cleaning and Categorizing • bcaquiferdata</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Lithology Cleaning and Categorizing">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">bcaquiferdata</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/flags.html">Flags</a></li>
     <li><a class="dropdown-item" href="../articles/lithology_categorization.html">Lithology Cleaning and Categorizing</a></li>
+    <li><a class="dropdown-item" href="../articles/roadmap.html">Roadmap: Workflow and Design Plan</a></li>
     <li><a class="dropdown-item" href="../articles/shiny_apps.html">Shiny Apps Workshop</a></li>
     <li><a class="dropdown-item" href="../articles/Workflow-examples.html">Workflow Examples</a></li>
   </ul>
@@ -63,7 +64,7 @@
       <h1>Lithology Cleaning and Categorizing</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/bcgov/bcaquiferdata/blob/main/vignettes/lithology_categorization.Rmd" class="external-link"><code>vignettes/lithology_categorization.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bcgov/bcaquiferdata/blob/dev/vignettes/lithology_categorization.Rmd" class="external-link"><code>vignettes/lithology_categorization.Rmd</code></a></small>
       <div class="d-none name"><code>lithology_categorization.Rmd</code></div>
     </div>
 
@@ -536,77 +537,77 @@ set.</p>
 </style>
 <table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="lithology_raw_data">lithology_raw_data</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="lithology_raw_combined">lithology_raw_combined</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="lithology_clean">lithology_clean</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="lith_primary">lith_primary</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="lith_secondary">lith_secondary</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="lith_tertiary">lith_tertiary</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="lithology_extra">lithology_extra</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="lithology_category">lithology_category</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="flag_bedrock">flag_bedrock</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="flag_boulders">flag_boulders</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="flag_missing_cats">flag_missing_cats</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="flag_cat_bedrock">flag_cat_bedrock</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="flag_cat_boulders">flag_cat_boulders</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="flag_cat_missing">flag_cat_missing</th>
     </tr></thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravl w/ sands</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravl w/ sands</td>
 <td headers="lithology_clean" class="gt_row gt_left">gravel with sand</td>
 <td headers="lith_primary" class="gt_row gt_left">gravel</td>
 <td headers="lith_secondary" class="gt_row gt_left">sand</td>
 <td headers="lith_tertiary" class="gt_row gt_left"></td>
 <td headers="lithology_extra" class="gt_row gt_left"></td>
 <td headers="lithology_category" class="gt_row gt_left">Sand and Gravel (Clean)</td>
-<td headers="flag_bedrock" class="gt_row gt_center">FALSE</td>
-<td headers="flag_boulders" class="gt_row gt_center">FALSE</td>
-<td headers="flag_missing_cats" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_bedrock" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_boulders" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_missing" class="gt_row gt_center">FALSE</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">bentonite</td>
-<td headers="lithology_clean" class="gt_row gt_left">bedrock</td>
-<td headers="lith_primary" class="gt_row gt_left">bedrock</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">bentonite</td>
+<td headers="lithology_clean" class="gt_row gt_left"></td>
+<td headers="lith_primary" class="gt_row gt_left"></td>
 <td headers="lith_secondary" class="gt_row gt_left"></td>
 <td headers="lith_tertiary" class="gt_row gt_left"></td>
 <td headers="lithology_extra" class="gt_row gt_left"></td>
-<td headers="lithology_category" class="gt_row gt_left">Bedrock</td>
-<td headers="flag_bedrock" class="gt_row gt_center">FALSE</td>
-<td headers="flag_boulders" class="gt_row gt_center">FALSE</td>
-<td headers="flag_missing_cats" class="gt_row gt_center">FALSE</td>
+<td headers="lithology_category" class="gt_row gt_left">NA</td>
+<td headers="flag_cat_bedrock" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_boulders" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_missing" class="gt_row gt_center">TRUE</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand and roots</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand and roots</td>
 <td headers="lithology_clean" class="gt_row gt_left">sand &amp; organic</td>
 <td headers="lith_primary" class="gt_row gt_left">sand, organic</td>
 <td headers="lith_secondary" class="gt_row gt_left"></td>
 <td headers="lith_tertiary" class="gt_row gt_left"></td>
 <td headers="lithology_extra" class="gt_row gt_left">organic</td>
 <td headers="lithology_category" class="gt_row gt_left">Organics</td>
-<td headers="flag_bedrock" class="gt_row gt_center">FALSE</td>
-<td headers="flag_boulders" class="gt_row gt_center">FALSE</td>
-<td headers="flag_missing_cats" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_bedrock" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_boulders" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_missing" class="gt_row gt_center">FALSE</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">muddy sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">muddy sand</td>
 <td headers="lithology_clean" class="gt_row gt_left">silty sand</td>
 <td headers="lith_primary" class="gt_row gt_left">sand</td>
 <td headers="lith_secondary" class="gt_row gt_left"></td>
 <td headers="lith_tertiary" class="gt_row gt_left">silt</td>
 <td headers="lithology_extra" class="gt_row gt_left"></td>
 <td headers="lithology_category" class="gt_row gt_left">Sand and Fines</td>
-<td headers="flag_bedrock" class="gt_row gt_center">FALSE</td>
-<td headers="flag_boulders" class="gt_row gt_center">FALSE</td>
-<td headers="flag_missing_cats" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_bedrock" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_boulders" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_missing" class="gt_row gt_center">FALSE</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">reddish sand with pink gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">reddish sand with pink gravel</td>
 <td headers="lithology_clean" class="gt_row gt_left">sand with gravel</td>
 <td headers="lith_primary" class="gt_row gt_left">sand</td>
 <td headers="lith_secondary" class="gt_row gt_left">gravel</td>
 <td headers="lith_tertiary" class="gt_row gt_left"></td>
 <td headers="lithology_extra" class="gt_row gt_left"></td>
 <td headers="lithology_category" class="gt_row gt_left">Sand and Gravel (Clean)</td>
-<td headers="flag_bedrock" class="gt_row gt_center">FALSE</td>
-<td headers="flag_boulders" class="gt_row gt_center">FALSE</td>
-<td headers="flag_missing_cats" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_bedrock" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_boulders" class="gt_row gt_center">FALSE</td>
+<td headers="flag_cat_missing" class="gt_row gt_center">FALSE</td>
 </tr>
 </tbody>
 </table>
@@ -1082,8 +1083,8 @@ set.</p>
     </tr></thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="Column" class="gt_row gt_left" style="font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';"><span class="gt_from_md">lithology_raw_data</span></td>
-<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Original lithology description from GWELLS</span></td>
+<td headers="Column" class="gt_row gt_left" style="font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';"><span class="gt_from_md">lithology_raw_combined</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Original lithology descriptions from GWELLS (combination of <code>lithology_raw_data</code>, <code>lithology_description_code</code> and <code>lithology_material_code</code>)</span></td>
 <td headers="Step" class="gt_row gt_left">Original Data</td>
 </tr>
 <tr>
@@ -1107,7 +1108,7 @@ set.</p>
 <td headers="Step" class="gt_row gt_left">3. Final categorizing</td>
 </tr>
 <tr>
-<td headers="Column" class="gt_row gt_left" style="font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';"><span class="gt_from_md">flag_bedrock, flag_boulders, flag_missing_cats</span></td>
+<td headers="Column" class="gt_row gt_left" style="font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';"><span class="gt_from_md">flag_cat_bedrock, flag_cat_boulders, flag_cat_missing</span></td>
 <td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Columns flagging a particular observation as problematic</span></td>
 <td headers="Step" class="gt_row gt_left">3. Final categorizing</td>
 </tr>
@@ -1578,28 +1579,28 @@ set.</p>
 <col>
 </colgroup>
 <thead><tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="lithology_clean"><span class="gt_from_md"><strong>Cleaned Description</strong><br><small>(<code>lithology_clean</code>)</small></span></th>
     </tr></thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravl w/ sands</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravl w/ sands</td>
 <td headers="lithology_clean" class="gt_row gt_left">gravel with sand</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">bentonite</td>
-<td headers="lithology_clean" class="gt_row gt_left">bedrock</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">bentonite</td>
+<td headers="lithology_clean" class="gt_row gt_left"></td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand and roots</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand and roots</td>
 <td headers="lithology_clean" class="gt_row gt_left">sand &amp; organic</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">muddy sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">muddy sand</td>
 <td headers="lithology_clean" class="gt_row gt_left">silty sand</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">reddish sand with pink gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">reddish sand with pink gravel</td>
 <td headers="lithology_clean" class="gt_row gt_left">sand with gravel</td>
 </tr>
 </tbody>
@@ -2087,7 +2088,7 @@ with till</li>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -2100,25 +2101,25 @@ with till</li>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand with silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand with silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silty sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silty sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand with silty clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand with silty clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand, clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
@@ -2595,7 +2596,7 @@ according to a a set of rules</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -2609,28 +2610,28 @@ according to a a set of rules</p>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand with silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand with silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Fines</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silty sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silty sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Fines</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand with silty clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand with silty clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand, clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
@@ -3128,7 +3129,7 @@ first rule takes presidence.</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -3141,37 +3142,37 @@ first rule takes presidence.</p>
 <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="lith_primary"><span class="gt_from_md">1°</span></th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="lith_secondary"><span class="gt_from_md">2°</span></th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="lith_tertiary"><span class="gt_from_md">3°</span></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="flag_bedrock">bedrock</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="flag_boulders">boulders</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="flag_cat_bedrock">bedrock</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="flag_cat_boulders">boulders</th>
     </tr>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">fractured bedrock</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">fractured bedrock</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">fractured, bedrock</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Weathered, Fractured or Faulted Bedrock</td>
-<td headers="flag_bedrock" class="gt_row gt_left"></td>
-<td headers="flag_boulders" class="gt_row gt_right"></td>
+<td headers="flag_cat_bedrock" class="gt_row gt_left"></td>
+<td headers="flag_cat_boulders" class="gt_row gt_right"></td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">fractured</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">fractured</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">fractured</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Weathered, Fractured or Faulted Bedrock</td>
-<td headers="flag_bedrock" class="gt_row gt_left"></td>
-<td headers="flag_boulders" class="gt_row gt_right"></td>
+<td headers="flag_cat_bedrock" class="gt_row gt_left"></td>
+<td headers="flag_cat_boulders" class="gt_row gt_right"></td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">fractured bedrock and sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">fractured bedrock and sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">fractured, bedrock, sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Weathered, Fractured or Faulted Bedrock</td>
-<td headers="flag_bedrock" class="gt_row gt_left">TRUE</td>
-<td headers="flag_boulders" class="gt_row gt_right"></td>
+<td headers="flag_cat_bedrock" class="gt_row gt_left">TRUE</td>
+<td headers="flag_cat_boulders" class="gt_row gt_right"></td>
 </tr>
 </tbody>
 <tfoot><tr class="gt_sourcenotes">
@@ -3647,7 +3648,7 @@ first rule takes presidence.</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -3660,46 +3661,46 @@ first rule takes presidence.</p>
 <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="lith_primary"><span class="gt_from_md">1°</span></th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="lith_secondary"><span class="gt_from_md">2°</span></th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="lith_tertiary"><span class="gt_from_md">3°</span></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="flag_bedrock">bedrock</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="flag_boulders">boulders</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="flag_cat_bedrock">bedrock</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="flag_cat_boulders">boulders</th>
     </tr>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">bedrock</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">bedrock</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">bedrock</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Bedrock</td>
-<td headers="flag_bedrock" class="gt_row gt_left"></td>
-<td headers="flag_boulders" class="gt_row gt_right"></td>
+<td headers="flag_cat_bedrock" class="gt_row gt_left"></td>
+<td headers="flag_cat_boulders" class="gt_row gt_right"></td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand with bedrock</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand with bedrock</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">bedrock</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Bedrock</td>
-<td headers="flag_bedrock" class="gt_row gt_left">TRUE</td>
-<td headers="flag_boulders" class="gt_row gt_right"></td>
+<td headers="flag_cat_bedrock" class="gt_row gt_left">TRUE</td>
+<td headers="flag_cat_boulders" class="gt_row gt_right"></td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sandy bedrock</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sandy bedrock</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">bedrock</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Bedrock</td>
-<td headers="flag_bedrock" class="gt_row gt_left"></td>
-<td headers="flag_boulders" class="gt_row gt_right"></td>
+<td headers="flag_cat_bedrock" class="gt_row gt_left"></td>
+<td headers="flag_cat_boulders" class="gt_row gt_right"></td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand &amp; bedrock</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand &amp; bedrock</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand, bedrock</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Bedrock</td>
-<td headers="flag_bedrock" class="gt_row gt_left">TRUE</td>
-<td headers="flag_boulders" class="gt_row gt_right"></td>
+<td headers="flag_cat_bedrock" class="gt_row gt_left">TRUE</td>
+<td headers="flag_cat_boulders" class="gt_row gt_right"></td>
 </tr>
 </tbody>
 <tfoot><tr class="gt_sourcenotes">
@@ -4175,7 +4176,7 @@ first rule takes presidence.</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -4188,74 +4189,74 @@ first rule takes presidence.</p>
 <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="lith_primary"><span class="gt_from_md">1°</span></th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="lith_secondary"><span class="gt_from_md">2°</span></th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="lith_tertiary"><span class="gt_from_md">3°</span></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="flag_bedrock">bedrock</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="flag_boulders">boulders</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="flag_cat_bedrock">bedrock</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="flag_cat_boulders">boulders</th>
     </tr>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">boulders</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">boulders</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">boulders</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Boulders</td>
-<td headers="flag_bedrock" class="gt_row gt_right"></td>
-<td headers="flag_boulders" class="gt_row gt_left"></td>
+<td headers="flag_cat_bedrock" class="gt_row gt_right"></td>
+<td headers="flag_cat_boulders" class="gt_row gt_left"></td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand with boulders</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand with boulders</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">boulders</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Boulders</td>
-<td headers="flag_bedrock" class="gt_row gt_right"></td>
-<td headers="flag_boulders" class="gt_row gt_left">TRUE</td>
+<td headers="flag_cat_bedrock" class="gt_row gt_right"></td>
+<td headers="flag_cat_boulders" class="gt_row gt_left">TRUE</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sandy boulders</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sandy boulders</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">boulders</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Boulders</td>
-<td headers="flag_bedrock" class="gt_row gt_right"></td>
-<td headers="flag_boulders" class="gt_row gt_left"></td>
+<td headers="flag_cat_bedrock" class="gt_row gt_right"></td>
+<td headers="flag_cat_boulders" class="gt_row gt_left"></td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand &amp; boulders</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand &amp; boulders</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand, boulders</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Boulders</td>
-<td headers="flag_bedrock" class="gt_row gt_right"></td>
-<td headers="flag_boulders" class="gt_row gt_left">TRUE</td>
+<td headers="flag_cat_bedrock" class="gt_row gt_right"></td>
+<td headers="flag_cat_boulders" class="gt_row gt_left">TRUE</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">bouldery</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">bouldery</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">boulders</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Boulders</td>
-<td headers="flag_bedrock" class="gt_row gt_right"></td>
-<td headers="flag_boulders" class="gt_row gt_left"></td>
+<td headers="flag_cat_bedrock" class="gt_row gt_right"></td>
+<td headers="flag_cat_boulders" class="gt_row gt_left"></td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">bouldery sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">bouldery sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">boulders</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Boulders</td>
-<td headers="flag_bedrock" class="gt_row gt_right"></td>
-<td headers="flag_boulders" class="gt_row gt_left">TRUE</td>
+<td headers="flag_cat_bedrock" class="gt_row gt_right"></td>
+<td headers="flag_cat_boulders" class="gt_row gt_left">TRUE</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">hardpan, gravel, boulders<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+<td headers="lithology_raw_combined" class="gt_row gt_left">hardpan, gravel, boulders<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">hardpan, gravel, boulders</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
-<td headers="flag_bedrock" class="gt_row gt_right"></td>
-<td headers="flag_boulders" class="gt_row gt_left">TRUE</td>
+<td headers="flag_cat_bedrock" class="gt_row gt_right"></td>
+<td headers="flag_cat_boulders" class="gt_row gt_left">TRUE</td>
 </tr>
 </tbody>
 <tfoot>
@@ -4735,7 +4736,7 @@ first rule takes presidence.</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -4749,28 +4750,28 @@ first rule takes presidence.</p>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">organic</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">organic</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">organic</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Organics</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">organic with sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">organic with sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">organic</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Organics</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sandy organic</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sandy organic</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">organic</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Organics</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">organic and sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">organic and sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">organic, sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
@@ -5251,7 +5252,7 @@ first rule takes presidence.</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -5265,42 +5266,42 @@ first rule takes presidence.</p>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Gravel</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Clay</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Silt</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silty clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silty clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Clay</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clay with silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clay with silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
@@ -5776,7 +5777,7 @@ first rule takes presidence.</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -5790,35 +5791,35 @@ first rule takes presidence.</p>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silt with sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silt with sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sandy or Gravelly Silt</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silt with gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silt with gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sandy or Gravelly Silt</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sandy silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sandy silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sandy or Gravelly Silt</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravely silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravely silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sandy or Gravelly Silt</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravely silt with sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravely silt with sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
@@ -6295,7 +6296,7 @@ category</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -6309,35 +6310,35 @@ category</p>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand &amp; gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand &amp; gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand, gravel</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Clean)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravel &amp; sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravel &amp; sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel, sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Clean)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand, gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand, gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand, gravel</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Clean)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sandy with gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sandy with gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Clean)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand &amp; gravel &amp; silt<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand &amp; gravel &amp; silt<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand, gravel, silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
@@ -6821,7 +6822,7 @@ category, at least one is <strong>Primary</strong> and
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -6835,56 +6836,56 @@ category, at least one is <strong>Primary</strong> and
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravel &amp; sand with silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravel &amp; sand with silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel, sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravel &amp; sand with clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravel &amp; sand with clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel, sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silty gravel &amp; sand </td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silty gravel &amp; sand </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel, sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clayey gravel &amp; sand </td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clayey gravel &amp; sand </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel, sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravel &amp; sand &amp; silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravel &amp; sand &amp; silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel, sand, silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravel &amp; sand &amp; clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravel &amp; sand &amp; clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel, sand, clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravelly sand with silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravelly sand with silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clayey sand with gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clayey sand with gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
@@ -7362,7 +7363,7 @@ category, at least one is <strong>Primary</strong> and
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -7376,42 +7377,42 @@ category, at least one is <strong>Primary</strong> and
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand with silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand with silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Fines</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand with clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand with clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Fines</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silty sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silty sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Fines</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clayey sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clayey sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Fines</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand &amp; silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand &amp; silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand, silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Fines</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravelly sand with silt<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravelly sand with silt<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
@@ -7419,7 +7420,7 @@ category, at least one is <strong>Primary</strong> and
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand and Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand &amp; clay<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand &amp; clay<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand, clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
@@ -7902,7 +7903,7 @@ and <code>silt</code> (<em>not</em> <code>clay</code>)</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -7916,42 +7917,42 @@ and <code>silt</code> (<em>not</em> <code>clay</code>)</p>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravel with silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravel with silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravel with clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravel with clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silty gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silty gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clayey gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clayey gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravel &amp; silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravel &amp; silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel, silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Gravel (Dirty)</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravel &amp; clay<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravel &amp; clay<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel, clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
@@ -8437,7 +8438,7 @@ and <code>silt</code> (<em>not</em> <code>clay</code>)</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -8451,84 +8452,84 @@ and <code>silt</code> (<em>not</em> <code>clay</code>)</p>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sgtill</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sgtill</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sgtill</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand or Gravel Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">till with gravel and sand seam</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">till with gravel and sand seam</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">till</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand or Gravel Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">till with sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">till with sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">till</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand or Gravel Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clay with gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clay with gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand or Gravel Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">sand with till</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">sand with till</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">till</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand or Gravel Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">tilly gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">tilly gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">till</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand or Gravel Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">compact sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">compact sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">compact, sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand or Gravel Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">compact gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">compact gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">compact, gravel</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand or Gravel Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">compact with sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">compact with sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">compact</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">sand</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand or Gravel Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clay &amp; gravel</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clay &amp; gravel</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay, gravel</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand or Gravel Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clay &amp; sand</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clay &amp; sand</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay, sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Sand or Gravel Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">gravel &amp; sand &amp; silt<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+<td headers="lithology_raw_combined" class="gt_row gt_left">gravel &amp; sand &amp; silt<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel, sand, silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
@@ -9017,7 +9018,7 @@ Sand, Clay, or Silt</a>)</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -9031,105 +9032,105 @@ Sand, Clay, or Silt</a>)</p>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">till</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">till</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">till</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">hard pan</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">hard pan</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">hardpan</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">hard earth</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">hard earth</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">hard earth</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silt with till</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silt with till</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">till</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">tilly silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">tilly silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">till</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clay &amp; till</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clay &amp; till</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay, till</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">tilly clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">tilly clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">till</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">compact silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">compact silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">compact, silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">compact clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">compact clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">compact, clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">compact with silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">compact with silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">compact</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">compact with clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">compact with clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">compact</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silt &amp; clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silt &amp; clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt, clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silt with clay</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silt with clay</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clayey silt</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clayey silt</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Medium to Clay Till or Diamicton</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">silty clay<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+<td headers="lithology_raw_combined" class="gt_row gt_left">silty clay<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
@@ -9137,7 +9138,7 @@ Sand, Clay, or Silt</a>)</p>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Clay</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">clay with silt<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+<td headers="lithology_raw_combined" class="gt_row gt_left">clay with silt<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">clay</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">silt</td>
@@ -9617,7 +9618,7 @@ Sand, Clay, or Silt</a>)</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -9631,14 +9632,14 @@ Sand, Clay, or Silt</a>)</p>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">shells</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">shells</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">shells</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Shells</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">shells &amp; sand<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+<td headers="lithology_raw_combined" class="gt_row gt_left">shells &amp; sand<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">shells, sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
@@ -10124,7 +10125,7 @@ Sand, Clay, or Silt</a>)</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -10138,14 +10139,14 @@ Sand, Clay, or Silt</a>)</p>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">overburden</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">overburden</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">overburden</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Overburden</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">overburden &amp; sand<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+<td headers="lithology_raw_combined" class="gt_row gt_left">overburden &amp; sand<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">overburden, sand</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
@@ -10658,7 +10659,7 @@ Sand, Clay, or Silt</a>)</p>
 </colgroup>
 <thead>
 <tr class="gt_col_headings gt_spanner_row">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_data"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_data</code>)</small></span></th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="lithology_raw_combined"><span class="gt_from_md"><strong>Starting Description</strong><br><small>(<code>lithology_raw_combined</code>)</small></span></th>
       <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="**Intermediate Categories**&lt;br&gt;&lt;small&gt;(`lith_primary`,`lith_secondary`,`lith_tertiary`)&lt;/small&gt;">
         <div class="gt_column_spanner"><span class="gt_from_md"><strong>Intermediate Categories</strong><br><small>(<code>lith_primary</code>,<code>lith_secondary</code>,<code>lith_tertiary</code>)</small></span></div>
       </th>
@@ -10672,28 +10673,28 @@ Sand, Clay, or Silt</a>)</p>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">broken rock</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">broken rock</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">fractured, bedrock</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Weathered, Fractured or Faulted Bedrock</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">rock</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">rock</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">bedrock</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Bedrock</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">rocks</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">rocks</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lithology_category" class="gt_row gt_left" style="background-color: rgba(144,238,144,0.6);">Gravel</td>
 </tr>
 <tr>
-<td headers="lithology_raw_data" class="gt_row gt_left">rocky</td>
+<td headers="lithology_raw_combined" class="gt_row gt_left">rocky</td>
 <td headers="lith_primary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_secondary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);"></td>
 <td headers="lith_tertiary" class="gt_row gt_center" style="background-color: rgba(173,216,230,0.6);">gravel</td>
@@ -10711,7 +10712,7 @@ Sand, Clay, or Silt</a>)</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Steffi LaZerte, Christine Bieber.</p>
+  <p>Developed by Steffi LaZerte, Christine Bieber, David van Everdingen, Andarge Baye.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -15,7 +15,7 @@ Common arguments and documentation for various functions
 - wells_sub:
 
   sf spatial data frame. Subset of wells data output by
-  [`wells_subset()`](http://bcgov.github.io/bcaquiferdata/reference/wells_subset.md)
+  [`wells_subset()`](https://bcgov.github.io/bcaquiferdata/reference/wells_subset.md)
 
 - permission:
 

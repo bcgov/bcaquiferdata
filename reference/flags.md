@@ -21,3 +21,7 @@ A data frame with 10 rows and 2 columns:
 - Description:
 
   Flag description
+
+- Solution:
+
+  Suggested solution to the problem

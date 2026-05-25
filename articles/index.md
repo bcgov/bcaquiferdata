@@ -3,11 +3,13 @@
 ### All vignettes
 
 - [Shiny App
-  Walkthrough](http://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.md):
-- [Flags](http://bcgov.github.io/bcaquiferdata/articles/flags.md):
+  Walkthrough](https://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.md):
+- [Flags](https://bcgov.github.io/bcaquiferdata/articles/flags.md):
 - [Lithology Cleaning and
-  Categorizing](http://bcgov.github.io/bcaquiferdata/articles/lithology_categorization.md):
+  Categorizing](https://bcgov.github.io/bcaquiferdata/articles/lithology_categorization.md):
+- [Roadmap: Workflow and Design
+  Plan](https://bcgov.github.io/bcaquiferdata/articles/roadmap.md):
 - [Shiny Apps
-  Workshop](http://bcgov.github.io/bcaquiferdata/articles/shiny_apps.md):
+  Workshop](https://bcgov.github.io/bcaquiferdata/articles/shiny_apps.md):
 - [Workflow
-  Examples](http://bcgov.github.io/bcaquiferdata/articles/Workflow-examples.md):
+  Examples](https://bcgov.github.io/bcaquiferdata/articles/Workflow-examples.md):

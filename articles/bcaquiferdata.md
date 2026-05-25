@@ -12,6 +12,7 @@ In the R console type the following, hitting enter after the line. This
 will launch the Shiny App.
 
 ``` r
+
 bcaquiferdata::aq_app()
 ```
 
@@ -62,7 +63,9 @@ data.
 
 First we’ll take a look at the lithology. These data (`lithology_clean`
 and `lithology_category`) are categorized from the raw GWELLS lithology
-descriptions (`lithology_raw_data`) and refer to lithology for different
+descriptions (`lithology_raw_combined`, which is a combination of the
+original `lithology_raw_data`, `lithology_description_code` and
+`lithology_material_code` columns) and refer to lithology for different
 sections of a well.
 
 See the “Info” tab for more details on what these columns are and the

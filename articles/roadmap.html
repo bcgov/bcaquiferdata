@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Roadmap: Workflow and Design Plan • bcaquiferdata</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Roadmap: Workflow and Design Plan">
 </head>
 <body>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">bcaquiferdata</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,7 +92,7 @@ item.</p>
 </li>
 <li>
 <a href="#fetching-elevation-data">Fetching elevation data</a> -
-<strong>Partially complete</strong>
+<strong>Complete</strong>
 </li>
 <li>
 <a href="#adding-elevation-data">Adding elevation data</a> -
@@ -182,20 +182,14 @@ processed into simplified categories</li>
 </h3>
 <p><strong>Sources</strong> - Lidar - <a href="https://catalogue.data.gov.bc.ca/dataset/lidarbc-open-lidar-data-portal" class="external-link uri">https://catalogue.data.gov.bc.ca/dataset/lidarbc-open-lidar-data-portal</a>
 - TRIM DEM - <del><a href="https://catalogue.data.gov.bc.ca/dataset/1-20-000-georeferenced-topographic-base-maps-by-mapsheet" class="external-link uri">https://catalogue.data.gov.bc.ca/dataset/1-20-000-georeferenced-topographic-base-maps-by-mapsheet</a></del>
-- <a href="https://catalogue.data.gov.bc.ca/dataset/digital-elevation-model-for-british-columbia-cded-1-250-000" class="external-link uri">https://catalogue.data.gov.bc.ca/dataset/digital-elevation-model-for-british-columbia-cded-1-250-000</a></p>
+- <a href="https://catalogue.data.gov.bc.ca/dataset/digital-elevation-model-for-british-columbia-cded-1-250-000" class="external-link uri">https://catalogue.data.gov.bc.ca/dataset/digital-elevation-model-for-british-columbia-cded-1-250-000</a>
+&gt; - Custom DEM (<a href="https://github.com/bcgov/bcaquiferdata/issues/18" class="external-link">Issue
+#18</a>)</p>
 <p><strong>Steps</strong> - Using area of interest, download relevant
 DEM data to the cache, load it, and trim it to the area of interest. -
 [Code] User passes area of interest to <code><a href="../reference/dem_region.html">dem_region()</a></code>
 function - [App] Automatically happens once area of interest is
 selected</p>
-<blockquote>
-<p><strong>Status</strong> - Mostly complete</p>
-<p><strong>TODO</strong></p>
-<ul>
-<li>Add option for user to supply their own spatial elevation data (<a href="https://github.com/bcgov/bcaquiferdata/issues/18" class="external-link">Issue
-#18</a>)</li>
-</ul>
-</blockquote>
 </div>
 <div class="section level3">
 <h3 id="adding-elevation-data">Adding elevation data<a class="anchor" aria-label="anchor" href="#adding-elevation-data"></a>
@@ -246,15 +240,16 @@ Lidar</li>
 <li>Freshwater Atlas streams: <a href="https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-stream-network" class="external-link uri">https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-stream-network</a>
 </li>
 </ul>
-<blockquote>
-<p><strong>Status</strong> - Not implemented</p>
-<p><strong>TODO</strong></p>
+<p><strong>Steps</strong></p>
 <ul>
-<li><a href="https://github.com/bcgov/bcaquiferdata/issues/18" class="external-link">Issue
-#19</a></li>
-<li>Is this necessary or desired?</li>
-<li>If so, what should it look like in the App?</li>
+<li>Add option to download spatial data layers (or as needed?)</li>
+<li>Add option to export cropped spatial data</li>
 </ul>
+<blockquote>
+<p><strong>Status</strong> - In Progress</p>
+<p><strong>TODO</strong> - <a href="https://github.com/bcgov/bcaquiferdata/issues/26" class="external-link">Add Freshwater
+atlas</a> - <a href="https://github.com/bcgov/bcaquiferdata/issues/19" class="external-link">Potential
+others</a></p>
 </blockquote>
 </div>
 <div class="section level3">
@@ -321,8 +316,6 @@ copy of the glossary in the <code>flags</code> data set.</li>
 <ul>
 <li>Review flag specifics to ensure correct</li>
 <li>Add more flags</li>
-<li>Add option to export all ‘fixable’ flags to promote fixing issues in
-GWELLS</li>
 </ul>
 </blockquote>
 </div>
@@ -337,6 +330,7 @@ and that functions work as expected)</li>
 <li>Adding documentation (help users use the app and/or functions)
 <ul>
 <li>Function documentation</li>
+<li>Internal documentation</li>
 <li>pkgdown website</li>
 </ul>
 </li>
@@ -360,7 +354,7 @@ and that functions work as expected)</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

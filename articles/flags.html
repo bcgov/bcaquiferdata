@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Flags • bcaquiferdata</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Flags">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">bcaquiferdata</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/flags.html">Flags</a></li>
     <li><a class="dropdown-item" href="../articles/lithology_categorization.html">Lithology Cleaning and Categorizing</a></li>
+    <li><a class="dropdown-item" href="../articles/roadmap.html">Roadmap: Workflow and Design Plan</a></li>
     <li><a class="dropdown-item" href="../articles/shiny_apps.html">Shiny Apps Workshop</a></li>
     <li><a class="dropdown-item" href="../articles/Workflow-examples.html">Workflow Examples</a></li>
   </ul>
@@ -63,15 +64,40 @@
       <h1>Flags</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/bcgov/bcaquiferdata/blob/main/vignettes/flags.Rmd" class="external-link"><code>vignettes/flags.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bcgov/bcaquiferdata/blob/dev/vignettes/flags.Rmd" class="external-link"><code>vignettes/flags.Rmd</code></a></small>
       <div class="d-none name"><code>flags.Rmd</code></div>
     </div>
 
     
     
-<p>Flag definitions for lithology and hydrostratigraphy</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">gt</span><span class="fu">::</span><span class="fu"><a href="https://gt.rstudio.com/reference/gt.html" class="external-link">gt</a></span><span class="op">(</span><span class="fu">bcaquiferdata</span><span class="fu">::</span><span class="va"><a href="../reference/flags.html">flags</a></span><span class="op">)</span></span></code></pre></div>
+<p>Flag definitions for lithology and hydrostratigraphy. You can access
+this list in R at any time through the <code>flags</code> dataset.</p>
+<p>Many of these flags indicate potential problems in the original data
+record on GWELLS. However, if you believe that the record is correct,
+but that the <em>flag</em> is incorrect, please <a href="https://github.com/bcgov/bcaquiferdata/issues" class="external-link">open an issue</a>
+and let us know what the problem is (which flag is incorrect and why)
+and with which Well (<code>well_tag_number</code>).</p>
+<p><code>from</code> and <code>to</code> fields refer to
+<code>lithology_from_ft_bgl</code>/<code>lithology_to_ft_bgl</code> and
+<code>lithology_from_m</code>/<code>lithology_to_m</code> fields</p>
+<p>The middle letters (e.g., <code>int</code> in
+<code>flag_int_missing</code>) reflect the kind of data being
+flagged.</p>
+<ul>
+<li>
+<code>int</code> refers to a specific lithologic depth interval</li>
+<li>
+<code>lith</code> refers to a well’s entire lithologic record</li>
+<li>
+<code>cat</code> refers to the lithology categorization</li>
+<li>
+<code>pos</code> refers to the specific position of a category</li>
+<li>
+<code>yield</code> refers to the yield extracted from a lithologic
+record</li>
+<li>
+<code>depth</code> refers to well depths</li>
+</ul>
 <div id="mwlefoodfi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#mwlefoodfi table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -528,48 +554,96 @@
     </tr></thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="Flag" class="gt_row gt_left">flag_missing</td>
-<td headers="Description" class="gt_row gt_left">Missing lithologic interval</td>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_int_missing</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Interval is missing lithologic record.</span></td>
 </tr>
 <tr>
-<td headers="Flag" class="gt_row gt_left">flag_no_depths</td>
-<td headers="Description" class="gt_row gt_left">All lithologic intervals have depths of 0 ('from' and 'to')</td>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_int_overlap</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Interval overlaps the next or previous interval.</span></td>
 </tr>
 <tr>
-<td headers="Flag" class="gt_row gt_left">flag_zero_zero</td>
-<td headers="Description" class="gt_row gt_left">Any lithologic interval that has a depth of 0 to 0 (only marks a single interval)</td>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_int_gap</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Interval has a gap between it and the next or previous interval.</span></td>
 </tr>
 <tr>
-<td headers="Flag" class="gt_row gt_left">flag_overruns</td>
-<td headers="Description" class="gt_row gt_left">Any lithologic interval has both depths of 0 ('from' and 'to'). Possibly a second entry for a single interval, 'overrun' interval (marks all intervals for a well)</td>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_int_note</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">This first depth interval has depth values both to and from 0 (or <code>NA</code>) which marks possible notes made before the lithology records.</span></td>
 </tr>
 <tr>
-<td headers="Flag" class="gt_row gt_left">flag_bottom_unit</td>
-<td headers="Description" class="gt_row gt_left">All 'from' depths are 0, end depths are not (except possibly the first).Problem: The original log shows only the bottom of a unit (fix in GWELLS)</td>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_int_overrun</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Second or later depth interval has depth values both to and from 0 (or `NA). This marks an interval as a possible overrun, where the notes from a previous record have overrun onto the next line.</span></td>
 </tr>
 <tr>
-<td headers="Flag" class="gt_row gt_left">flag_bedrock</td>
-<td headers="Description" class="gt_row gt_left">Interval where Bedrock occurs with any other primary term</td>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_int_shortform</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Second or later depth interval has a <code>from</code> of 0 (or <code>NA</code>) and a non-zero (and non-missing) <code>to</code>. Often (but not always), this indicates that the record was entered in short hand, by omitting <code>from</code> and only inputing the <code>to</code>s.</span></td>
 </tr>
 <tr>
-<td headers="Flag" class="gt_row gt_left">flag_bedrock_position</td>
-<td headers="Description" class="gt_row gt_left">A non-bedrock category occurs *below* a bedrock category</td>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_int_bottom</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Bottom interval with zero depth. Either because <code>to</code> is 0 (or <code>NA</code>) or because <code>to</code> == <code>from</code>.</span></td>
 </tr>
 <tr>
-<td headers="Flag" class="gt_row gt_left">flag_boulders</td>
-<td headers="Description" class="gt_row gt_left">Interval where Boulders occur with any other primary term</td>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">fix_int_bottom</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Indicates whether the <code>flag_int_bottom</code> problem has been fixed here by adding 1m to the <code>to</code> bottom layer as well as to the depth of the well.</span></td>
 </tr>
 <tr>
-<td headers="Flag" class="gt_row gt_left">flag_missing_cats</td>
-<td headers="Description" class="gt_row gt_left">No categories were extracted from the cleaned lithologic interval</td>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_lith_overruns</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Well with at least one overrunning interval (<code>flag_int_overrun</code> with missing depths).</span></td>
 </tr>
 <tr>
-<td headers="Flag" class="gt_row gt_left">flag_yield</td>
-<td headers="Description" class="gt_row gt_left">Lithology where there are both depths and yields, but the number of yield measures do not match up with the number of depth measures (thus `yield` and `depths` are NA). Problem: there is a problem in the original log (i.e. missing a depth, or the depth is a range)or there is a problem with the extract algorithm. This only applies to Hydrostratigraphy.</td>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_lith_nodepths</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">All lithologic intervals have depths of 0 (or <code>NA</code>) in both <code>from</code> and <code>to</code>.</span></td>
 </tr>
 <tr>
-<td headers="Flag" class="gt_row gt_left">flag_extra_digits</td>
-<td headers="Description" class="gt_row gt_left">Lithology with extra digits which were not converted to a yield or depth. This only applies to Hydrostratigraphy.</td>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_lith_intervals</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">At least one flag present on at least one interval in this record.</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_lith_missing</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">There are no lithologic records for this well.</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_cat_bedrock</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Interval where Bedrock occurs with any other primary term.</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_pos_bedrock</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">A non-bedrock category occurs <em>below</em> a bedrock category.</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_cat_boulders</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Interval where Boulders occur with any other primary term.</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_cat_missing</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">No categories were extracted from the cleaned lithologic interval.</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_yield_mismatch</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Lithology where there are both depths and yields, but the number of yield measures do not match up with the number of depth measures (thus <code>yield</code> and <code>depths</code> are <code>NA</code>). This only applies to Hydrostratigraphy.</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_yield_digits</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Lithology with extra digits which were not converted to a yield or depth. This only applies to Hydrostratigraphy.</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_depth_missing</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Well is missing depth.</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">fix_depth_missing</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Indicates whether a <code>flag_depth_missing</code> problem has been fixed here by setting Well depth to the depth of the final interval.</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_depth_mismatch</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Well depth is not equal to the depth of the final lithology interval.</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">flag_yield_zero</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Well yield is zero, but should probablyl be missing (NA)</span></td>
+</tr>
+<tr>
+<td headers="Flag" class="gt_row gt_left" style="font-family: monospace;"><span class="gt_from_md">fix_yield_zero</span></td>
+<td headers="Description" class="gt_row gt_left"><span class="gt_from_md">Indicates whether a <code>flag_yield_zero</code> problem has been fixed by setting Well Yield of 0 to NA.</span></td>
 </tr>
 </tbody>
 </table>
@@ -580,7 +654,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Steffi LaZerte, Christine Bieber.</p>
+  <p>Developed by Steffi LaZerte, Christine Bieber, David van Everdingen, Andarge Baye.</p>
 </div>
 
 <div class="pkgdown-footer-right">

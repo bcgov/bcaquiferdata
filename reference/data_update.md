@@ -5,7 +5,11 @@ Update the GWELLs data stored locally.
 ## Usage
 
 ``` r
-data_update(type = "all", download = TRUE, permission = FALSE)
+data_update(
+  type = c("wells", "lithology"),
+  download = TRUE,
+  permission = FALSE
+)
 ```
 
 ## Arguments
@@ -28,7 +32,7 @@ data_update(type = "all", download = TRUE, permission = FALSE)
 
 ``` r
 if (FALSE) { # interactive()
-
+data_update(type = "wells")
 data_update(type = "lithology")
 }
 ```

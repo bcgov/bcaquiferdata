@@ -7,20 +7,25 @@
 
 - **Christine Bieber**. Author.
 
+- **David van Everdingen**. Author.
+
+- **Andarge Baye**. Author.
+
 - **Province of British Columbia**. Copyright holder.
 
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/bcgov/bcaquiferdata/blob/main/DESCRIPTION)
+[`inst/CITATION`](https://github.com/bcgov/bcaquiferdata/blob/dev/inst/CITATION)
 
-LaZerte S, Bieber C (2026). *bcaquiferdata: BC Aquifer data tools*. R
-package version 0.0.3, <http://bcgov.github.io/bcaquiferdata/>.
+LaZerte S, Bieber C, Province of British Columbia (2026). *BC Aquifer
+Data Tools*. R package version 1.0.0,
+<http://bcgov.github.io/bcaquiferdata/>.
 
-    @Manual{,
-      title = {bcaquiferdata: BC Aquifer data tools},
-      author = {Steffi LaZerte and Christine Bieber},
-      year = {2026},
-      note = {R package version 0.0.3},
+    @Manual{bcaquiferdata,
+      title = {BC Aquifer Data Tools},
+      author = {Steffi LaZerte and Christine Bieber and {Province of British Columbia}},
       url = {http://bcgov.github.io/bcaquiferdata/},
+      year = {2026},
+      note = {R package version 1.0.0},
     }
