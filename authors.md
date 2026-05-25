@@ -16,7 +16,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/bcgov/bcaquiferdata/blob/v1.0.0/inst/CITATION)
+[`inst/CITATION`](https://github.com/bcgov/bcaquiferdata/blob/main/inst/CITATION)
 
 LaZerte S, Bieber C, Province of British Columbia (2026). *BC Aquifer
 Data Tools*. R package version 1.0.0,

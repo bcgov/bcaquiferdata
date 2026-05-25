@@ -47,13 +47,7 @@ Here is a summary with links to the relevant sections
   - These are then categorized into `lithology_category`
   - Special terms are listed in `lithology_extra` (e.g., “wet”)
 
-> **Status** - Polishing
->
-> **TODO**
->
-> - More questions
-> - More refinement
-> - What do we do with the ‘lithology_extra’ column?
+> **Status** - Complete (and forever polishing)
 
 ### Defining area of interest
 
@@ -69,9 +63,8 @@ Here is a summary with links to the relevant sections
 <https://catalogue.data.gov.bc.ca/dataset/lidarbc-open-lidar-data-portal> -
 TRIM DEM -
 ~~<https://catalogue.data.gov.bc.ca/dataset/1-20-000-georeferenced-topographic-base-maps-by-mapsheet>~~ -
-<https://catalogue.data.gov.bc.ca/dataset/digital-elevation-model-for-british-columbia-cded-1-250-000>
-\> - Custom DEM ([Issue
-\#18](https://github.com/bcgov/bcaquiferdata/issues/18))
+<https://catalogue.data.gov.bc.ca/dataset/digital-elevation-model-for-british-columbia-cded-1-250-000> -
+Custom DEM
 
 **Steps** - Using area of interest, download relevant DEM data to the
 cache, load it, and trim it to the area of interest. - \[Code\] User
@@ -120,15 +113,15 @@ selected
 - Add option to download spatial data layers (or as needed?)
 - Add option to export cropped spatial data
 
-> **Status** - In Progress
+> **Status** - In Progress (on hold)
 >
 > **TODO** - [Add Freshwater
 > atlas](https://github.com/bcgov/bcaquiferdata/issues/26) - [Potential
 > others](https://github.com/bcgov/bcaquiferdata/issues/19)
 
-### Water flow analysis
+### Water flow/yield
 
-- Extract water flow details from lithology descriptions
+- Extract water flow/yield details from lithology descriptions
 - Adds four columns: yield, yield units, depth, and depth units
 - Where there are multiple yields per record, corresponding to flow at
   multiple depths, extra records are created (currently duplicated)
@@ -141,14 +134,7 @@ selected
 - \[App\] The hydrostratigraphy tab shows the data formated for water
   flow analysis.
 
-> **Status** - Partially complete
->
-> **TODO**
->
-> - What next? Should this data be exportable from the app?
-> - How do we create multiple records? Do we need to adjust the record
->   depths?
-> - Should the flow column be added?
+> **Status** - Complete
 
 ### Cross-sections
 
@@ -156,6 +142,7 @@ selected
 - Strater
 - Voxler
 - ArcHydro
+- Leapfrog
 - \[Code\] Users can export the data to various formats with
   [`wells_export()`](https://bcgov.github.io/bcaquiferdata/reference/wells_export.md)
 - \[App\] The Exports tab previews the data in different formats with
@@ -173,12 +160,7 @@ selected
   dedicated ‘flags’ tab for exploring flags which includes a copy of the
   glossary in the `flags` data set.
 
-> **Status** - Partially complete
->
-> **TODO**
->
-> - Review flag specifics to ensure correct
-> - Add more flags
+> **Status** - Complete
 
 ### R package development
 
@@ -191,7 +173,7 @@ selected
   - Internal documentation
   - pkgdown website
 
-> **Status** - Incomplete
+> **Status** - In Progress
 >
 > **TODO**
 >

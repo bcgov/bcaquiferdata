@@ -64,7 +64,7 @@
       <h1>Roadmap: Workflow and Design Plan</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/bcgov/bcaquiferdata/blob/v1.0.0/vignettes/roadmap.Rmd" class="external-link"><code>vignettes/roadmap.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bcgov/bcaquiferdata/blob/main/vignettes/roadmap.Rmd" class="external-link"><code>vignettes/roadmap.Rmd</code></a></small>
       <div class="d-none name"><code>roadmap.Rmd</code></div>
     </div>
 
@@ -156,13 +156,7 @@ processed into simplified categories</li>
 </li>
 </ul>
 <blockquote>
-<p><strong>Status</strong> - Polishing</p>
-<p><strong>TODO</strong></p>
-<ul>
-<li>More questions</li>
-<li>More refinement</li>
-<li>What do we do with the ‘lithology_extra’ column?</li>
-</ul>
+<p><strong>Status</strong> - Complete (and forever polishing)</p>
 </blockquote>
 </div>
 <div class="section level3">
@@ -183,8 +177,7 @@ processed into simplified categories</li>
 <p><strong>Sources</strong> - Lidar - <a href="https://catalogue.data.gov.bc.ca/dataset/lidarbc-open-lidar-data-portal" class="external-link uri">https://catalogue.data.gov.bc.ca/dataset/lidarbc-open-lidar-data-portal</a>
 - TRIM DEM - <del><a href="https://catalogue.data.gov.bc.ca/dataset/1-20-000-georeferenced-topographic-base-maps-by-mapsheet" class="external-link uri">https://catalogue.data.gov.bc.ca/dataset/1-20-000-georeferenced-topographic-base-maps-by-mapsheet</a></del>
 - <a href="https://catalogue.data.gov.bc.ca/dataset/digital-elevation-model-for-british-columbia-cded-1-250-000" class="external-link uri">https://catalogue.data.gov.bc.ca/dataset/digital-elevation-model-for-british-columbia-cded-1-250-000</a>
-&gt; - Custom DEM (<a href="https://github.com/bcgov/bcaquiferdata/issues/18" class="external-link">Issue
-#18</a>)</p>
+- Custom DEM</p>
 <p><strong>Steps</strong> - Using area of interest, download relevant
 DEM data to the cache, load it, and trim it to the area of interest. -
 [Code] User passes area of interest to <code><a href="../reference/dem_region.html">dem_region()</a></code>
@@ -246,17 +239,17 @@ Lidar</li>
 <li>Add option to export cropped spatial data</li>
 </ul>
 <blockquote>
-<p><strong>Status</strong> - In Progress</p>
+<p><strong>Status</strong> - In Progress (on hold)</p>
 <p><strong>TODO</strong> - <a href="https://github.com/bcgov/bcaquiferdata/issues/26" class="external-link">Add Freshwater
 atlas</a> - <a href="https://github.com/bcgov/bcaquiferdata/issues/19" class="external-link">Potential
 others</a></p>
 </blockquote>
 </div>
 <div class="section level3">
-<h3 id="water-flow-analysis">Water flow analysis<a class="anchor" aria-label="anchor" href="#water-flow-analysis"></a>
+<h3 id="water-flowyield">Water flow/yield<a class="anchor" aria-label="anchor" href="#water-flowyield"></a>
 </h3>
 <ul>
-<li>Extract water flow details from lithology descriptions</li>
+<li>Extract water flow/yield details from lithology descriptions</li>
 <li>Adds four columns: yield, yield units, depth, and depth units</li>
 <li>Where there are multiple yields per record, corresponding to flow at
 multiple depths, extra records are created (currently duplicated)</li>
@@ -269,14 +262,7 @@ multiple depths, extra records are created (currently duplicated)</li>
 flow analysis.</li>
 </ul>
 <blockquote>
-<p><strong>Status</strong> - Partially complete</p>
-<p><strong>TODO</strong></p>
-<ul>
-<li>What next? Should this data be exportable from the app?</li>
-<li>How do we create multiple records? Do we need to adjust the record
-depths?</li>
-<li>Should the flow column be added?</li>
-</ul>
+<p><strong>Status</strong> - Complete</p>
 </blockquote>
 </div>
 <div class="section level3">
@@ -287,6 +273,7 @@ depths?</li>
 <li>Strater</li>
 <li>Voxler</li>
 <li>ArcHydro</li>
+<li>Leapfrog</li>
 <li>[Code] Users can export the data to various formats with
 <code><a href="../reference/wells_export.html">wells_export()</a></code>
 </li>
@@ -311,12 +298,7 @@ There is a dedicated ‘flags’ tab for exploring flags which includes a
 copy of the glossary in the <code>flags</code> data set.</li>
 </ul>
 <blockquote>
-<p><strong>Status</strong> - Partially complete</p>
-<p><strong>TODO</strong></p>
-<ul>
-<li>Review flag specifics to ensure correct</li>
-<li>Add more flags</li>
-</ul>
+<p><strong>Status</strong> - Complete</p>
 </blockquote>
 </div>
 <div class="section level3">
@@ -336,7 +318,7 @@ and that functions work as expected)</li>
 </li>
 </ul>
 <blockquote>
-<p><strong>Status</strong> - Incomplete</p>
+<p><strong>Status</strong> - In Progress</p>
 <p><strong>TODO</strong></p>
 <ul>
 <li>All of the above!</li>
