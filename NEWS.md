@@ -1,4 +1,4 @@
-# Version dev
+# v1.0.0
 
 ## General
 * Add citation information (#4)
@@ -25,8 +25,6 @@
 * Add Aquifer ID, Water Depth, Well Yield, Artesian Conditions, and Artesian Pressure to leapfrog collars (#22)
 * Add argument for exporting as zip archive (`zip = TRUE`)
 * In `preview = TRUE` Strater data names now match the file names
-
-
 
 # Version 0.0.3
 * Fix ArcHydro exports
