@@ -27,6 +27,8 @@ The Shiny app (a graphical user interface), provides a tool for data exploration
 and exporting.
 
 We're still actively refining and adding to this tool, but it is maturing.
+See the [bcaquiferdata website](https://bcgov.github.io/bcaquiferdata) for 
+tutorials and documentation.
 
 ## Quick Start
 
@@ -49,19 +51,27 @@ We're still actively refining and adding to this tool, but it is maturing.
     ```{r, eval = FALSE}
     pkgbuild::check_build_tools()
     ```
-6. **Install bcgwcat** In the console type the following and hit enter 
+6. **Install bcaquiferdata** In the console type the following and hit enter 
 (be sure to install all updates if prompted!)
   
     ```{r, eval = FALSE}
-    pak::pkg_install("bcgov/bcgwcat")
+    pak::pkg_install("bcgov/bcaquiferdata")
     ```
-    
-## Troubleshooting
 
-If you run into errors right at the start, try **updating all packages required by bcgwcat**
+## Development version
+If you're interested in testing out the developmental version of the package, 
+you can install it with 
 
 ```{r, eval = FALSE}
-pak::pkg_install("bcgov/bcgwcat", upgrade = TRUE)
+pak::pkg_install("bcgov/bcaquiferdata@dev")
+```
+
+## Troubleshooting
+
+If you run into errors right at the start, try **updating all packages required by bcaquiferdata**
+
+```{r, eval = FALSE}
+pak::pkg_install("bcgov/bcaquiferdata", upgrade = TRUE)
 ```
 
 ## Shiny User-Interface
@@ -74,10 +84,15 @@ hit 'Enter'.
     
 **See the [tutorial](https://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.html) for a more in-depth look at how to use the User Interface**
 
+## Citing `bcaquiferdata`
 
-## Vignette/Tutorials
+You can cite this software as follows: 
 
-See more details on the [bcaquiferdata website](https://bcgov.github.io/bcaquiferdata)
+```{r, results = "asis", echo = FALSE}
+citation("bcaquiferdata") |>
+  print(style = "text")
+```
+
 
 ## License
 

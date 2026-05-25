@@ -1,23 +1,25 @@
 Package: bcaquiferdata
-Title: BC Aquifer data tools
-Version: 0.0.3
+Title: BC Aquifer Data Tools
+Version: 1.0.0
 Authors@R: 
    c(person("Steffi", "LaZerte", email = "sel@steffilazerte.ca", role = c("aut", "cre"), 
              comment = c(ORCID = "0000-0002-7690-8360")),
     person("Christine", "Bieber", email = "Christine.Bieber@gov.bc.ca", role = "aut"),
+    person("David", "van Everdingen", email = "David.vanEverdingen@gov.bc.ca", role = "aut"),
+    person("Andarge", "Baye", email = "Andarge.Baye@gov.bc.ca", role = "aut"),
     person("Province of British Columbia", role = "cph"))
 Description: Set of tools for processing BC Aquifer lithology and yield data.
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.3
 Imports: 
     bcmaps (>= 1.2.0),
     dplyr (>= 1.0.7),
     httr (>= 1.4.2),
     janitor (>= 2.1.0),
     lubridate (>= 1.9.2),
-    magrittr,
+    shinycssloaders (>= 1.1.0),
     purrr (>= 0.3.4),
     rappdirs (>= 0.3.3),
     readr (>= 2.1.1),
@@ -36,16 +38,21 @@ Imports:
     ggthemes (>= 4.2.4),
     shinyjs (>= 2.1.0),
     htmltools (>= 0.5.7),
-    markdown,
-    rmarkdown,
-    wk (>= 0.9.1)
+    bsicons (>= 0.1.2),
+    R.utils (>= 2.13.0),
+    bcdata (>= 0.5.2),
+    units (>= 1.0.1)
 Depends: 
-    R (>= 4.0)
+    R (>= 4.1)
 Suggests: 
     knitr,
     gt,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    glue,
+    markdown,
+    rmarkdown,
+    openxlsx
 LazyData: true
 Config/testthat/edition: 3
-URL: http://bcgov.github.io/bcaquiferdata/, https://github.com/bcgov/bcaquiferdata
+URL: https://bcgov.github.io/bcaquiferdata/, https://github.com/bcgov/bcaquiferdata
 VignetteBuilder: knitr

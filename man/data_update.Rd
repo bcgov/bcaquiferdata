@@ -4,7 +4,11 @@
 \alias{data_update}
 \title{Update cached data}
 \usage{
-data_update(type = "all", download = TRUE, permission = FALSE)
+data_update(
+  type = c("wells", "lithology"),
+  download = TRUE,
+  permission = FALSE
+)
 }
 \arguments{
 \item{type}{Character. Type of data to update. One of "all", "wells",
@@ -20,8 +24,8 @@ user is asked for permission, if \code{TRUE}, permission is implied.}
 Update the GWELLs data stored locally.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
+data_update(type = "wells")
 data_update(type = "lithology")
 \dontshow{\}) # examplesIf}
 }

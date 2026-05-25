@@ -11,7 +11,7 @@ This app allows you to load a shapefile and filter aquifer/well data
 according to region, explore data, and export cleaned files.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 aq_app()
 \dontshow{\}) # examplesIf}
 }

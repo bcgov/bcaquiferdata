@@ -7,6 +7,7 @@
 #' \describe{
 #'   \item{Flag}{flag name}
 #'   \item{Description}{Flag description}
+#'   \item{Solution}{Suggested solution to the problem}
 #' }
 "flags"
 
@@ -32,3 +33,19 @@
 #'
 #' }
 "tiles"
+
+#' wells_eg_fixed
+#'
+#' Example data of fixed wells subsetted and with elevation added
+#'
+#' @format ## `wells_eg_fixed`
+#' A data frame with 31 rows and 71 columns.
+"wells_eg_fixed"
+
+#' wells_eg_unfixed
+#'
+#' Example data of unfixed wells subsetted and with elevation added
+#'
+#' @format ## `wells_eg_unfixed`
+#' A data frame with 31 rows and 71 columns.
+"wells_eg_unfixed"

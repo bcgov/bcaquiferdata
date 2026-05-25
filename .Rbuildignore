@@ -18,7 +18,11 @@
 ^docs$
 ^pkgdown$
 ^\.github$
-^vignettes$
 ^vignettes/articles$
 ^doc$
 ^Meta$
+^\.vscode$
+^[.]?air[.]toml$
+^log_duplicate_records
+^SCRATCH.R$
+^NOTES.md$

@@ -7,8 +7,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Flag definitions for lithology and hydrostratigraphy
+```{r, echo = FALSE, message = FALSE, results = "asis"}
+readLines(system.file("extra_docs", "flags.md", package = "bcaquiferdata")) |> 
+  cat(sep = "\n")
+```
 
-```{r}
-gt::gt(bcaquiferdata::flags)
+
+```{r, echo = FALSE}
+gt::gt(bcaquiferdata::flags) |>
+  gt::tab_style(gt::cell_text(font = "monospace"),
+                gt::cells_body(columns = "Flag")) |>
+  gt::fmt_markdown()
+    
 ```

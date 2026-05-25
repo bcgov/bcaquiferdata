@@ -13,44 +13,60 @@
 # the License.
 
 ui_flags <- function(id) {
-
   ns <- NS(id)
 
   nav_panel(
     title = "Check Flags",
-    card(
-      full_screen = TRUE,
-      # Data table with flags,
-      DT::dataTableOutput(ns("flags_table"))
-    ),
-    card(
-      card_header("Glossary"),
-      max_height = "25%",
-      full_screen = TRUE,
-      tableOutput(ns("flags_glossary"))
+    navset_card_pill(
+      nav_panel(
+        "Flags",
+        full_screen = TRUE,
+        # Data table with flags,
+        aq_dt_output(ns("flags_table"))
+      ),
+      nav_panel(
+        "Glossary",
+        h5("Flags"),
+        "The Flags table contains all lithology records which have been flagged as problematic for one reason or another. The flag definitions are listed below. ",
+        br(),
+        "You can click on the CSV or Excel buttons to export this table and use it as a reference for fixing problems in GWELLS.",
+        br(),
 
+        h5("Definitions"),
+        includeMarkdown(system.file(
+          "extra_docs",
+          "flags.md",
+          package = "bcaquiferdata"
+        )),
+        tableOutput(ns("flags_glossary"))
+      )
     )
   )
 }
 
 server_flags <- function(id, wells) {
-
   moduleServer(id, function(input, output, session) {
-
-    output$flags_table <- DT::renderDataTable({
-      cols <- stringr::str_subset(names(wells()), "flag_")
-      wells() %>%
-        sf::st_drop_geometry() %>%
-        dplyr::select("well_tag_number", "lithology_from_m", "lithology_to_m",
-                      dplyr::starts_with("flag")) %>%
-        dplyr::filter(dplyr::if_any(dplyr::starts_with("flag"))) %>%
-        aq_dt() %>%
-        DT::formatStyle(cols, backgroundColor = DT::styleEqual(TRUE, "#f8d7da"))
-    })
+    output$flags_table <- DT::renderDataTable(
+      {
+        cols <- stringr::str_subset(names(wells()), "flag_")
+        wells() |>
+          sf::st_drop_geometry() |>
+          dplyr::select(
+            "well_tag_number",
+            "lithology_from_m",
+            "lithology_to_m",
+            dplyr::starts_with("flag")
+          ) |>
+          dplyr::filter(dplyr::if_any(dplyr::starts_with("flag"))) |>
+          aq_dt(filename = "flags") |>
+          DT::formatStyle(
+            cols,
+            backgroundColor = DT::styleEqual(TRUE, "#f8d7da")
+          )
+      },
+      server = FALSE
+    )
 
     output$flags_glossary <- renderTable(bcaquiferdata::flags)
-
-
   })
-
 }

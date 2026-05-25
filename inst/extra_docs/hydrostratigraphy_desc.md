@@ -13,7 +13,9 @@ for water flow for that depth, or for several different depths.
 
 If there are multiple depths, these records will be split into two records
 
-Adding the "Raw lithology" column adds the `lithology_raw_data` column so you can 
+Adding the "Raw lithology" column adds the `lithology_raw_combined` column which is 
+a combination of the original `lithology_raw_data`, `lithology_description_code` 
+and `lithology_material_code` columns, so you can 
 see for yourself what the original data looked like.
 
 Adding "Flags" adds the `flag_extra_digits` column which shows any digits from

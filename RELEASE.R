@@ -12,21 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-
-
-# Check version        ---------------------------
+# Check version -------------------------------
 
 # Update the app helpfiles -----------------------
 # - inst/extra_docs/lithology_desc.md
 
+# Bump Version ------------------------------------
+file.edit("DESCRIPTION")
+
 # Update NEWS ------------------------------------
+file.edit("NEWS.md")
+
+# Update WORKFLOW AND DESIGN
+file.edit("vignettes/roadmap.Rmd")
+
+# Update CODE_DESIGN
+file.edit("CODE_DESIGN.md")
 
 # Update Datasets --------------------------------
 data_update()
+unlink(list.files(pattern = "log_duplicate_records", full.names = TRUE))
 source("data-raw/flags.R")
 source("data-raw/tiles.R")
 source("data-raw/internal.R")
+source("data-raw/test_data.R")
+
+# Update citation information!
+citation("bcaquiferdata")
+file.edit("inst/CITATION")
 
 # Compile README ---------------------------------
 unlink("README_files", recursive = TRUE)
@@ -34,6 +47,7 @@ devtools::build_readme()
 
 # Precompile vignettes
 source("vignettes/_precompile.R")
+file.edit("vignettes/_precompile.R")
 
 # Run tests - Compare snapshots - BUILD PACKAGE FIRST ------------------
 #devtools::test()
@@ -48,10 +62,14 @@ usethis::use_github_release()
 
 
 # Preview website - "Real" version run as GitHub action -----------------
+# **BUILD PACKAGE FIRST!!!**
+pkgdown::init_site()
+pkgdown::build_home_index()
 pkgdown::build_site()
 pkgdown::build_site(lazy = TRUE)
 pkgdown::build_article("articles/shiny_apps")
 pkgdown::build_article("bcaquiferdata")
+pkgdown::build_article("flags")
 
 # Preview app -----------------------------------------------------------
 aq_app()

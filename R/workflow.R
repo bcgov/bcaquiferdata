@@ -18,24 +18,27 @@
 #' Lidar data is stored locally as tiles. Tiles are only downloaded if they
 #' don't already exist unless `only_new = FALSE`. TRIM data is obtained via the
 #' `bcmaps` package and stored locally as tiles. **Note:** TRIM elevation is
-#' coarser than Lidar Use Lidar unless it is missing for your region of
+#' coarser than Lidar. Use Lidar unless it is missing for your region of
 #' interest.
 #'
 #' Lidar tiles are the newest tile available. If you have reason to need a
-#' historical file, contact the team to discuss your use case.
+#' historical file, contact the `bcaquiferdata` team to discuss your use case.
 #'
-#' @param type Character. Type of DEM to download, either "lidar" or "trim". Use
-#'  Lidar unless unavailable.
+#' @param source Character. Source of DEM, "lidar", "trim" or a file path (or
+#'   vector of file paths) to a custom DEM file. See Details.
 #' @param buffer Numeric. Percent buffer to apply to the `region` spatial file
 #'   before cropping the DEM data to match. Increase this value if you find
 #'   that wells on the edge of your area aren't been matched to elevations when
 #'   using `wells_elev()`.
 #' @param lidar_dir Character. File path of where Lidar tiles should be stored.
-#'   Defaults to the cache directory. Only applies when `type = "lidar"`.
+#'   Defaults to the cache directory. Only applies when `source = "lidar"`.
 #' @param only_new Logical. Whether to download all Lidar tiles, or only new
-#'   tiles that don't exist locally. Defaults to TRUE. Only apples when `type =
+#'   tiles that don't exist locally. Defaults to TRUE. Only apples when `source =
 #'   "lidar"`.
-
+#' @param out_file Character. File path of where to save tif of DEM clipped to
+#'   `region`.
+#' @param overwrite Logical. If `out_file` supplied, whether to overwrite this
+#'   file if it already exists.
 #' @param progress Function. Progress bar to use. Generally leave as is.
 #'
 #' @inheritParams common_docs
@@ -55,55 +58,115 @@
 #' TRIM data is obtained via the `bcmaps` package from the BC government
 #' [Data Catalogue](https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d)
 #' based on overlap between map tiles and the provided shapefile (`region`).
-
+#'
+#' If a file path or vector of file paths are provided, a local DEM is
+#' loaded with `stars` and combined with `stars::st_mosaic()`. Note that it is
+#' assumed the data is elevation in metres.
+#'
+#' @section Saving to disk or memory:
+#'
+#' The fastest way to process these data is to use an stars proxy object which
+#' keeps manipulations fast. However, to save a copy of the DEM, it is *much*
+#' faster to use [sf::gdal_utils()] (rather than [stars::write_stars()] after).
+#'
+#' Therefore, if `out_file` is NULL [stars::st_mosaic()] and [sf::st_crop()]
+#' will be used to manipulate a stars proxy object. Alternatively, if `out_file`
+#' is provided, [sf::gdal_utils()] will be used to combine, crop, and save a
+#' copy of the Lidar or Trim DEM for the region provided. These means that
+#' slightly different methods are used and it results in a very slightly
+#' different cropped region. However, since the region file is buffered before
+#' cropping in either method, it shouldn't affect well elevation calculations
+#' downstream.
+#'
 #' @return stars spatiotemporal array object
 #' @export
 #'
 #' @examplesIf interactive()
 #'
 #' library(sf)
+#' library(stars)
 #'
 #' # Load a shape file defining the region of interest
 #' creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 #'
 #' # Fetch Lidar DEM
 #' creek_lidar <- dem_region(creek_sf)
-#'
 #' plot(creek_lidar)
 #'
 #' # Fetch TRIM DEM
-#' creek_trim <- dem_region(creek_sf, type = "trim")
-#'
+#' creek_trim <- dem_region(creek_sf, source = "trim")
 #' plot(creek_trim)
 #'
+#' # Get dem and save to file
+#' creek_lidar2 <- dem_region(creek_sf, out_file = "clinton_lidar.tif")
+#' plot(creek_lidar)
 #'
-dem_region <- function(region, type = "lidar", buffer = 1,
-                       lidar_dir = NULL, only_new = TRUE,
-                       progress = httr::progress()) {
+#' creek_trim <- dem_region(creek_sf, source = "trim", out_file = "clinton_trim.tif")
+#' plot(creek_trim)
+#'
+#' # Use local DEM
+#' koksilah_sf <- st_read("misc/data/Koksilah_watershed4/Koksilah_watershed4.shp")
+#' koksilah_dem <- dem_region(
+#'   koksilah_sf, source = "misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif")
 
-  type <- tolower(type)
-  if(!type %in% c("lidar", "trim")) {
-    stop("`type` must be one of 'lidar' or 'trim'", call. = FALSE)
+dem_region <- function(
+  region,
+  source = "lidar",
+  out_file = NULL,
+  overwrite = FALSE,
+  buffer = 1,
+  lidar_dir = NULL,
+  only_new = TRUE,
+  progress = httr::progress()
+) {
+  if (tolower(source) %in% c("lidar", "trim")) {
+    source <- tolower(source)
+  }
+  if (!source %in% c("lidar", "trim") && !fs::file_exists(source)) {
+    stop(
+      "`source` must be one of 'lidar', 'trim', or a path to local DEM",
+      call. = FALSE
+    )
+  }
+
+  if (!is.null(out_file) && file.exists(out_file) && !overwrite) {
+    stop(
+      out_file,
+      " exists. Choose a different file name, remove the file, ",
+      "or use `overwrite = TRUE`",
+      call. = FALSE
+    )
   }
 
   # Add Buffer
-  region <- sf::st_buffer(region, sqrt(sf::st_area(region)) * buffer/100)
+  region <- sf::st_buffer(region, sqrt(sf::st_area(region)) * buffer / 100)
 
   # Load DEM raster as combined (mosaic)
-  if(type == "lidar") {
-    message("Get Lidar data")
-    dem  <- lidar_fetch(region, out_dir = lidar_dir, progress = progress) %>%
-      dplyr::pull(.data$out_file)
+  # We do this EVEN if we are later going to create file on disk and use that
+  # This is a fast way to figure out CRS and intersections before lengthy
+  # computations.
 
-  } else if(type == "trim") {
+  if (source == "lidar") {
+    message("Get Lidar data")
+    dem_path <- lidar_fetch(
+      region,
+      out_dir = lidar_dir,
+      progress = progress
+    ) |>
+      dplyr::pull(.data$out_file)
+  } else if (source == "trim") {
     message("Get TRIM data")
-    dem <- bcmaps::cded(region, ask = FALSE)
+    dem_path <- bcmaps::cded(region, ask = FALSE)
+  } else {
+    message("Load local DEM")
+    dem_path <- source
   }
 
-  dem <- dem %>%
-    normalizePath() %>%
-    stars::st_mosaic() %>%
-    stars::read_stars(proxy = TRUE) %>%
+  dem_path <- normalizePath(dem_path)
+
+  dem <- dem_path |>
+    stars::st_mosaic() |>
+    stars::read_stars(proxy = TRUE) |>
     stats::setNames("elev")
 
   message("Cropping DEM to region\n")
@@ -111,14 +174,70 @@ dem_region <- function(region, type = "lidar", buffer = 1,
   # Match regional crs to dem
   region <- sf::st_transform(region, crs = sf::st_crs(dem))
 
+  # Check for at least some intersection
+  i <- sf::st_intersects(
+    sf::st_as_sfc(sf::st_bbox(dem)),
+    region,
+    sparse = FALSE
+  )
+
+  if (!any(i)) {
+    stop("DEM from '", source, "' does not intersect 'region'", call. = FALSE)
+  }
+
   # Clip dem to region
-  sf::st_crop(dem, region)
+  if (is.null(out_file)) {
+    dem <- sf::st_crop(dem, region)
+  } else {
+    # Save region to temp
+    message("Creating local dem '", out_file, "', this may take a while...")
+
+    if (file.exists(out_file) && overwrite) {
+      message("  Overwriting ", out_file)
+      file.remove(out_file)
+    }
+
+    r_temp <- tempfile(fileext = ".gpkg")
+
+    message("  Saving region shape to temp...")
+    sf::st_write(region, r_temp, quiet = TRUE)
+
+    message("  Creating DEM...")
+    sf::gdal_utils(
+      util = "warp",
+      source = dem_path,
+      destination = out_file,
+      options = c(
+        "-cutline",
+        r_temp,
+        "-crop_to_cutline",
+        "-co",
+        "COMPRESS=DEFLATE",
+        "-co",
+        "TILED=YES"
+      )
+    )
+    message("  DEM created: ", out_file)
+
+    dem <- stars::read_stars(out_file, proxy = TRUE) |>
+      stats::setNames("elev")
+  }
+
+  dem
 }
 
 #' Subset wells to region
 #'
 #' Filter the GWELLS data returning only wells within the provided shapefile.
 #'
+#' @param fix_bottom_intervals Logical. Whether to add 1m to bottom lithology
+#'   intervals that has no thickness (identified by `flat_int_bottom`). Default
+#'   `TRUE`.
+#' @param fix_depth_missing Logical. Whether to fix missing well depths by
+#'   making them equal to the depth of the final lithology layer. Default
+#'   `TRUE`.
+#' @param fix_yield_zero Logical. Whether to fix well yields of 0 by making them
+#'   `NA`. Default `TRUE`.
 #' @inheritParams common_docs
 #'
 #' @examplesIf interactive()
@@ -132,23 +251,70 @@ dem_region <- function(region, type = "lidar", buffer = 1,
 #' creek_wells <- wells_subset(creek_sf)
 #'
 #' @export
-wells_subset <- function(region, update = FALSE) {
 
-  if(!"sf" %in% class(region)) {
-    stop("'region' must be an sf spatial object (see examples)",
-         call. = FALSE)
+wells_subset <- function(
+  region,
+  fix_bottom_intervals = TRUE,
+  fix_depth_missing = TRUE,
+  fix_yield_zero = TRUE,
+  update = FALSE
+) {
+  if (!"sf" %in% class(region)) {
+    stop("'region' must be an sf spatial object (see examples)", call. = FALSE)
   }
 
   # Subset wells to creek area
   message("Subset wells")
-  data_read(type = "wells_sf", update = update) %>%
-    sf::st_transform(sf::st_crs(region)) %>%
-    sf::st_filter(region) %>%
+  w <- data_read(type = "wells_sf", update = update) |>
+    sf::st_transform(sf::st_crs(region)) |>
+    sf::st_filter(region) |>
     dplyr::left_join(
       data_read("lithology") |> dplyr::select(-"well_yield_unit_code"),
-      by = "well_tag_number") #by = c("well_tag_number", "well_yield_unit_code"))
+      by = "well_tag_number"
+    ) |>
+    wells_flag() |>
+
+    # Fix problems
+    fix_bottom_intervals(fix = fix_bottom_intervals) |>
+    fix_depth_missing(fix = fix_depth_missing) |>
+    fix_yield_zero(fix = fix_yield_zero)
 }
 
+#' Add flags to subsetted well data
+#'
+#' @param wells Data frame. Wells subset
+#'
+#' @returns wells data frame with flag columns.
+#'
+#' @noRd
+
+wells_flag <- function(wells) {
+  wells |>
+    dplyr::mutate(flag_lith_missing = is.na(.data$lithology_from_m)) |>
+
+    # Additional flags
+    # TODO: Consider joining in cleaning stage and putting these there...
+    #  however, that makes the initial data much bigger and time consuming to filter...
+    #  Could join in just the flag
+
+    dplyr::mutate(
+      flag_depth_missing = is.na(.data$well_depth_m),
+      flag_depth_mismatch = .data$well_depth_m != .data$lithology_to_m,
+      flag_yield_zero = .data$well_yield_usgpm == 0
+    ) |>
+    dplyr::mutate(
+      # Only applies to final lith depth interval
+      flag_depth_mismatch = .data$flag_depth_mismatch[
+        .data$lith_rec == .data$lith_n
+      ],
+      .by = "well_tag_number"
+    ) |>
+
+    # All missing flags are NA
+    dplyr::mutate(dplyr::across(dplyr::starts_with("flag_"), \(x) {
+      tidyr::replace_na(x, FALSE)
+    }))
+}
 
 #' Subset wells and add elevation
 #'
@@ -156,7 +322,23 @@ wells_subset <- function(region, update = FALSE) {
 #' `dem_region()`), subsets the wells data (from GWELLS) to this region and adds
 #' the elevation data.
 #'
-#' @param dem stars simple features object. Output of `dem_region()`.
+#' @param dem stars simple features object. Output of `dem_region()`. Primary
+#'   source of elevation data.
+#' @param dem_extra stars simple features object. Output of `dem_region()`.
+#'   Optional secondary source of elevation data. Useful in situations where the
+#'   primary source is incomplete. **Use with caution: Combining elevations
+#'   measured though different techniques may introduce artifacts (See
+#'   Details)**.
+#'
+#' @details
+#' Because combining elevation data measured from different sources can
+#' introduce artifacts, if two sources of elevation are provided (i.e. both
+#' `dem` and `dem_extra`), the data will contain extra columns for assessment.
+#' Specifically, there will be three elevation columns, rather than just one.
+#' `elev1` contains elevations from the primary source (`dem`), `elev2` contains
+#' elevations from the secondary source (`dem_extra`), `elev` contains the
+#' combined elevation data, `elev1` unless missing, then `elev2`.
+#'
 #'
 #' @inheritParams common_docs
 #'
@@ -198,29 +380,86 @@ wells_subset <- function(region, update = FALSE) {
 #'           fill = "NA", show.legend = FALSE) +
 #'  coord_sf(datum = st_crs(3005)) # BC Albers
 #'
-wells_elev <- function(wells_sub, dem, update = FALSE) {
+#' # Dealing with missing data
+#' mill_sf <- st_read("misc/data/MillBayWatershed.shp")
+#' mill_wells <- wells_subset(mill_sf)
+#'
+#' mill_lidar <- dem_region(mill_sf)
+#' mill_trim <- dem_region(mill_sf, type = "trim")
+#'
+#' mill_wells <- wells_elev(mill_wells, dem = mill_lidar, dem_extra = mill_trim)
+#'
+#' # See how the elevation data is combined, `dem` (elev1) is the primary source.
+#' select(mill_wells, well_tag_number, elev1, elev2, elev)
+#'
+#' # Use local DEM
+#' koksilah_sf <- st_read("misc/data/Koksilah_watershed4/Koksilah_watershed4.shp")
+#' koksilah_wells <- wells_subset(koksilah_sf)
+#' koksilah_dem <- dem_region(
+#'   koksilah_sf, source = "misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif")
+#' koksilah_wells <- wells_elev(koksilah_wells, dem = koksilah_dem)
+#'
+#' # Plot
+#' p <- koksilah_wells |>
+#'   st_transform(crs = st_crs(koksilah_dem))
+#' plot(koksilah_dem, reset = FALSE, key.pos = NULL)
+#' plot(p["elev"], add = TRUE, pch = 20)
 
+wells_elev <- function(wells_sub, dem, dem_extra = NULL, update = FALSE) {
   # Checks
-  if(!"sf" %in% class(wells_sub)) {
-    stop("'wells_sub' must be an sf spatial object output by `wells_subset()`",
-         call. = FALSE)
+  if (!"sf" %in% class(wells_sub)) {
+    stop(
+      "'wells_sub' must be an sf spatial object output by `wells_subset()`",
+      call. = FALSE
+    )
   }
 
-  if(!"well_tag_number" %in% names(wells_sub)) {
-    stop("`well_tag_number` is not a column in `wells_sub`. ",
-         "`wells_sub` should be the output of `wells_subset()`", call. = FALSE)
+  if (!"well_tag_number" %in% names(wells_sub)) {
+    stop(
+      "`well_tag_number` is not a column in `wells_sub`. ",
+      "`wells_sub` should be the output of `wells_subset()`",
+      call. = FALSE
+    )
   }
 
-  if(!"stars" %in% class(dem)) {
-    stop("'dem' must be a stars object output from `dem_region()`",
-         call. = FALSE)
+  if (!"stars" %in% class(dem)) {
+    stop(
+      "'dem' must be a stars object output from `dem_region()`",
+      call. = FALSE
+    )
   }
 
   message("Add elevation")
-  wells_sub <- wells_sub %>%
-    sf::st_transform(sf::st_crs(dem)) %>%
-    dplyr::mutate(elev = round(stars::st_extract(dem, .)[[1]], 2)) %>%
-    sf::st_transform(crs = 3005) # Transform to BC albers
+  # Faster to transform wells than dem
+  e1 <- sf::st_transform(wells_sub, sf::st_crs(dem))
+
+  e1 <- e1 |>
+    dplyr::mutate(elev = round(stars::st_extract(dem, e1)[[1]], 2)) |>
+    sf::st_transform(crs = 3005) # Transform wells back to BC albers
+
+  if (!is.null(dem_extra)) {
+    warning(
+      "Combining elevations measured through different techniques may ",
+      "introduce artifacts into your measure of elevation. ",
+      "Use with caution.",
+      call. = FALSE
+    )
+
+    e2 <- wells_sub |>
+      dplyr::select("well_tag_number", "geometry") |>
+      dplyr::distinct() |> # Get rid of lithology-levels
+      sf::st_transform(sf::st_crs(dem_extra))
+
+    e2 <- e2 |>
+      dplyr::mutate(elev2 = round(stars::st_extract(dem_extra, e2)[[1]], 2)) |>
+      sf::st_drop_geometry()
+
+    e1 <- e1 |>
+      dplyr::rename(elev1 = "elev") |>
+      dplyr::left_join(e2, by = "well_tag_number") |>
+      dplyr::mutate(elev = dplyr::coalesce(.data[["elev1"]], .data[["elev2"]]))
+  }
+  e1
 }
 
 
@@ -249,17 +488,27 @@ wells_elev <- function(wells_sub, dem, update = FALSE) {
 #' creek_yield <- wells_yield(creek_wells)
 
 wells_yield <- function(wells_sub) {
-  wells_sub %>%
+  wells_sub |>
     dplyr::mutate(
-      fractured =
-        .data$lithology_category == "Weathered, Fractured or Faulted Bedrock") %>%
+      fractured = .data$lithology_category ==
+        "Weathered, Fractured or Faulted Bedrock"
+    ) |>
     dplyr::select(
-      "well_tag_number", dplyr::any_of("elev"), "well_depth_m",
-      "lithology_from_m", "lithology_to_m",
-      "well_yield_usgpm", "well_yield_unit_code",
-      "fractured", "yield_units",
-      "lithology_raw_data", dplyr::starts_with("flag")) %>%
-    lith_yield() %>%
-    dplyr::mutate(flag_yield = tidyr::replace_na(.data$flag_yield, FALSE))
+      "well_tag_number",
+      dplyr::any_of("elev"),
+      "well_depth_m",
+      "lithology_from_m",
+      "lithology_to_m",
+      "well_yield_usgpm",
+      "well_yield_unit_code",
+      "fractured",
+      "yield_units",
+      "lithology_raw_combined",
+      dplyr::starts_with("flag"),
+      dplyr::starts_with("fix")
+    ) |>
+    lith_yield() |>
+    dplyr::mutate(
+      flag_yield_mismatch = tidyr::replace_na(.data$flag_yield_mismatch, FALSE)
+    )
 }
-

@@ -13,7 +13,7 @@
 # the License.
 
 ext <- function(file) {
- stringr::str_extract(file, "(?<=.)[[:alpha:]]{2,4}$")
+  stringr::str_extract(file, "(?<=.)[[:alpha:]]{2,4}$")
 }
 
 
@@ -41,47 +41,43 @@ p_range <- function() {
 
 
 fix_fraction <- function(x) {
-  f <- stringr::str_extract_all(x, p_fraction()) %>%
-    unlist() %>%
+  f <- stringr::str_extract_all(x, p_fraction()) |>
+    unlist() |>
     unique()
 
-  if(length(unlist(f)) > 0) {
-    n <- f %>%
+  if (length(unlist(f)) > 0) {
+    n <- f |>
       purrr::map_chr(
-        ~ stringr::str_replace_all(.x, "( )?/( )?", "/") %>%
-          stringr::str_split(" ") %>%
-          purrr::map(\(x) purrr::map_vec(x, \(x) eval(parse(text = x)))) %>%
-          purrr::map_dbl(~sum(.x)) %>%
-          as.character()) %>%
+        \(x) {
+          stringr::str_replace_all(x, "( )?/( )?", "/") |>
+            stringr::str_split(" ") |>
+            purrr::map(\(y) purrr::map_vec(y, \(z) eval(parse(text = z)))) |>
+            purrr::map_dbl(\(y) sum(y)) |>
+            as.character()
+        }
+      ) |>
       stats::setNames(paste0("(?<!\\d( )?)", f, "(?!( )?\\d)"))
 
-    x <-stringr::str_replace_all(x, n)
+    x <- stringr::str_replace_all(x, n)
   }
   x
 }
 
 fix_range <- function(x) {
-  stringr::str_replace(x, p_range(), "mean(c(\\2,\\7))") %>%
+  stringr::str_replace(x, p_range(), "mean(c(\\2,\\7))") |>
     purrr::map_vec(\(x) eval(parse(text = x)))
 }
 
+fix_leading_zero <- function(x) {
+  stringr::str_replace_all(x, "(?<!\\d)(\\.\\d+)", "0\\1")
+}
 
-
-aq_dt <- function(data, minimal = FALSE) {
-  if(minimal) {
-    opts <- list(dom = "t")
-    ext <- list()
-  } else {
-    opts <- list(dom = 'Bfrtip',
-                 buttons = c('csv', 'excel', I('colvis')))
-    ext <- "Buttons"
-  }
-
-  data %>%
-    DT::datatable(
-      fillContainer = TRUE,
-      options = append(
-        list(pageLength = 14, scrollX = TRUE),
-        opts),
-      extensions = ext)
+is_ready <- function(reactive) {
+  tryCatch(
+    {
+      reactive
+      TRUE
+    },
+    error = function(cond) FALSE
+  )
 }

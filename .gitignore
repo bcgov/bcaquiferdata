@@ -6,3 +6,7 @@ docs
 inst/doc
 /doc/
 /Meta/
+*.xlsx
+log_duplicate_records*
+NOTES.md
+SCRATCH.R

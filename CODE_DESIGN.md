@@ -22,6 +22,15 @@ duplicate documentation stays consistent.
 - Use `@noRd` to document internal functions (documentation for developers that
   isn't compiled into the docs)
 
+## Shiny helpers - `mod_utils.R`
+- `aq_tt()` is a helper function to create tooltips
+- `aq_theme()` is a helper to define the theme and additional styles
+- `aq_spinner()` 
+- `aq_dt()`
+
+## Fixes and Flags
+- Every fix should have a corresponding flag (`wells_flag()`) and in `data-raw/flags.R`
+- Fixes generally happen in `wells_subset()`
 
 ## Data sources
 - TRIM DEM <https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d>

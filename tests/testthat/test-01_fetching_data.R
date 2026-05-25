@@ -12,20 +12,17 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-test_that("wells", {
-  skip_if(!file.exists(m <- test_path("../../misc/data/Clinton_Creek.shp")))
-  creek_sf <- sf::st_read(m, quiet = TRUE)
+test_that("clean_wells()", {
+  # Use fake cache directory
+  local_mocked_bindings(cache_dir = \() tempdir())
 
-  # Get lidar
-  expect_message(creek_lidar <- dem_region(creek_sf)) |>
-    suppressMessages()
-
-  # Subset to region
-  expect_message(creek_wells <- wells_subset(creek_sf)) |>
-    suppressMessages()
-
-  # Add Lidar
-  expect_message(creek_wells <- wells_elev(creek_wells, creek_lidar)) |>
-    suppressMessages()
-
+  f <- system.file(
+    "extdata",
+    "test_gwells_wells.csv",
+    package = "bcaquiferdata"
+  )
+  expect_message(w <- clean_wells(file = f), "Wells - Saving data to cache")
+  expect_true(all(c("well_depth_m", "water_depth_m") %in% names(w)))
+  # Cleanup
+  unlink(tempdir())
 })

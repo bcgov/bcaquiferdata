@@ -2,41 +2,48 @@
 title: "Workflow Examples"
 ---
 
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "vignettes/articles/figures/workflow-")
+  fig.path = "vignettes/articles/figures/workflow-"
+)
 
 creek_sf <- sf::st_read(here::here("misc/data/Clinton_Creek.shp"))
 mill_sf <- sf::st_read(here::here("misc/data/MillBayWatershed.shp"))
-
 ```
 
 This article presents a couple examples of general workflows in R alone
-(without using the app), running through the various steps using the functions directly.
+(without using the Shiny app), running through the various steps using the functions directly.
 
 This gives you a bit more flexibility in how you explore and/or filter your
 data.
 
+Note that we also show different ways of plotting the various datasets.
+Pick that which works best for you!
+
 Let's work through a couple of examples (note these examples are presented for illustration, but 
 the shape files are not included in the package).
 
-```{r, message = FALSE}
+## Setup
+```{r packages, message = FALSE}
 library(bcaquiferdata)
-library(sf)
-library(ggplot2)
-library(ggspatial)
+library(stars) # For working with raster
+library(sf) # For working with spatial vectors
+library(ggplot2) # For plotting
+library(ggspatial) # For plotting with map tiles
 ```
 
-**Clinton Creek**
+## Example 1: Clinton Creek (Lidar)
 
+### Load shapefile
 Load a shape file defining the region of interest
 ```{r}
 #| eval: false
 creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 ```
 
+### Add elevation
 Fetch Lidar DEM (this may take a while the first time)
 
 ```{r}
@@ -45,6 +52,8 @@ creek_lidar <- dem_region(creek_sf)
 
 Plot to double check
 ```{r}
+#| fig-cap: ""
+#| fig-alt: "Lidar DEM model of Clinton Creek"
 plot(creek_lidar)
 ```
 
@@ -52,17 +61,20 @@ Collect wells in this region with added elevation from Lidar
 
 ```{r}
 creek_wells <- creek_sf |>
-  wells_subset() |>        # Subset to region
-  wells_elev(creek_lidar)  # Add Lidar
+  wells_subset() |> # Subset to region
+  wells_elev(creek_lidar) # Add Lidar
 ```
 
 Plot again to double check
 ```{r}
+#| fig-cap: ""
+#| fig-alt: "Clinton Creek watershed with location of wells. Well colour indicates elevation"
 ggplot() +
   geom_sf(data = creek_sf) +
-  geom_sf(data = creek_wells, size= 1, aes(colour = elev))
+  geom_sf(data = creek_wells, size = 1, aes(colour = elev))
 ```
 
+### Export
 Export data for Strater, Voxler, and ArcHydro
 ```{r}
 wells_export(creek_wells, id = "clinton", type = "strater")
@@ -70,7 +82,24 @@ wells_export(creek_wells, id = "clinton", type = "voxler")
 wells_export(creek_wells, id = "clinton", type = "archydro")
 ```
 
-**Mill Bay Watershed**
+If we want to export the Lidar DEM file cropped to the watershed, we can use `write_stars()`, but up until now we've been using stars proxy objects, so doing this will take a **long** time.
+
+```{r}
+#| eval: false
+write_stars(creek_lidar, "clinton_lidar_dem.tif", progress = TRUE)
+```
+
+A better option is to use `dem_region()` with the `out_file` argument.
+This leverages `sf::gdal_utils()` to use the local gdal software directly which 
+is much faster.
+
+```{r}
+dem_region(creek_sf, out_file = "clinton_lidar_dem.tif")
+```
+
+## Example 2: Mill Bay Watershed (TRIM)
+
+### Load shapefile
 
 Load a shape file defining the region of interest
 ```{r}
@@ -80,6 +109,8 @@ mill_sf <- st_read("misc/data/MillBayWatershed.shp")
 
 We'll check against some tiles
 ```{r, cache = TRUE, message = FALSE}
+#| fig-cap: ""
+#| fig-alt: "Mill Bay watershed outlined over Open Street map tiles to give context"
 g <- ggplot() +
   annotation_map_tile(type = "osm", zoomin = -1) +
   geom_sf(data = mill_sf, fill = NA, linewidth = 1.5) +
@@ -87,6 +118,7 @@ g <- ggplot() +
 g
 ```
 
+### Add elevation
 Fetch Lidar DEM (this may take a while the first time)
 
 ```{r}
@@ -95,8 +127,10 @@ mill_lidar <- dem_region(mill_sf)
 
 Add to our plot to double check
 ```{r}
+#| fig-cap: ""
+#| fig-alt: "Mill Bay watershed outlined over Open Street map tiles to give context now with a Lidar digital elevation tiles coloured by elevation overlayed on top"
 mill_lidar_sf <- stars::st_downsample(mill_lidar, n = 12) |> # Downsample first
-  st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
+  st_as_sf(as_points = FALSE, merge = TRUE) # Convert to polygons
 
 g + geom_sf(data = mill_lidar_sf, aes(fill = elev), colour = NA)
 ```
@@ -111,8 +145,10 @@ mill_trim <- dem_region(mill_sf, type = "trim")
 
 Add to our plot to double check
 ```{r}
+#| fig-cap: ""
+#| fig-alt: "Mill Bay watershed outlined over Open Street map tiles to give context now with a TRIM digital elevation tiles coloured by elevation overlayed on top"
 mill_trim_sf <- mill_trim |>
-  st_as_sf(as_points = FALSE, merge = TRUE)         # Convert to polygons
+  st_as_sf(as_points = FALSE, merge = TRUE) # Convert to polygons
 
 g + geom_sf(data = mill_trim_sf, aes(fill = elev), colour = NA)
 ```
@@ -129,12 +165,14 @@ mill_wells <- mill_sf |>
 
 Plot again to double check, see that we now elevation data for all wells.
 ```{r}
+#| fig-cap: ""
+#| fig-alt: "Mill Bay watershed outlined over Open Street map tiles to give context now with wells indicated by points, coloured by elevation"
 g +
   geom_sf(data = mill_wells, size = 1, aes(colour = elev)) +
   scale_color_viridis_c(na.value = "red")
 ```
 
-
+### Export
 Export data for Strater, Voxler, and ArcHydro
 ```{r}
 wells_export(mill_wells, id = "mill", type = "strater")
@@ -142,8 +180,157 @@ wells_export(mill_wells, id = "mill", type = "voxler")
 wells_export(mill_wells, id = "mill", type = "archydro")
 ```
 
+As with Clinton Creek, if we want to export the TRIM DEM file cropped to the watershed, we can use `write_stars()`, but up until now we've been using stars proxy objects, so doing this could take a **long** time.
 
-#### Extra tools
+```{r}
+#| eval: false
+write_stars(mill_trim, "mill_trim_dem.tif", progress = TRUE)
+```
+
+A better option is to use `dem_region()` with the `out_file` argument.
+This leverages `sf::gdal_utils()` to use the local gdal software directly which 
+is much faster.
+
+```{r}
+dem_region(mill_sf, out_file = "mill_trim_dem.tif")
+```
+
+## Example 3: Koksilah Watershed (Combinations and Custom DEM)
+
+### Load shapefile
+Load a shape file defining the region of interest
+```{r}
+#| eval: false
+koksilah_sf <- st_read("misc/data/Koksilah_watershed4/Koksilah_watershed4.shp")
+```
+
+
+### Add elevation
+Fetch Lidar DEM (this may take a while the first time)
+
+```{r}
+koksilah_lidar <- dem_region(koksilah_sf)
+```
+
+Plot to double check. Hmm, we only have some Lidar
+```{r}
+#| fig-cap: ""
+#| fig-alt: "Koksilah watershed outlined with Lidar digital elevation tiles showing elevation only in the North East corner"
+plot(koksilah_lidar, reset = FALSE)
+plot(
+  st_transform(koksilah_sf, crs = st_crs(koksilah_lidar)),
+  add = TRUE,
+  border = "red",
+  col = NA
+)
+```
+
+We could use TRIM instead.
+
+```{r}
+koksilah_trim <- dem_region(koksilah_sf, source = "trim")
+```
+
+```{r}
+#| fig-cap: ""
+#| fig-alt: "Koksilah watershed outlined with TRIM digital elevation tiles showing elevation across the whole watershed"
+plot(koksilah_trim, reset = FALSE)
+plot(
+  st_transform(koksilah_sf, crs = st_crs(koksilah_trim)),
+  add = TRUE,
+  border = "red",
+  col = NA
+)
+```
+
+But the TRIM resolution is lower than Lidar.
+
+We could also use Lidar where we have it and TRIM for the rest. But be careful! 
+Combining different sources could result in artifacts unrelated to actual elevation differences and simply to methodology.
+
+Here we'll provide the TRIM DEM as `dem_extra`, so the Lidar DEM takes priority.
+
+```{r}
+koksilah_wells <- koksilah_sf |>
+  wells_subset() |> # Subset to region
+  wells_elev(dem = koksilah_lidar, dem_extra = koksilah_trim) # Add Lidar and TRIM
+```
+
+Plot to check elevations
+```{r}
+#| fig-cap: ""
+#| fig-alt: "Koksilah watershed outlined with wells as points coloured by elevation"
+ggplot() +
+  geom_sf(data = koksilah_sf) +
+  geom_sf(data = koksilah_wells, size = 1, aes(colour = elev))
+```
+
+
+And finally, perhaps it's best if we source our own, complete DEM file.
+
+```{r}
+koksilah_custom <- dem_region(
+  koksilah_sf,
+  source = "misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif"
+)
+```
+
+```{r}
+#| fig-cap: ""
+#| fig-alt: "Koksilah watershed outlined with a custom digital elevation tiles showing elevation across the whole watershed"
+plot(koksilah_custom, reset = FALSE)
+plot(
+  st_transform(koksilah_sf, crs = st_crs(koksilah_custom)),
+  add = TRUE,
+  border = "red",
+  col = NA
+)
+```
+
+```{r}
+koksilah_wells <- koksilah_sf |>
+  wells_subset() |> # Subset to region
+  wells_elev(dem = koksilah_custom) # Add Custom DEM
+```
+
+Plot to check elevations
+```{r}
+#| fig-cap: ""
+#| fig-alt: "Koksilah watershed outlined with wells as points coloured by elevation"
+ggplot() +
+  geom_sf(data = koksilah_sf) +
+  geom_sf(data = koksilah_wells, size = 1, aes(colour = elev))
+```
+
+### Export
+Export data for Strater, Voxler, and ArcHydro
+```{r}
+wells_export(koksilah_wells, id = "koksilah", type = "strater")
+wells_export(koksilah_wells, id = "koksilah", type = "voxler")
+wells_export(koksilah_wells, id = "koksilah", type = "archydro")
+```
+
+If we want to export any of the DEM files cropped to the watershed, we can use `write_stars()`, but up until now we've been using stars proxy objects, so doing this will take a **long** time.
+
+```{r}
+#| eval: false
+write_stars(koksilah_lidar, "koksilah_lidar_dem.tif", progress = TRUE)
+write_stars(koksilah_trim, "koksilah_trim_dem.tif", progress = TRUE)
+write_stars(koksilah_custom, "koksilah_custom_dem.tif", progress = TRUE)
+```
+
+A better option is to use `dem_region()` with the `out_file` argument.
+This leverages `sf::gdal_utils()` to use the local gdal software directly which 
+is much faster.
+
+```{r}
+dem_region(koksilah_sf, out_file = "koksilah_lidar_dem.tif")
+dem_region(koksilah_sf, out_file = "koksilah_trim_dem.tif")
+dem_region(koksilah_sf, out_file = "koksilah_custom_dem.tif")
+```
+
+
+## Extra tools
 
 ```{r, message = FALSE}
 library(dplyr)
@@ -174,12 +361,34 @@ write_csv(lith_std, "lith_categorization.csv")
 
 
 ```{r, include = FALSE}
-unlink(c("lith_categorization.csv", 
-         "clinton_strater_lith.csv", "clinton_strater_collars.csv", "clinton_strater_wls.csv", 
-         "clinton_voxler.csv",
-         "clinton_archydro_bh.csv", "clinton_archydro_hguid.csv", "clinton_archydro_well.csv",
-         "mill_strater_lith.csv", "mill_strater_collars.csv", "mill_strater_wls.csv", 
-         "mill_voxler.csv",
-         "mill_archydro_bh.csv", "mill_archydro_hguid.csv", "mill_archydro_well.csv"))
+unlink(c(
+  "lith_categorization.csv",
+  "clinton_strater_lith.csv",
+  "clinton_strater_collars.csv",
+  "clinton_strater_wls.csv",
+  "clinton_voxler.csv",
+  "clinton_archydro_bh.csv",
+  "clinton_archydro_hguid.csv",
+  "clinton_archydro_well.csv",
+  "clinton_lidar_dem.tif",
+  "mill_strater_lith.csv",
+  "mill_strater_collars.csv",
+  "mill_strater_wls.csv",
+  "mill_voxler.csv",
+  "mill_archydro_bh.csv",
+  "mill_archydro_hguid.csv",
+  "mill_archydro_well.csv",
+  "mill_trim_dem.tif",
+  "koksilah_strater_lith.csv",
+  "koksilah_strater_collars.csv",
+  "koksilah_strater_wls.csv",
+  "koksilah_voxler.csv",
+  "koksilah_archydro_bh.csv",
+  "koksilah_archydro_hguid.csv",
+  "koksilah_archydro_well.csv",
+  "koksilah_lidar_dem.tif",
+  "koksilah_trim_dem.tif",
+  "koksilah_custom_dem.tif"
+))
 ```
 

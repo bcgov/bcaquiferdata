@@ -24,8 +24,8 @@ pnts <- wells_subset(region)
 lidar <- dem_region(region)
 trim <- dem_region(region, type = "trim")
 
-nrow(trim)/150
-nrow(lidar)/150
+nrow(trim) / 150
+nrow(lidar) / 150
 t <- stars::st_downsample(trim, n = 10)
 l <- stars::st_downsample(lidar, n = 150)
 
@@ -57,4 +57,3 @@ g2 <- ggplot(data = lsf) +
   ggplot2::scale_fill_viridis_c(name = "Elevation (m)")
 
 g1 + g2
-

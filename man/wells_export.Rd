@@ -4,7 +4,7 @@
 \alias{wells_export}
 \title{Export wells data for use in Strater and Voxler}
 \usage{
-wells_export(wells_sub, id, type, dir = ".", preview = FALSE)
+wells_export(wells_sub, id, type, dir = ".", zip = FALSE, preview = FALSE)
 }
 \arguments{
 \item{wells_sub}{Data frame. Output of \code{wells_elev()}}
@@ -17,19 +17,22 @@ wells_export(wells_sub, id, type, dir = ".", preview = FALSE)
 \item{dir}{Character. Directory where files should be exported to. Defaults
 to working directory.}
 
+\item{zip}{Logical. Whether to export a zip archive of the files to \code{dir}.}
+
 \item{preview}{Logical. Whether to preview the exports (\code{TRUE}, return a list
 of data frames) or to actually export the data (\code{FALSE}, write the
-necessary files to the \code{dir} folder.}
+necessary files to the \code{dir} folder, default).}
 }
 \value{
-If \code{preview = FALSE}, a vector of file names, if \code{preview = TRUE},
-a list of data frames.
+If \code{preview = FALSE}, a vector of file names (or if \code{zip = TRUE}, a
+single filename of the zipped archive); if \code{preview = TRUE}, a list of data
+frames.
 }
 \description{
 Export wells data for use in Strater and Voxler
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 
 library(sf)
 
@@ -53,12 +56,17 @@ p[["strater_collars"]]
 p[["strater_wells"]]
 
 # Export data for Strater
-wells_export(creek_wells, id = "clinton", type = "strater")
+wells_export(creek_wells, id = "clinton", type = "strater", zip = TRUE)
+
+# Export data for Voxler
+wells_export(creek_wells, id = "clinton", type = "voxler", zip = TRUE)
 
 # Export Arc Hydro
-wells_export(creek_wells, id = "clinton", type = "archydro")
+wells_export(creek_wells, id = "clinton", type = "archydro", zip = TRUE)
 
 # Export Surver
-wells_export(creek_wells, id = "clinton", type = "surfer")
+wells_export(creek_wells, id = "clinton", type = "surfer", zip = TRUE)
+
+wells_export(creek_wells, id = "clinton", type = "leapfrog", zip = TRUE)
 \dontshow{\}) # examplesIf}
 }

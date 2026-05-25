@@ -6,7 +6,9 @@
 \usage{
 dem_region(
   region,
-  type = "lidar",
+  source = "lidar",
+  out_file = NULL,
+  overwrite = FALSE,
   buffer = 1,
   lidar_dir = NULL,
   only_new = TRUE,
@@ -17,8 +19,14 @@ dem_region(
 \item{region}{sf simple features object. Shape file of the region of
 interest.}
 
-\item{type}{Character. Type of DEM to download, either "lidar" or "trim". Use
-Lidar unless unavailable.}
+\item{source}{Character. Source of DEM, "lidar", "trim" or a file path (or
+vector of file paths) to a custom DEM file. See Details.}
+
+\item{out_file}{Character. File path of where to save tif of DEM clipped to
+\code{region}.}
+
+\item{overwrite}{Logical. If \code{out_file} supplied, whether to overwrite this
+file if it already exists.}
 
 \item{buffer}{Numeric. Percent buffer to apply to the \code{region} spatial file
 before cropping the DEM data to match. Increase this value if you find
@@ -26,10 +34,10 @@ that wells on the edge of your area aren't been matched to elevations when
 using \code{wells_elev()}.}
 
 \item{lidar_dir}{Character. File path of where Lidar tiles should be stored.
-Defaults to the cache directory. Only applies when \code{type = "lidar"}.}
+Defaults to the cache directory. Only applies when \code{source = "lidar"}.}
 
 \item{only_new}{Logical. Whether to download all Lidar tiles, or only new
-tiles that don't exist locally. Defaults to TRUE. Only apples when \code{type = "lidar"}.}
+tiles that don't exist locally. Defaults to TRUE. Only apples when \code{source = "lidar"}.}
 
 \item{progress}{Function. Progress bar to use. Generally leave as is.}
 }
@@ -41,12 +49,12 @@ This function takes a shape file of a region and creates a DEM of the region.
 Lidar data is stored locally as tiles. Tiles are only downloaded if they
 don't already exist unless \code{only_new = FALSE}. TRIM data is obtained via the
 \code{bcmaps} package and stored locally as tiles. \strong{Note:} TRIM elevation is
-coarser than Lidar Use Lidar unless it is missing for your region of
+coarser than Lidar. Use Lidar unless it is missing for your region of
 interest.
 }
 \details{
 Lidar tiles are the newest tile available. If you have reason to need a
-historical file, contact the team to discuss your use case.
+historical file, contact the \code{bcaquiferdata} team to discuss your use case.
 }
 \section{Data Source}{
 
@@ -64,25 +72,56 @@ The grid of map tiles is obtained from the BC Data Catalogue,
 TRIM data is obtained via the \code{bcmaps} package from the BC government
 \href{https://catalogue.data.gov.bc.ca/dataset/7b4fef7e-7cae-4379-97b8-62b03e9ac83d}{Data Catalogue}
 based on overlap between map tiles and the provided shapefile (\code{region}).
+
+If a file path or vector of file paths are provided, a local DEM is
+loaded with \code{stars} and combined with \code{stars::st_mosaic()}. Note that it is
+assumed the data is elevation in metres.
+}
+
+\section{Saving to disk or memory}{
+
+
+The fastest way to process these data is to use an stars proxy object which
+keeps manipulations fast. However, to save a copy of the DEM, it is \emph{much}
+faster to use \code{\link[sf:gdal_utils]{sf::gdal_utils()}} (rather than \code{\link[stars:write_stars]{stars::write_stars()}} after).
+
+Therefore, if \code{out_file} is NULL \code{\link[stars:st_mosaic]{stars::st_mosaic()}} and \code{\link[sf:st_crop]{sf::st_crop()}}
+will be used to manipulate a stars proxy object. Alternatively, if \code{out_file}
+is provided, \code{\link[sf:gdal_utils]{sf::gdal_utils()}} will be used to combine, crop, and save a
+copy of the Lidar or Trim DEM for the region provided. These means that
+slightly different methods are used and it results in a very slightly
+different cropped region. However, since the region file is buffered before
+cropping in either method, it shouldn't affect well elevation calculations
+downstream.
 }
 
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 
 library(sf)
+library(stars)
 
 # Load a shape file defining the region of interest
 creek_sf <- st_read("misc/data/Clinton_Creek.shp")
 
 # Fetch Lidar DEM
 creek_lidar <- dem_region(creek_sf)
-
 plot(creek_lidar)
 
 # Fetch TRIM DEM
-creek_trim <- dem_region(creek_sf, type = "trim")
-
+creek_trim <- dem_region(creek_sf, source = "trim")
 plot(creek_trim)
 
+# Get dem and save to file
+creek_lidar2 <- dem_region(creek_sf, out_file = "clinton_lidar.tif")
+plot(creek_lidar)
+
+creek_trim <- dem_region(creek_sf, source = "trim", out_file = "clinton_trim.tif")
+plot(creek_trim)
+
+# Use local DEM
+koksilah_sf <- st_read("misc/data/Koksilah_watershed4/Koksilah_watershed4.shp")
+koksilah_dem <- dem_region(
+  koksilah_sf, source = "misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif")
 \dontshow{\}) # examplesIf}
 }
