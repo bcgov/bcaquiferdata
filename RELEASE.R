@@ -70,6 +70,7 @@ pkgdown::build_site(lazy = TRUE)
 pkgdown::build_article("articles/shiny_apps")
 pkgdown::build_article("bcaquiferdata")
 pkgdown::build_article("flags")
+pkgdown::build_article("articles/Workflow-examples")
 
 # Preview app -----------------------------------------------------------
 aq_app()

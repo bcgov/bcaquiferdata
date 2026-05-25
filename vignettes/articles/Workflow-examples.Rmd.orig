@@ -11,6 +11,9 @@ knitr::opts_chunk$set(
 
 creek_sf <- sf::st_read(here::here("misc/data/Clinton_Creek.shp"))
 mill_sf <- sf::st_read(here::here("misc/data/MillBayWatershed.shp"))
+koksilah_sf <- sf::st_read(here::here(
+  "misc/data/Koksilah_watershed4/Koksilah_watershed4.shp"
+))
 ```
 
 This article presents a couple examples of general workflows in R alone
@@ -136,11 +139,11 @@ g + geom_sf(data = mill_lidar_sf, aes(fill = elev), colour = NA)
 ```
 
 Looks like we don't have elevation data for the whole region. 
-This can be confirmed by checking the online [LidarBC map](https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03)
+This can be confirmed by checking the online [LidarBC map](https://governmentofbc.maps.arcgis.com/apps/MapSeries/index.html?appid=d06b37979b0c4709b7fcf2a1ed458e03).
 
 Let's take a look our our options using TRIM data.
 ```{r}
-mill_trim <- dem_region(mill_sf, type = "trim")
+mill_trim <- dem_region(mill_sf, source = "trim")
 ```
 
 Add to our plot to double check
@@ -269,6 +272,15 @@ ggplot() +
 And finally, perhaps it's best if we source our own, complete DEM file.
 
 ```{r}
+#| echo: false
+koksilah_custom <- dem_region(
+  koksilah_sf,
+  source = here::here("misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif")
+)
+```
+
+```{r}
+#| eval: false
 koksilah_custom <- dem_region(
   koksilah_sf,
   source = "misc/data/Koksilah_Watershed_DEM_2km_Buffer.tif"
@@ -310,13 +322,12 @@ wells_export(koksilah_wells, id = "koksilah", type = "voxler")
 wells_export(koksilah_wells, id = "koksilah", type = "archydro")
 ```
 
-If we want to export any of the DEM files cropped to the watershed, we can use `write_stars()`, but up until now we've been using stars proxy objects, so doing this will take a **long** time.
+If we want to export any of the downloaded DEM files cropped to the watershed, we can use `write_stars()`, but up until now we've been using stars proxy objects, so doing this will take a **long** time.
 
 ```{r}
 #| eval: false
 write_stars(koksilah_lidar, "koksilah_lidar_dem.tif", progress = TRUE)
 write_stars(koksilah_trim, "koksilah_trim_dem.tif", progress = TRUE)
-write_stars(koksilah_custom, "koksilah_custom_dem.tif", progress = TRUE)
 ```
 
 A better option is to use `dem_region()` with the `out_file` argument.
@@ -324,9 +335,8 @@ This leverages `sf::gdal_utils()` to use the local gdal software directly which
 is much faster.
 
 ```{r}
-dem_region(koksilah_sf, out_file = "koksilah_lidar_dem.tif")
-dem_region(koksilah_sf, out_file = "koksilah_trim_dem.tif")
-dem_region(koksilah_sf, out_file = "koksilah_custom_dem.tif")
+dem_region(koksilah_sf, source = "lidar", out_file = "koksilah_lidar_dem.tif")
+dem_region(koksilah_sf, source = "trim", out_file = "koksilah_trim_dem.tif")
 ```
 
 

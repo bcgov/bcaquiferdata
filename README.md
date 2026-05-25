@@ -1,21 +1,21 @@
 
 <!-- badges: start -->
 
-[![Lifecycle](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+[![Lifecycle:Maturing](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 [![R-CMD-check](https://github.com/bcgov/bcaquiferdata/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bcgov/bcaquiferdata/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 # bcaquiferdata
 
 This is an R package for processing BC Gov GWELLS data into formats more
-suitable for other analyses (e.g., Strater, Voxler, ArcHydro).
+suitable for other analyses (e.g., Strater, Voxler, ArcHydro, Leapfrog).
 
 The functions provided here allow users to filter GWELLS data by region
-(shapefile), calculate and add elevation data from Lidar or TRIM, and
-clean and categorize GWELLS lithology and yield data.
+(shapefile), calculate and add elevation data from Lidar and/or TRIM (or
+a custom DEM), and clean and categorize GWELLS lithology and yield data.
 
-The Shiny app (a graphical user interface), provides a tool for data
-exploration and exporting.
+The Shiny app (a browser-based graphical user interface), provides a
+tool for data exploration and exporting.
 
 We’re still actively refining and adding to this tool, but it is
 maturing. See the [bcaquiferdata
@@ -96,7 +96,7 @@ for a more in-depth look at how to use the User Interface**
 You can cite this software as follows:
 
 LaZerte S, Bieber C, Province of British Columbia (2026). *BC Aquifer
-Data Tools*. R package version 0.0.3.9000,
+Data Tools*. R package version 1.0.0,
 <http://bcgov.github.io/bcaquiferdata/>.
 
 ## License

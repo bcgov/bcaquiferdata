@@ -3,7 +3,7 @@ output: github_document
 ---
 
 <!-- badges: start -->
-[![Lifecycle](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+[![Lifecycle:Maturing](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 [![R-CMD-check](https://github.com/bcgov/bcaquiferdata/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bcgov/bcaquiferdata/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
@@ -17,13 +17,13 @@ knitr::opts_chunk$set(
 ```
 
 This is an R package for processing BC Gov GWELLS data into formats more suitable for 
-other analyses (e.g., Strater, Voxler, ArcHydro).
+other analyses (e.g., Strater, Voxler, ArcHydro, Leapfrog).
 
 The functions provided here allow users to filter GWELLS data by region (shapefile),
-calculate and add elevation data from Lidar or TRIM, and clean and categorize GWELLS
-lithology and yield data. 
+calculate and add elevation data from Lidar and/or TRIM (or a custom DEM),
+and clean and categorize GWELLS lithology and yield data. 
 
-The Shiny app (a graphical user interface), provides a tool for data exploration
+The Shiny app (a browser-based graphical user interface), provides a tool for data exploration
 and exporting.
 
 We're still actively refining and adding to this tool, but it is maturing.
@@ -78,9 +78,9 @@ pak::pkg_install("bcgov/bcaquiferdata", upgrade = TRUE)
 
 To lauch the Shiny User-Interface, type this line into the R console at the prompt (in the screen with `>`) and
 hit 'Enter'.
-   ```{r, eval = FALSE}
-   bcaquiferdata::aq_app() # Launch the app
-   ```
+```{r, eval = FALSE}
+bcaquiferdata::aq_app() # Launch the app
+```
     
 **See the [tutorial](https://bcgov.github.io/bcaquiferdata/articles/bcaquiferdata.html) for a more in-depth look at how to use the User Interface**
 
